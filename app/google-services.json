@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "795598632822",
+    "firebase_url": "https://study-4b91c-default-rtdb.firebaseio.com",
+    "project_id": "study-4b91c",
+    "storage_bucket": "study-4b91c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:795598632822:android:64a0ab481c01282fd1ac57",
+        "android_client_info": {
+          "package_name": "com.example.dogmeet"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "795598632822-k8ipmjbke41tmtd2r3uc2terac5omrma.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMNbV_vLI_u9ELoVILN7wuT_SivuchpP0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "795598632822-k8ipmjbke41tmtd2r3uc2terac5omrma.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

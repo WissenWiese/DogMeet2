@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">DogMeet</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="create_meets">Создать мероприятие</string>
+    <string name="name_meets">Название</string>
+    <string name="address">Адрес</string>
+    <string name="date">Дата</string>
+    <string name="add">Добавить</string>
+</resources>
