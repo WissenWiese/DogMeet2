@@ -5,11 +5,25 @@
       <map>
         <entry key="..\:/Android/DogMeet/app/src/main/res/drawable/btn.xml" value="0.1945" />
         <entry key="..\:/Android/DogMeet/app/src/main/res/drawable/edit_text.xml" value="0.1945" />
+        <entry key="..\:/Android/DogMeet/app/src/main/res/drawable/list.xml" value="0.2115" />
+        <entry key="..\:/Android/DogMeet/app/src/main/res/drawable/map.xml" value="0.2115" />
+        <entry key="..\:/Android/DogMeet/app/src/main/res/drawable/plus.xml" value="0.2115" />
+        <entry key="..\:/Android/DogMeet/app/src/main/res/drawable/profil.xml" value="0.1" />
         <entry key="..\:/Android/DogMeet/app/src/main/res/font/ubuntu.xml" value="0.234375" />
         <entry key="..\:/Android/DogMeet/app/src/main/res/layout/activity_add.xml" value="0.17074275362318841" />
         <entry key="..\:/Android/DogMeet/app/src/main/res/layout/activity_main.xml" value="0.1" />
+        <entry key="..\:/Android/DogMeet/app/src/main/res/layout/activity_main2.xml" value="0.20416666666666666" />
         <entry key="..\:/Android/DogMeet/app/src/main/res/layout/activity_maps.xml" value="0.17074275362318841" />
+        <entry key="..\:/Android/DogMeet/app/src/main/res/layout/activity_meeting.xml" value="0.22" />
+        <entry key="..\:/Android/DogMeet/app/src/main/res/layout/activity_profile.xml" value="0.20416666666666666" />
+        <entry key="..\:/Android/DogMeet/app/src/main/res/layout/activity_profile_users.xml" value="0.20416666666666666" />
+        <entry key="..\:/Android/DogMeet/app/src/main/res/layout/fragment_dashboard.xml" value="0.20416666666666666" />
+        <entry key="..\:/Android/DogMeet/app/src/main/res/layout/fragment_list.xml" value="0.20416666666666666" />
+        <entry key="..\:/Android/DogMeet/app/src/main/res/layout/fragment_maps.xml" value="0.20416666666666666" />
+        <entry key="..\:/Android/DogMeet/app/src/main/res/layout/fragment_notifications.xml" value="0.20416666666666666" />
+        <entry key="..\:/Android/DogMeet/app/src/main/res/layout/meet_window.xml" value="0.20416666666666666" />
         <entry key="..\:/Android/DogMeet/app/src/main/res/layout/regisrter_window.xml" value="0.20416666666666666" />
+        <entry key="..\:/Android/DogMeet/app/src/main/res/menu/bottom_nav_menu.xml" value="0.20416666666666666" />
         <entry key="..\:/Android/DogMeet/app/src/main/res/menu/menu.xml" value="0.19635416666666666" />
       </map>
     </option>

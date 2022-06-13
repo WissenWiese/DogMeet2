@@ -36,8 +36,6 @@ import java.util.List;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    ConstraintLayout root;
-
     private GoogleMap mMap;
     private FirebaseDatabase database;
     private DatabaseReference myMeet;
@@ -47,8 +45,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         setTitle("Карта мероприятий");
         setContentView(R.layout.activity_maps);
-
-        root=findViewById(R.id.root_main);
 
         database = FirebaseDatabase.getInstance();
         myMeet = database.getReference("meeting");
@@ -86,10 +82,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
-
-        MenuItem mapMenuItem = menu.findItem(R.id.map);
-        mapMenuItem.setVisible(false);
-
         return true;
     }
 
@@ -107,12 +99,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 startActivity(intent);
                 return true;
             case R.id.list:
-                intent = new Intent(this, List.class);
+                intent = new Intent(this, ListActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.profile:
+                intent = new Intent(this, ProfileActivity.class);
                 startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-
         }
     }
 

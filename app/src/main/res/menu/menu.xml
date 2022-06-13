@@ -8,7 +8,6 @@
         android:title="@string/add">
     </item>
 
-
     <item
         android:id="@+id/map"
         android:icon="@drawable/map"
@@ -22,5 +21,14 @@
         app:showAsAction="ifRoom"
         android:title="Список">
     </item>
+
+    <item
+        android:id="@+id/profile"
+        android:icon="@drawable/profil"
+        app:showAsAction="ifRoom"
+        android:title="Профиль">
+    </item>
+
+
 
 </menu>

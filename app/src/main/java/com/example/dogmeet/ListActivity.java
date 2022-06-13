@@ -1,38 +1,37 @@
 package com.example.dogmeet;
 
-import static android.content.ContentValues.TAG;
-
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class ListActivity extends AppCompatActivity {
     private DatabaseReference myMeet;
     private ListView listView;
     private ArrayAdapter<String> adapter;
     private List<String> listData;
-    private List<Meeting> meetingList;
+    private List<Meeting> listTemp;
+    private String uidMeet;
 
 
     @Override
@@ -43,16 +42,18 @@ public class MainActivity extends AppCompatActivity {
 
         init();
         getDataFromDB();
+        setOnClickItem();
     }
 
     private void init()
     {
-            listView = findViewById(R.id.listView);
-            listData = new ArrayList<>();
-            meetingList = new ArrayList<>();
-            adapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1, listData);
-            listView.setAdapter(adapter);
-            myMeet = FirebaseDatabase.getInstance().getReference("meeting");
+        listView = findViewById(R.id.listView);
+        listData = new ArrayList<>();
+        listTemp = new ArrayList<>();
+        adapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1, listData);
+        listView.setAdapter(adapter);
+
+        myMeet = FirebaseDatabase.getInstance().getReference("meeting");
     }
 
     private void getDataFromDB()
@@ -63,13 +64,14 @@ public class MainActivity extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
                 if(listData.size() > 0)listData.clear();
-                if(meetingList.size() > 0)meetingList.clear();
+                if(listTemp.size() > 0)listTemp.clear();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren())
                 {
                     Meeting meeting =dataSnapshot.getValue(Meeting.class);
                     assert meeting != null;
+                    uidMeet=dataSnapshot.getKey();
                     listData.add(meeting.title);
-                    meetingList.add(meeting);
+                    listTemp.add(meeting);
                 }
                 adapter.notifyDataSetChanged();
             }
@@ -82,8 +84,6 @@ public class MainActivity extends AppCompatActivity {
         myMeet.addValueEventListener(meetListener);
 
     }
-
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -105,12 +105,35 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
                 return true;
             case R.id.list:
-                intent = new Intent(this, MainActivity.class);
+                intent = new Intent(this, ListActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.profile:
+                intent = new Intent(this, ProfileActivity.class);
                 startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
 
         }
+    }
+
+    private void setOnClickItem()
+    {
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Meeting meeting = listTemp.get(position);
+                Intent i = new Intent(ListActivity.this, MeetingActivity.class);
+                i.putExtra(Constant.MEETING_UID, uidMeet);
+                i.putExtra(Constant.MEETING_TITLE,meeting.title);
+                i.putExtra(Constant.MEETING_DATE,meeting.date);
+                i.putExtra(Constant.MEETING_ADDRESS,meeting.address);
+                i.putExtra(Constant.MEETING_CREATOR,meeting.creator);
+                i.putExtra(Constant.MEETING_CREATOR_UID,meeting.creatorUid);
+                startActivity(i);
+
+            }
+        });
     }
 }

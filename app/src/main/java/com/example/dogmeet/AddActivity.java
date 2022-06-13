@@ -28,10 +28,11 @@ public class AddActivity extends AppCompatActivity {
     private EditText titleEditText;
     private EditText addressEditText;
     private EditText dateEditText;
-    private Button addButton;
+    private Button addButton, cancelButton;
     private FirebaseDatabase database;
     private DatabaseReference myMeet, users;
     private FirebaseAuth auth;
+    String uid, creator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,10 +43,21 @@ public class AddActivity extends AppCompatActivity {
         addressEditText = findViewById(R.id.editPostalAddress);
         dateEditText = findViewById(R.id.editDate);
         addButton = findViewById(R.id.btnAdd);
+        cancelButton = findViewById(R.id.btnCancel);
         database = FirebaseDatabase.getInstance();
         myMeet = database.getReference("meeting");
         users = database.getReference("Users");
 
+        FirebaseUser cur_user = auth.getInstance().getCurrentUser();
+
+        if(cur_user == null)
+        {
+            startActivity(new Intent(AddActivity.this, LoginActivity.class));
+        } else {
+            uid = cur_user.getUid();
+        }
+
+        getMeetCreator();
 
         dateEditText.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -75,13 +87,22 @@ public class AddActivity extends AppCompatActivity {
                 String titleText = titleEditText.getText().toString();
                 String addressText = addressEditText.getText().toString();
                 String dateText = dateEditText.getText().toString();
-
-                Meeting meet = new Meeting(titleText, addressText, dateText);
+                Meeting meet = new Meeting();
+                meet.setTitle(titleText);
+                meet.setAddress(addressText);
+                meet.setDate(dateText);
+                meet.setCreatorUid(uid);
+                meet.setCreator(creator);
 
                 myMeet.push().setValue(meet);
+                AddActivity.this.finish();
+            }
+        });
 
-                Intent intent = new Intent(AddActivity.this, MainActivity.class);
-                startActivity(intent);
+        cancelButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AddActivity.this.finish();
             }
         });
     }
@@ -101,6 +122,22 @@ public class AddActivity extends AppCompatActivity {
             }
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
         datePickerDialog.show();
+    }
+
+    public void getMeetCreator() {
+        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+        DatabaseReference ref = database.child("Users").child(uid);
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                User user = dataSnapshot.getValue(User.class);
+                creator=user.getName();
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
     }
 
 }

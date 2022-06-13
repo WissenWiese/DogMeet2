@@ -1,23 +1,15 @@
 package com.example.dogmeet;
 
 public class User {
-    private String uid, name, email;
+    private String name, email, age;
 
     public User() {}
 
-    public User (String uid, String name, String email) {
-        this.uid=uid;
+    public User (String name, String email, String age) {
         this.name=name;
         this.email=email;
+        this.age=age;
 
-    }
-
-   public String getUid(){
-        return uid;
-    }
-
-    public void setUid(String uid) {
-        this.uid = uid;
     }
 
     public String getName(){
@@ -34,6 +26,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getAge() {
+        return age;
+    }
+
+    public void setAge(String age) {
+        this.age = age;
     }
 
 }

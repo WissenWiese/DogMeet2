@@ -74,7 +74,8 @@ public class LoginActivity extends AppCompatActivity {
                            .addOnSuccessListener(new OnSuccessListener<AuthResult>() {
                                @Override
                                public void onSuccess(AuthResult authResult) {
-                                   startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                   Toast.makeText(getApplicationContext(), "С возвращением!", Toast.LENGTH_LONG).show();
+                                   startActivity(new Intent(LoginActivity.this, ListActivity.class));
                                    finish();
                                }
                            }).addOnFailureListener(new OnFailureListener() {
@@ -107,6 +108,7 @@ public class LoginActivity extends AppCompatActivity {
         final EditText name=register_window.findViewById(R.id.name);
         final EditText email=register_window.findViewById(R.id.email);
         final EditText password=register_window.findViewById(R.id.password);
+        final EditText age=register_window.findViewById(R.id.age);
 
         dialog.setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
             @Override
@@ -133,6 +135,11 @@ public class LoginActivity extends AppCompatActivity {
                     return;
                 }
 
+                if(TextUtils.isEmpty(age.getText().toString())) {
+                    Snackbar.make(root, "Введите ваш возраст", Snackbar.LENGTH_LONG).show();
+                    return;
+                }
+
 
                 auth.createUserWithEmailAndPassword(email.getText().toString(), password.getText().toString())
                         .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
@@ -145,14 +152,14 @@ public class LoginActivity extends AppCompatActivity {
                                     Log.v("error", task.getException().getMessage());
                                 } else {
                                 User user = new User();
-                                user.setUid(auth.getUid());
                                 user.setName(name.getText().toString());
                                 user.setEmail(email.getText().toString());
+                                user.setAge(age.getText().toString());
 
-                                users_db.push().setValue(user);
+                                users_db.child(auth.getUid()).setValue(user);
 
                                 Toast.makeText(getApplicationContext(), name.getText().toString()+", добро пожаловать!", Toast.LENGTH_LONG).show();
-                                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                                    startActivity(new Intent(LoginActivity.this, ListActivity.class));
                                 }
                             }
 
@@ -162,7 +169,5 @@ public class LoginActivity extends AppCompatActivity {
         });
 
         dialog.show();
-
-
     }
 }
