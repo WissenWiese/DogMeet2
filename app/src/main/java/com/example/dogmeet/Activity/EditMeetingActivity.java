@@ -1,9 +1,14 @@
 package com.example.dogmeet.Activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -17,10 +22,12 @@ import com.example.dogmeet.R;
 import com.example.dogmeet.entity.Meeting;
 import com.example.dogmeet.entity.User;
 import com.example.dogmeet.mainActivity.AddActivity;
+import com.example.dogmeet.mainActivity.ListActivity;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 public class EditMeetingActivity extends AppCompatActivity {
@@ -88,17 +95,26 @@ public class EditMeetingActivity extends AppCompatActivity {
                 String dateText = dateEditText.getText().toString();
                 String timeText=timeEditText.getText().toString();
                 String descriptionText=descriptionEditText.getText().toString();
-                String numdeText=numberEditText.getText().toString();
+                String numberText=numberEditText.getText().toString();
                 String tupeText=meet_for.getText().toString();
-                Meeting meet = new Meeting();
-                meet.setTitle(titleText);
-                meet.setAddress(addressText);
-                meet.setDate(dateText);
-                meet.setTime(timeText);
-                meet.setDescription(descriptionText);
-                meet.setNubmerMember(numdeText);
-                meet.setTupeDog(tupeText);
 
+                myMeet.child(meetUid).child("title").setValue(titleText);
+                myMeet.child(meetUid).child("address").setValue(addressText);
+                myMeet.child(meetUid).child("date").setValue(dateText);
+                myMeet.child(meetUid).child("time").setValue(timeText);
+                myMeet.child(meetUid).child("description").setValue(descriptionText);
+                myMeet.child(meetUid).child("numberMember").setValue(numberText);
+                myMeet.child(meetUid).child("tupeDog").setValue(tupeText);
+
+                Intent intent=new Intent(EditMeetingActivity.this, ListActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        deleteButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDeleteWindow();
             }
         });
     }
@@ -132,5 +148,41 @@ public class EditMeetingActivity extends AppCompatActivity {
             });
 
         }
+    }
+
+    private void showDeleteWindow(){
+
+        AlertDialog.Builder dialog=new AlertDialog.Builder(this);
+
+        LayoutInflater inflator= LayoutInflater.from(this);
+        dialog.setTitle("Вы дейсвительно хотите удалить встречу?");
+
+        dialog.setNegativeButton("Нет", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+                dialogInterface.dismiss();
+            }
+        });
+
+        dialog.setPositiveButton("Да", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+                DatabaseReference database = FirebaseDatabase.getInstance().getReference();
+                DatabaseReference ref = database.child("meeting").child(meetUid);
+                ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                            dataSnapshot.getRef().removeValue();
+                            Intent intent=new Intent(EditMeetingActivity.this, ListActivity.class);
+                            startActivity(intent);
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                    }
+                });
+            }
+        });
+
+        dialog.show();
     }
 }
