@@ -10,6 +10,10 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.google.firebase.auth.FirebaseAuth;
@@ -20,6 +24,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 public class ProfileActivity extends AppCompatActivity {
+    ImageButton buttonEdit, buttonAdd, buttonSave;
+    EditText about;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,6 +34,9 @@ public class ProfileActivity extends AppCompatActivity {
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
         TextView bio=findViewById(R.id.textView);
+        buttonEdit=findViewById(R.id.editBtn);
+        buttonSave=findViewById(R.id.saveBtn);
+        about=findViewById(R.id.editTextAbout);
 
         DatabaseReference database = FirebaseDatabase.getInstance().getReference();
         DatabaseReference ref = database.child("Users").child(auth.getUid());
@@ -40,6 +49,22 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onCancelled(DatabaseError databaseError) {
 
+            }
+        });
+
+        buttonEdit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                about.setEnabled(true);
+                if (about!=null){
+                    buttonSave.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            ref.child("info").setValue(about.getText().toString());
+                            about.setEnabled(false);
+                        }
+                    });
+                }
             }
         });
     }
