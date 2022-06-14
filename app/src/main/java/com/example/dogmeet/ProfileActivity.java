@@ -45,6 +45,9 @@ public class ProfileActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
                 bio.setText(user.getName().toString()+", "+user.getAge().toString());
+                if (user.getInfo()!=null){
+                    about.setText(user.getInfo());
+                }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {

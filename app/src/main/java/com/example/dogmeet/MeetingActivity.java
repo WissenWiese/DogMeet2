@@ -41,8 +41,6 @@ public class MeetingActivity extends AppCompatActivity {
         setContentView(R.layout.activity_meeting);
         init();
         getIntentMain();
-        getMember();
-        getDataFromDB();
         button=findViewById(R.id.button);
 
         database = FirebaseDatabase.getInstance();
@@ -62,6 +60,9 @@ public class MeetingActivity extends AppCompatActivity {
         } else {
             uid = cur_user.getUid();
         }
+
+        getMember();
+        getDataFromDB();
 
         if (creatorUid.equals(uid)){
             button.setText("Редактировать");
