@@ -2,6 +2,8 @@ package com.example.dogmeet.mainActivity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -91,6 +93,7 @@ public class ListActivity extends AppCompatActivity {
         return true;
     }
 
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
@@ -117,6 +120,7 @@ public class ListActivity extends AppCompatActivity {
 
         }
     }
+
 
     private void setOnClickItem()
     {

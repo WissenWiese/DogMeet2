@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".mainActivity.AddActivity">
+    tools:context=".Activity.EditMeetingActivity">
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -15,65 +15,65 @@
         android:orientation="vertical"
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="20dp">
+        tools:layout_editor_absoluteX="10dp">
 
-    <TextView
-        android:id="@+id/add_title"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:layout_marginBottom="30dp"
-        android:text="@string/create_meets"
-        android:textSize="24sp" />
-
-    <EditText
-        android:id="@+id/editTitle"
-        android:layout_width="300dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="10dp"
-        android:background="@drawable/edit_text"
-        android:ems="10"
-        android:hint="@string/name_meets"
-        android:inputType="text"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:textColor="@color/primary_dark"
-        android:textColorHint="@color/primary"
-        android:textSize="20sp" />
-
-    <EditText
-        android:id="@+id/editPostalAddress"
-        android:layout_width="300dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="10dp"
-        android:background="@drawable/edit_text"
-        android:ems="10"
-        android:hint="@string/address"
-        android:inputType="textPostalAddress"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:textColor="@color/primary_dark"
-        android:textColorHint="@color/primary"
-        android:textSize="20sp" />
-
-
-    <EditText
-        android:id="@+id/editDate"
-        android:layout_width="300dp"
-        android:layout_height="50dp"
-        android:layout_marginBottom="10dp"
-        android:background="@drawable/edit_text"
-        android:ems="10"
-        android:hint="@string/date"
-        android:inputType="date"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
-        android:textColor="@color/primary_dark"
-        android:textColorHint="@color/primary"
-        android:textSize="20sp" />
+        <TextView
+            android:id="@+id/add_title"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:layout_marginBottom="10dp"
+            android:text="Редактировать встречу"
+            android:textSize="24sp" />
 
         <EditText
-            android:id="@+id/editTime"
+            android:id="@+id/editTitle2"
+            android:layout_width="300dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/edit_text"
+            android:ems="10"
+            android:hint="@string/name_meets"
+            android:inputType="text"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:textColor="@color/primary_dark"
+            android:textColorHint="@color/primary"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/editPostalAddress2"
+            android:layout_width="300dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/edit_text"
+            android:ems="10"
+            android:hint="@string/address"
+            android:inputType="textPostalAddress"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:textColor="@color/primary_dark"
+            android:textColorHint="@color/primary"
+            android:textSize="20sp" />
+
+
+        <EditText
+            android:id="@+id/editDate2"
+            android:layout_width="300dp"
+            android:layout_height="50dp"
+            android:layout_marginBottom="10dp"
+            android:background="@drawable/edit_text"
+            android:ems="10"
+            android:hint="@string/date"
+            android:inputType="date"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
+            android:textColor="@color/primary_dark"
+            android:textColorHint="@color/primary"
+            android:textSize="20sp" />
+
+        <EditText
+            android:id="@+id/editTime2"
             android:layout_width="300dp"
             android:layout_height="50dp"
             android:layout_marginBottom="10dp"
@@ -88,7 +88,7 @@
             android:textSize="20sp" />
 
         <EditText
-            android:id="@+id/editDescription"
+            android:id="@+id/editDescription2"
             android:layout_width="300dp"
             android:layout_height="50dp"
             android:layout_marginBottom="10dp"
@@ -103,7 +103,7 @@
             android:textSize="20sp" />
 
         <EditText
-            android:id="@+id/editNumberMember"
+            android:id="@+id/editNumberMember2"
             android:layout_width="300dp"
             android:layout_height="50dp"
             android:layout_marginBottom="10dp"
@@ -124,15 +124,15 @@
             android:gravity="center">
 
             <TextView
-                android:id="@+id/tupe_view"
+                android:id="@+id/tupe_view2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Встреча для :"
+                android:text="Встреча для: "
                 android:textSize="20sp" />
 
             <TextView
-                android:id="@+id/size_dog_view"
+                android:id="@+id/size_dog_view2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
@@ -141,27 +141,28 @@
         </LinearLayout>
 
         <Spinner
-            android:id="@+id/size_spinner"
+            android:id="@+id/size_spinner2"
             android:layout_width="300dp"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginBottom="30dp"
-            android:background="@drawable/edit_text" />
+            android:background="@drawable/edit_text"
+            />
 
         <Button
-            android:id="@+id/btnAdd"
+            android:id="@+id/btnSave"
             android:layout_width="300dp"
             android:layout_height="55dp"
             android:layout_marginBottom="25dp"
             android:background="@drawable/btn"
-            android:text="Добавить"
+            android:text="Сохранить"
             android:textColor="@color/white" />
 
         <Button
-            android:id="@+id/btnCancel"
+            android:id="@+id/btnDelete"
             android:layout_width="300dp"
             android:layout_height="55dp"
             android:background="@drawable/btn2"
-            android:text="Отмена"
+            android:text="Удалить"
             android:textColor="@color/white" />
 
     </LinearLayout>

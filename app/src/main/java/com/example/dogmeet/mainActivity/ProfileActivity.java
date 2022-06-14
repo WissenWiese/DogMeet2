@@ -67,6 +67,13 @@ public class ProfileActivity extends AppCompatActivity {
                 }
             }
         });
+
+        buttonAdd.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
     }
 
     @Override

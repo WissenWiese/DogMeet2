@@ -5,35 +5,83 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content">
 
-    <TextView
-        android:id="@+id/DateTextView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="2dp"
+    <EditText
+        android:id="@+id/editTextName"
+        android:layout_width="100dp"
+        android:layout_height="35dp"
+        android:ems="10"
+        android:hint="имя"
+        android:inputType="textPersonName"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/AddressTextView"
-        tools:text="TextView" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/AddressTextView"
+        android:id="@+id/TextViewGender"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="5dp"
         android:layout_marginTop="10dp"
-        android:textSize="14sp"
+        android:text="пол:"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/NameTextView"
-        tools:text="TextView" />
+        app:layout_constraintTop_toBottomOf="@+id/TextViewBreed" />
 
     <TextView
-        android:id="@+id/NameTextView"
+        android:id="@+id/TextViewBreed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="10dp"
+        android:text="порода:"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/TextViewAge" />
+
+    <TextView
+        android:id="@+id/TextViewAge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:text="возраст:"
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="TextView" />
+        app:layout_constraintTop_toBottomOf="@+id/editTextName" />
+
+    <EditText
+        android:id="@+id/editTextAge"
+        android:layout_width="80dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="5dp"
+        android:ems="10"
+        android:hint="возраст"
+        android:inputType="number"
+        android:textSize="8sp"
+        app:layout_constraintStart_toEndOf="@+id/TextViewAge"
+        app:layout_constraintTop_toBottomOf="@+id/editTextName" />
+
+    <EditText
+        android:id="@+id/editTextBreed"
+        android:layout_width="80dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="10dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:hint="порода"
+        android:textSize="8sp"
+        app:layout_constraintStart_toEndOf="@+id/TextViewBreed"
+        app:layout_constraintTop_toBottomOf="@+id/editTextAge" />
+
+    <EditText
+        android:id="@+id/editTextGender"
+        android:layout_width="80dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="10dp"
+        android:ems="10"
+        android:hint="пол"
+        android:inputType="textPersonName"
+        android:textSize="8sp"
+        app:layout_constraintStart_toEndOf="@+id/TextViewGender"
+        app:layout_constraintTop_toBottomOf="@+id/editTextBreed" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

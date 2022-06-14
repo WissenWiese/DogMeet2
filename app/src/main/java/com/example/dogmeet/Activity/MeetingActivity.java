@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.example.dogmeet.Constant;
 import com.example.dogmeet.R;
 import com.example.dogmeet.entity.User;
+import com.example.dogmeet.mainActivity.ListActivity;
 import com.example.dogmeet.mainActivity.LoginActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -25,6 +26,8 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import kotlin.time.ExperimentalTime;
 
 public class MeetingActivity extends AppCompatActivity {
     private TextView meetTitle, meetDate, meetAddress, meetCreator, meetTime, meetDescription, meetNumber;
@@ -70,6 +73,14 @@ public class MeetingActivity extends AppCompatActivity {
 
         if (creatorUid.equals(uid)){
             button.setText("Редактировать");
+            button.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(MeetingActivity.this, EditMeetingActivity.class);
+                    intent.putExtra(Constant.MEETING_UID, meetUid);
+                    startActivity(intent);
+                }
+            });
         }
         else {
             button.setText("Присоединиться");
