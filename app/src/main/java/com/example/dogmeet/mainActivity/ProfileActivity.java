@@ -1,21 +1,18 @@
-package com.example.dogmeet;
-
-import static androidx.fragment.app.FragmentManager.TAG;
+package com.example.dogmeet.mainActivity;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.room.Query;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.example.dogmeet.R;
+import com.example.dogmeet.entity.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;

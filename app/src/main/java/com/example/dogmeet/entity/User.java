@@ -1,4 +1,4 @@
-package com.example.dogmeet;
+package com.example.dogmeet.entity;
 
 import java.util.Objects;
 

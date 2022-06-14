@@ -1,4 +1,4 @@
-package com.example.dogmeet;
+package com.example.dogmeet.Activity;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -9,6 +9,9 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+
+import com.example.dogmeet.R;
+import com.example.dogmeet.entity.Meeting;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,10 +1,7 @@
-package com.example.dogmeet;
+package com.example.dogmeet.mainActivity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,9 +10,12 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 
+import com.example.dogmeet.Constant;
+import com.example.dogmeet.Activity.MeetingActivity;
+import com.example.dogmeet.R;
+import com.example.dogmeet.entity.Meeting;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -69,7 +69,7 @@ public class ListActivity extends AppCompatActivity {
                 {
                     Meeting meeting =dataSnapshot.getValue(Meeting.class);
                     assert meeting != null;
-                    uidMeet=dataSnapshot.getKey();
+                    meeting.setUid(dataSnapshot.getKey());
                     listData.add(meeting.title);
                     listTemp.add(meeting);
                 }
@@ -125,12 +125,15 @@ public class ListActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Meeting meeting = listTemp.get(position);
                 Intent i = new Intent(ListActivity.this, MeetingActivity.class);
-                i.putExtra(Constant.MEETING_UID, uidMeet);
+                i.putExtra(Constant.MEETING_UID, meeting.uid);
                 i.putExtra(Constant.MEETING_TITLE,meeting.title);
                 i.putExtra(Constant.MEETING_DATE,meeting.date);
                 i.putExtra(Constant.MEETING_ADDRESS,meeting.address);
                 i.putExtra(Constant.MEETING_CREATOR,meeting.creator);
                 i.putExtra(Constant.MEETING_CREATOR_UID,meeting.creatorUid);
+                i.putExtra(Constant.MEETING_TIME,meeting.time);
+                i.putExtra(Constant.MEETING_DESCRIPTION,meeting.description);
+                i.putExtra(Constant.MEETING_NUMBER,meeting.nubmerMember);
                 startActivity(i);
 
             }

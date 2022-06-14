@@ -14,16 +14,16 @@
         android:theme="@style/Theme.DogMeet"
         tools:targetApi="31">
         <activity
-            android:name=".ProfileUsersActivity"
+            android:name=".Activity.ProfileUsersActivity"
             android:exported="false" />
         <activity
-            android:name=".MeetingActivity"
+            android:name=".Activity.MeetingActivity"
             android:exported="false" />
         <activity
-            android:name=".ProfileActivity"
+            android:name=".mainActivity.ProfileActivity"
             android:exported="false" />
         <activity
-            android:name=".ListActivity"
+            android:name=".mainActivity.ListActivity"
             android:exported="false"
             android:label="@string/title_activity_main" />
         <!--
@@ -42,14 +42,14 @@
             android:value="YOUR_API_KEY" />
 
         <activity
-            android:name=".MapsActivity"
+            android:name=".mainActivity.MapsActivity"
             android:exported="false"
             android:label="@string/title_activity_maps" />
         <activity
-            android:name=".AddActivity"
+            android:name=".mainActivity.AddActivity"
             android:exported="false" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".mainActivity.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

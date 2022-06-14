@@ -1,4 +1,4 @@
-package com.example.dogmeet;
+package com.example.dogmeet.Activity;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -11,6 +11,10 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.dogmeet.Constant;
+import com.example.dogmeet.R;
+import com.example.dogmeet.entity.User;
+import com.example.dogmeet.mainActivity.LoginActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -23,11 +27,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MeetingActivity extends AppCompatActivity {
-    private TextView meetTitle, meetDate, meetAddress, meetCreator;
+    private TextView meetTitle, meetDate, meetAddress, meetCreator, meetTime, meetDescription, meetNumber;
     private String creatorUid, uid, meetUid;
+    private int number_mender;
     private Button button;
     private FirebaseAuth auth;
-    private DatabaseReference members, users;
+    private DatabaseReference myMeet, users;
     private FirebaseDatabase database;
     private List<String> listMember;
     private User user;
@@ -44,7 +49,7 @@ public class MeetingActivity extends AppCompatActivity {
         button=findViewById(R.id.button);
 
         database = FirebaseDatabase.getInstance();
-        members = database.getReference("members");
+        myMeet = database.getReference("meeting");
         users = database.getReference("Users");
 
         listView = findViewById(R.id.listView2);
@@ -62,7 +67,6 @@ public class MeetingActivity extends AppCompatActivity {
         }
 
         getMember();
-        getDataFromDB();
 
         if (creatorUid.equals(uid)){
             button.setText("Редактировать");
@@ -72,10 +76,12 @@ public class MeetingActivity extends AppCompatActivity {
             button.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    members.child(meetUid).child(uid).setValue(user);
+                    myMeet.child(meetUid).child("members").child(uid).setValue(user.getName());
                 }
             });
         }
+
+        getDataFromDB();
     }
     private void init()
     {
@@ -83,6 +89,9 @@ public class MeetingActivity extends AppCompatActivity {
         meetDate = findViewById(R.id.meetDate);
         meetAddress = findViewById(R.id.meetAddress);
         meetCreator = findViewById(R.id.meetCreator);
+        meetTime=findViewById(R.id.meetTime);
+        meetDescription=findViewById(R.id.meetDescription);
+        meetNumber=findViewById(R.id.meetNumber);
         meetCreator.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -104,8 +113,12 @@ public class MeetingActivity extends AppCompatActivity {
             meetDate.setText(i.getStringExtra(Constant.MEETING_DATE));
             meetAddress.setText(i.getStringExtra(Constant.MEETING_ADDRESS));
             meetCreator.setText(i.getStringExtra(Constant.MEETING_CREATOR));
+            meetTime.setText(i.getStringExtra(Constant.MEETING_TIME));
+            meetDescription.setText(i.getStringExtra(Constant.MEETING_DESCRIPTION));
+            meetNumber.setText(i.getStringExtra(Constant.MEETING_NUMBER));
             creatorUid=i.getStringExtra(Constant.MEETING_CREATOR_UID);
             meetUid=i.getStringExtra(Constant.MEETING_UID);
+
         }
     }
 
@@ -134,9 +147,9 @@ public class MeetingActivity extends AppCompatActivity {
                 if(listMember.size() > 0)listMember.clear();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren())
                 {
-                    User user1 =dataSnapshot.getValue(User.class);
-                    assert user1 != null;
-                    listMember.add(user1.getName());
+                    String user_name =dataSnapshot.getValue(String.class);
+                    assert user_name != null;
+                    listMember.add(user_name);
                 }
                 adapter.notifyDataSetChanged();
             }
@@ -146,6 +159,6 @@ public class MeetingActivity extends AppCompatActivity {
 
             }
         };
-        members.child(meetUid).addValueEventListener(memberListener);
+        myMeet.child(meetUid).child("members").addValueEventListener(memberListener);
     }
 }
