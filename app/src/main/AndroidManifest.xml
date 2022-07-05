@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.dogmeet" >
 
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -14,22 +17,6 @@
         android:theme="@style/Theme.DogMeet"
         tools:targetApi="31" >
 
-        <activity
-            android:name=".Activity.EditMeetingActivity"
-            android:exported="false" />
-        <activity
-            android:name=".Activity.ProfileUsersActivity"
-            android:exported="false" />
-        <activity
-            android:name=".Activity.MeetingActivity"
-            android:exported="false" />
-        <activity
-            android:name=".mainActivity.ProfileActivity"
-            android:exported="false" />
-        <activity
-            android:name=".mainActivity.ListActivity"
-            android:exported="false"
-            android:label="@string/title_activity_main" />
         <!--
              TODO: Before you run your application, you need a Google Maps API key.
 
@@ -46,9 +33,21 @@
             android:value="YOUR_API_KEY" />
 
         <activity
-            android:name=".mainActivity.MapsActivity"
+            android:name=".Activity.AddPetActivity"
+            android:exported="false" />
+        <activity
+            android:name=".NavigatActivity"
             android:exported="false"
-            android:label="@string/title_activity_maps" />
+            android:theme="@style/Theme.DogMeet.NoActionBar" />
+        <activity
+            android:name=".Activity.EditMeetingActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.ProfileUsersActivity"
+            android:exported="false" />
+        <activity
+            android:name=".Activity.MeetingActivity"
+            android:exported="false" />
         <activity
             android:name=".mainActivity.AddActivity"
             android:exported="false" />

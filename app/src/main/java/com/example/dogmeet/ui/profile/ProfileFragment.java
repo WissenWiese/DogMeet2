@@ -1,16 +1,22 @@
-package com.example.dogmeet.mainActivity;
+package com.example.dogmeet.ui.profile;
 
-import androidx.appcompat.app.AppCompatActivity;
+import static com.example.dogmeet.Constant.URI;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
+import com.bumptech.glide.Glide;
+import com.example.dogmeet.Activity.AddPetActivity;
 import com.example.dogmeet.R;
 import com.example.dogmeet.entity.User;
 import com.google.firebase.auth.FirebaseAuth;
@@ -19,24 +25,42 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileFragment extends Fragment {
     ImageButton buttonEdit, buttonAdd, buttonSave;
+    ImageView imageView;
     EditText about;
+    FirebaseStorage storage;
+    StorageReference storageReference;
+    DatabaseReference database;
+    DatabaseReference ref;
+    private View view;
+
+    public ProfileFragment(){
+
+    }
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
+
+        view = inflater.inflate(R.layout.fragment_profile, container, false);
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
-        TextView bio=findViewById(R.id.textView);
-        buttonEdit=findViewById(R.id.editBtn);
-        buttonSave=findViewById(R.id.saveBtn);
-        about=findViewById(R.id.editTextAbout);
+        TextView bio=view.findViewById(R.id.text_name);
+        buttonEdit=view.findViewById(R.id.editBtn);
+        buttonSave=view.findViewById(R.id.saveBtn);
+        buttonAdd=view.findViewById(R.id.addPetBtn);
+        imageView=view.findViewById(R.id.imageViewAvatar);
+        about=view.findViewById(R.id.edit_about);
 
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference ref = database.child("Users").child(auth.getUid());
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
+
+        database = FirebaseDatabase.getInstance().getReference();
+        ref = database.child("Users").child(auth.getUid());
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
@@ -44,6 +68,9 @@ public class ProfileActivity extends AppCompatActivity {
                 bio.setText(user.getName().toString()+", "+user.getAge().toString());
                 if (user.getInfo()!=null){
                     about.setText(user.getInfo());
+                }
+                if (user.getAvatar_uri()!=null){
+                    Glide.with(imageView.getContext()).load(URI).into(imageView);
                 }
             }
             @Override
@@ -71,41 +98,11 @@ public class ProfileActivity extends AppCompatActivity {
         buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                Intent intent=new Intent(getContext(), AddPetActivity.class);
+                startActivity(intent);
             }
         });
-    }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        Intent intent;
-
-        switch (item.getItemId()) {
-            case R.id.add:
-                intent = new Intent(this, AddActivity.class);
-                startActivity(intent);
-                return true;
-            case R.id.map:
-                intent = new Intent(this, MapsActivity.class);
-                startActivity(intent);
-                return true;
-            case R.id.list:
-                intent = new Intent(this, ListActivity.class);
-                startActivity(intent);
-                return true;
-            case R.id.profile:
-                intent = new Intent(this, ProfileActivity.class);
-                startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-
-        }
+        return view;
     }
 }

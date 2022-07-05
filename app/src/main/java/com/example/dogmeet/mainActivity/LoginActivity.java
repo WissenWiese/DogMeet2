@@ -16,6 +16,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.example.dogmeet.NavigatActivity;
 import com.example.dogmeet.R;
 import com.example.dogmeet.entity.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -77,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
                                @Override
                                public void onSuccess(AuthResult authResult) {
                                    Toast.makeText(getApplicationContext(), "С возвращением!", Toast.LENGTH_LONG).show();
-                                   startActivity(new Intent(LoginActivity.this, ListActivity.class));
+                                   startActivity(new Intent(LoginActivity.this, NavigatActivity.class));
                                    finish();
                                }
                            }).addOnFailureListener(new OnFailureListener() {
@@ -161,7 +162,7 @@ public class LoginActivity extends AppCompatActivity {
                                 users_db.child(auth.getUid()).setValue(user);
 
                                 Toast.makeText(getApplicationContext(), name.getText().toString()+", добро пожаловать!", Toast.LENGTH_LONG).show();
-                                    startActivity(new Intent(LoginActivity.this, ListActivity.class));
+                                    startActivity(new Intent(LoginActivity.this, NavigatActivity.class));
                                 }
                             }
 

@@ -1,17 +1,24 @@
 package com.example.dogmeet.entity;
 
+import android.content.Intent;
+import android.net.Uri;
+
 import androidx.room.Entity;
+
+import com.example.dogmeet.Activity.MeetingActivity;
+import com.example.dogmeet.Constant;
 
 import java.util.Objects;
 
 @Entity
 public class Meeting {
-    public String uid, title, address, date, creator, creatorUid, time, nubmerMember, description, tupeDog;
-
+    public String uid, title, address, date, creator, creatorUid, time, description, tupeDog, urlImage;
+    public int numberMember;
     public Meeting() {}
 
     public Meeting(String uid, String title, String address, String date, String creator,
-                   String creatorUid, String time, String nubmerMember, String description, String tupeDog){
+                   String creatorUid, String time, int numberMember,
+                   String description, String tupeDog, String urlImage){
         this.uid=uid;
         this.title=title;
         this.address=address;
@@ -19,9 +26,10 @@ public class Meeting {
         this.creator=creator;
         this.creatorUid=creatorUid;
         this.time=time;
-        this.nubmerMember=nubmerMember;
+        this.numberMember=numberMember;
         this.description=description;
         this.tupeDog=tupeDog;
+        this.urlImage= urlImage;
 
     }
 
@@ -81,12 +89,12 @@ public class Meeting {
         this.time = time;
     }
 
-    public String getNubmerMember() {
-        return nubmerMember;
+    public int getNumberMember() {
+        return numberMember;
     }
 
-    public void setNubmerMember(String nubmerMember) {
-        this.nubmerMember = nubmerMember;
+    public void setNumberMember(int numberMember) {
+        this.numberMember = numberMember;
     }
 
     public String getDescription() {
@@ -105,6 +113,14 @@ public class Meeting {
         this.tupeDog = tupeDog;
     }
 
+    public String getUrlImage() {
+        return urlImage;
+    }
+
+    public void setUrlImage(String urlImage) {
+        this.urlImage = urlImage;
+    }
+
 
     @Override
     public boolean equals(Object o) {
@@ -115,13 +131,12 @@ public class Meeting {
                 && date.equals(meeting.date) && creator.equals(meeting.creator)
                 && creatorUid.equals(meeting.creatorUid)
                 && time.equals(meeting.time)
-                && nubmerMember.equals(meeting.nubmerMember)
                 && description.equals(meeting.description)
                 && tupeDog.equals(meeting.tupeDog);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, address, date, creator, creatorUid, time, nubmerMember, description, tupeDog);
+        return Objects.hash(title, address, date, creator, creatorUid, time, numberMember, description, tupeDog);
     }
 }

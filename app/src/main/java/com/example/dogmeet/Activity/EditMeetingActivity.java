@@ -1,13 +1,11 @@
 package com.example.dogmeet.Activity;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.constraintlayout.widget.ConstraintLayout;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.AdapterView;
@@ -20,14 +18,10 @@ import android.widget.TextView;
 import com.example.dogmeet.Constant;
 import com.example.dogmeet.R;
 import com.example.dogmeet.entity.Meeting;
-import com.example.dogmeet.entity.User;
-import com.example.dogmeet.mainActivity.AddActivity;
-import com.example.dogmeet.mainActivity.ListActivity;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 public class EditMeetingActivity extends AppCompatActivity {
@@ -106,8 +100,7 @@ public class EditMeetingActivity extends AppCompatActivity {
                 myMeet.child(meetUid).child("numberMember").setValue(numberText);
                 myMeet.child(meetUid).child("tupeDog").setValue(tupeText);
 
-                Intent intent=new Intent(EditMeetingActivity.this, ListActivity.class);
-                startActivity(intent);
+                EditMeetingActivity.this.finish();
             }
         });
 
@@ -137,7 +130,7 @@ public class EditMeetingActivity extends AppCompatActivity {
                         addressEditText.setText(meeting.address);
                         timeEditText.setText(meeting.time);
                         descriptionEditText.setText(meeting.description);
-                        numberEditText.setText(meeting.nubmerMember);
+                        numberEditText.setText(meeting.numberMember);
                         meet_for.setText(meeting.tupeDog);
                     }
                 }
@@ -173,8 +166,7 @@ public class EditMeetingActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                             dataSnapshot.getRef().removeValue();
-                            Intent intent=new Intent(EditMeetingActivity.this, ListActivity.class);
-                            startActivity(intent);
+                            EditMeetingActivity.this.finish();
                     }
                     @Override
                     public void onCancelled(DatabaseError databaseError) {

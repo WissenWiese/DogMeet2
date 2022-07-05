@@ -4,8 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".mainActivity.AddActivity">
-
+    tools:context=".Activity.AddPetActivity">
     <LinearLayout
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
@@ -18,25 +17,25 @@
         tools:layout_editor_absoluteX="20dp">
 
         <ImageView
-            android:id="@+id/imageView3"
+            android:id="@+id/imageView_pet"
             android:layout_width="300dp"
             android:layout_height="70dp"
             tools:srcCompat="@tools:sample/avatars" />
 
-        <Button
-            android:id="@+id/button_upload_photo"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:text="загрузить фото" />
+    <Button
+        android:id="@+id/button_upload_avatar_pet"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:text="загрузить фото" />
 
-        <EditText
-        android:id="@+id/editTitle"
+    <EditText
+        android:id="@+id/edit_name_pet"
         android:layout_width="300dp"
         android:layout_height="50dp"
         android:layout_marginBottom="10dp"
         android:background="@drawable/edit_text"
         android:ems="10"
-        android:hint="@string/name_meets"
+        android:hint="Имя"
         android:inputType="text"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
@@ -44,14 +43,14 @@
         android:textColorHint="@color/primary"
         android:textSize="20sp" />
 
-        <EditText
-        android:id="@+id/editPostalAddress"
+    <EditText
+        android:id="@+id/editBreed"
         android:layout_width="300dp"
         android:layout_height="50dp"
         android:layout_marginBottom="10dp"
         android:background="@drawable/edit_text"
         android:ems="10"
-        android:hint="@string/address"
+        android:hint="Парода"
         android:inputType="textPostalAddress"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
@@ -61,14 +60,14 @@
 
 
     <EditText
-        android:id="@+id/editDate"
+        android:id="@+id/editAge_pet"
         android:layout_width="300dp"
         android:layout_height="50dp"
         android:layout_marginBottom="10dp"
         android:background="@drawable/edit_text"
         android:ems="10"
-        android:hint="@string/date"
-        android:inputType="date"
+        android:hint="Возраст"
+        android:inputType="number"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
         android:textColor="@color/primary_dark"
@@ -76,80 +75,27 @@
         android:textSize="20sp" />
 
         <EditText
-            android:id="@+id/editTime"
+            android:id="@+id/editGender"
             android:layout_width="300dp"
             android:layout_height="50dp"
             android:layout_marginBottom="10dp"
             android:background="@drawable/edit_text"
             android:ems="10"
-            android:hint="Промежуток времени"
-            android:inputType="time"
+            android:hint="Пол"
+            android:inputType="textPostalAddress"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:textColor="@color/primary_dark"
             android:textColorHint="@color/primary"
             android:textSize="20sp" />
-
-        <EditText
-            android:id="@+id/editDescription"
-            android:layout_width="300dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/edit_text"
-            android:ems="10"
-            android:hint="Информация о встрече"
-            android:inputType="text"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:textColor="@color/primary_dark"
-            android:textColorHint="@color/primary"
-            android:textSize="20sp" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:gravity="center">
-
-            <TextView
-                android:id="@+id/tupe_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="Встреча для :"
-                android:textSize="20sp" />
-
-            <TextView
-                android:id="@+id/size_dog_view"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:text="размер собак"
-                android:textSize="18sp" />
-        </LinearLayout>
-
-        <Spinner
-            android:id="@+id/size_spinner"
-            android:layout_width="300dp"
-            android:layout_height="match_parent"
-            android:layout_marginBottom="30dp"
-            android:background="@drawable/edit_text" />
 
         <Button
-            android:id="@+id/btnAdd"
+            android:id="@+id/btnAddPet"
             android:layout_width="300dp"
             android:layout_height="55dp"
             android:layout_marginBottom="25dp"
             android:background="@drawable/btn"
             android:text="Добавить"
-            android:textColor="@color/white" />
-
-        <Button
-            android:id="@+id/btnCancel"
-            android:layout_width="300dp"
-            android:layout_height="55dp"
-            android:background="@drawable/btn2"
-            android:text="Отмена"
             android:textColor="@color/white" />
 
     </LinearLayout>

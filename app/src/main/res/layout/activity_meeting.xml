@@ -6,6 +6,19 @@
     android:layout_height="match_parent"
     tools:context=".Activity.MeetingActivity">
 
+    <ImageView
+        android:id="@+id/imageView_meet"
+        android:layout_width="wrap_content"
+        android:layout_height="160dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
+        app:layout_constraintBottom_toTopOf="@+id/meetTitle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/backgrounds/scenic" />
+
     <TextView
         android:id="@+id/meetNumber"
         android:layout_width="wrap_content"
@@ -13,7 +26,7 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
         android:clickable="true"
-        android:text="TextView"
+        tools:text="TextView"
         android:textSize="16sp"
         app:layout_constraintStart_toEndOf="@+id/textView7"
         app:layout_constraintTop_toBottomOf="@+id/meetDescription" />
@@ -36,7 +49,7 @@
         android:layout_marginStart="25dp"
         android:layout_marginTop="10dp"
         android:clickable="true"
-        android:text="TextView"
+        tools:text="TextView"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView9" />
@@ -45,8 +58,8 @@
         android:id="@+id/meetTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="TextView"
+        android:layout_marginTop="170dp"
+        tools:text="TextView"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -69,7 +82,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="15dp"
-        android:text="TextView"
+        tools:text="TextView"
         android:textSize="16sp"
         app:layout_constraintStart_toEndOf="@+id/textView3"
         app:layout_constraintTop_toBottomOf="@+id/meetTitle" />
@@ -91,7 +104,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
-        android:text="TextView"
+        tools:text="TextView"
         android:textSize="16sp"
         app:layout_constraintStart_toEndOf="@+id/textView5"
         app:layout_constraintTop_toBottomOf="@+id/meetDate" />
@@ -125,7 +138,7 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
         android:clickable="true"
-        android:text="TextView"
+        tools:text="TextView"
         android:textSize="16sp"
         app:layout_constraintStart_toEndOf="@+id/textView6"
         app:layout_constraintTop_toBottomOf="@+id/meetAddress" />
@@ -137,7 +150,7 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="10dp"
         android:clickable="true"
-        android:text="TextView"
+        tools:text="TextView"
         android:textSize="16sp"
         app:layout_constraintStart_toEndOf="@+id/textView8"
         app:layout_constraintTop_toBottomOf="@+id/meetTime" />
@@ -168,7 +181,7 @@
         android:id="@+id/button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="200dp"
+        android:layout_marginBottom="100dp"
         android:text="Button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
