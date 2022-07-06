@@ -30,6 +30,8 @@ import com.bumptech.glide.Glide;
 import com.example.dogmeet.R;
 import com.example.dogmeet.entity.Meeting;
 import com.example.dogmeet.entity.User;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
@@ -174,6 +176,7 @@ public class AddActivity extends AppCompatActivity {
 
                 }
                 else {
+                    meet.setUrlImage(URI);
                     myMeet.push().setValue(meet);
                     AddActivity.this.finish();
                 }
@@ -260,19 +263,14 @@ public class AddActivity extends AppCompatActivity {
             progressDialog.setTitle("Uploading...");
             progressDialog.show();
 
-
-
             StorageReference ref = storageReference.child("meeting/"+UUID.randomUUID().toString());
-            ref.putFile(filePath)
+            UploadTask upload_image=ref.putFile(filePath);
+            upload_image
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             progressDialog.dismiss();
                             Toast.makeText(AddActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
-                            Uri downloadUri = taskSnapshot.getUploadSessionUri();
-                            meet.setUrlImage(downloadUri.toString());
-                            myMeet.push().setValue(meet);
-                            AddActivity.this.finish();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -290,7 +288,29 @@ public class AddActivity extends AppCompatActivity {
                             progressDialog.setMessage("Uploaded "+(int)progress+"%");
                         }
                     });
+            Task<Uri> urlTask = upload_image.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+                    return ref.getDownloadUrl();
 
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if (task.isSuccessful()) {
+                        Uri downloadUri = task.getResult();
+                        meet.setUrlImage(downloadUri.toString());
+                        myMeet.push().setValue(meet);
+                        AddActivity.this.finish();
+
+                    } else {
+                        Toast.makeText(AddActivity.this, "Failed", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
         }
     }
 }

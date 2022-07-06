@@ -5,6 +5,7 @@ import static com.example.dogmeet.Constant.URI;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -19,6 +20,7 @@ import com.example.dogmeet.R;
 import com.example.dogmeet.entity.Meeting;
 import com.example.dogmeet.entity.User;
 import com.example.dogmeet.mainActivity.LoginActivity;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -36,7 +38,7 @@ public class MeetingActivity extends AppCompatActivity {
     private String creatorUid, uid, meetUid;
     private Button button;
     private FirebaseAuth auth;
-    private DatabaseReference myMeet, users;
+    private DatabaseReference myMeet, users, ref;
     private List<String> listMember;
     private User user;
     private Meeting meeting;
@@ -45,7 +47,7 @@ public class MeetingActivity extends AppCompatActivity {
     ImageView imageView;
     DatabaseReference database;
     private int member_number;
-
+    Context context;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,9 +57,9 @@ public class MeetingActivity extends AppCompatActivity {
         getIntentMain();
         button=findViewById(R.id.button);
 
-        imageView=findViewById(R.id.imageView_meet);
+        context=this;
 
-        Glide.with(imageView.getContext()).load(URI).into(imageView);
+        imageView=findViewById(R.id.imageView_meet);
 
         myMeet = FirebaseDatabase.getInstance().getReference("meeting");
         users = FirebaseDatabase.getInstance().getReference("Users");
@@ -76,30 +78,38 @@ public class MeetingActivity extends AppCompatActivity {
             uid = cur_user.getUid();
         }
 
-        getMember();
-
         if (creatorUid.equals(uid)){
             button.setText("Редактировать");
-            button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
+
+        }
+        else if (member_number==0){
+            button.setText("Присоединиться");
+        }
+
+        button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (button.getText().equals("Присоединиться")){
+                    myMeet.child(meetUid).child("members").child(uid).setValue(user.getName());
+                    int member_number1=member_number+1;
+                    myMeet.child(meetUid).child("numberMember").setValue(member_number1);
+                    button.setText("Покинуть");
+                }
+                else if (button.getText().equals("Покинуть")){
+                    ref.removeValue();
+                    int member_number1=member_number-1;
+                    myMeet.child(meetUid).child("numberMember").setValue(member_number1);
+                    button.setText("Присоединиться");
+                }
+                else if (button.getText().equals("Редактировать")){
                     Intent intent = new Intent(MeetingActivity.this, EditMeetingActivity.class);
                     intent.putExtra(Constant.MEETING_UID, meetUid);
                     startActivity(intent);
                 }
-            });
-        }
-        else if (member_number==0){
-            button.setText("Прсоединиться");
-            button.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    myMeet.child(meetUid).child("members").child(uid).setValue(user.getName());
-                    int member_number1=member_number+1;
-                    myMeet.child(meetUid).child("numberMember").setValue(member_number1);
-                }
-            });
-        }
+            }
+        });
+
+        getMember();
 
         getDataFromDB();
     }
@@ -149,8 +159,7 @@ public class MeetingActivity extends AppCompatActivity {
                             member_number=meeting.numberMember;
                             meetNumber.setText(Integer.toString(member_number));
                             String url=meeting.urlImage;
-                            Glide.with(imageView.getContext()).load(url).into(imageView);
-
+                            Glide.with(context).load(url).into(imageView);
                         }
                     }
 
@@ -180,7 +189,6 @@ public class MeetingActivity extends AppCompatActivity {
 
     private void getDataFromDB()
     {
-
         ValueEventListener memberListener = new ValueEventListener()  {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -188,28 +196,12 @@ public class MeetingActivity extends AppCompatActivity {
                 if(listMember.size() > 0)listMember.clear();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren())
                 {
-                    if (dataSnapshot.getKey().equals(uid)){
+                    if (dataSnapshot.getKey().equals(uid) ) {
+                        ref = dataSnapshot.getRef();
                         button.setText("Покинуть");
-                        button.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                dataSnapshot.getRef().removeValue();
-                                int member_number1=member_number-1;
-                                myMeet.child(meetUid).child("numberMember").setValue(member_number1);
-                            }
-                        });
                     }
                     else{
-                        button.setText("Прсоединиться");
-                        button.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                myMeet.child(meetUid).child("members").child(uid).setValue(user.getName());
-                                int member_number1=member_number+1;
-                                myMeet.child(meetUid).child("numberMember").setValue(member_number1);
-                                button.setText("Покинуть");
-                            }
-                        });
+                        button.setText("Присоединиться");
                     }
                     String user_name =dataSnapshot.getValue(String.class);
                     assert user_name != null;

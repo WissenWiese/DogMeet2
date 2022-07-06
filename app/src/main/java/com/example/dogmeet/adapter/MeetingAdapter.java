@@ -30,6 +30,7 @@ public class MeetingAdapter extends RecyclerView.Adapter<MeetingAdapter.MeetingV
     private final RecyclerViewInterface recyclerViewInterface;
 
     private ArrayList<Meeting> mMeetings;
+    private Context context;
 
 
     public static class MeetingViewHolder extends RecyclerView.ViewHolder {
@@ -69,6 +70,7 @@ public class MeetingAdapter extends RecyclerView.Adapter<MeetingAdapter.MeetingV
 
     @Override
     public MeetingViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        context= parent.getContext();
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.meeting_item_view, parent, false);
         MeetingViewHolder evh = new MeetingViewHolder(v, recyclerViewInterface);
         return evh;
@@ -85,10 +87,7 @@ public class MeetingAdapter extends RecyclerView.Adapter<MeetingAdapter.MeetingV
 
         if (meeting.urlImage!=null){
             String url=meeting.urlImage;
-            Glide.with(holder.imageView.getContext()).load(url).into(holder.imageView);
-        }
-        else {
-            Glide.with(holder.imageView.getContext()).load(URI).into(holder.imageView);
+            Glide.with(context).load(url).into(holder.imageView);
         }
 
     }

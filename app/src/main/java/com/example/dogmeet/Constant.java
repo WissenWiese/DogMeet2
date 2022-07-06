@@ -7,6 +7,6 @@ public class Constant {
 
     public final static String USER_UID = "user_uid";
 
-    public final static String URI="https://firebasestorage.googleapis.com/v0/b/study-4b91c.appspot.com/o/avatar%2Fd7282d40-7359-437e-9583-7379920f937d?alt=media&token=7c8ee921-5199-44a3-9936-03dff4cdc6ff";
+    public final static String URI="https://firebasestorage.googleapis.com/v0/b/study-4b91c.appspot.com/o/meeting%2Fdog-illustration-article-15.png?alt=media&token=bcd1c3af-c9eb-436d-8ed9-111d3b911a89";
 
 }

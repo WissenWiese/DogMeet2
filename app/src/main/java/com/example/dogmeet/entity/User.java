@@ -3,16 +3,16 @@ package com.example.dogmeet.entity;
 import java.util.Objects;
 
 public class User {
-    private String name, email, age, info, avatar_uri;
+    private String name, email, age, info, avatarUri;
 
     public User() {}
 
-    public User (String name, String email, String age, String info, String avatar_uri) {
+    public User (String name, String email, String age, String info, String avatarUri) {
         this.name=name;
         this.email=email;
         this.age=age;
         this.info=info;
-        this.avatar_uri=avatar_uri;
+        this.avatarUri = avatarUri;
 
     }
 
@@ -48,12 +48,12 @@ public class User {
         this.info = info;
     }
 
-    public String getAvatar_uri() {
-        return avatar_uri;
+    public String getAvatarUri() {
+        return avatarUri;
     }
 
-    public void setAvatar_uri(String avatar_uri) {
-        this.avatar_uri = avatar_uri;
+    public void setAvatarUri(String avatarUri) {
+        this.avatarUri = avatarUri;
     }
 
     @Override

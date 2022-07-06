@@ -130,7 +130,7 @@ public class EditMeetingActivity extends AppCompatActivity {
                         addressEditText.setText(meeting.address);
                         timeEditText.setText(meeting.time);
                         descriptionEditText.setText(meeting.description);
-                        numberEditText.setText(meeting.numberMember);
+                        numberEditText.setText(Integer.toString(meeting.numberMember));
                         meet_for.setText(meeting.tupeDog);
                     }
                 }
