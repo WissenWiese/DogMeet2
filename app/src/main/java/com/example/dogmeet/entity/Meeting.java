@@ -12,11 +12,12 @@ import java.util.Objects;
 
 @Entity
 public class Meeting {
-    public String uid, title, address, date, creator, creatorUid, time, description, tupeDog, urlImage;
+    public String uid, title, address, date, creatorUid, time, description, tupeDog, urlImage;
     public int numberMember;
+    public User creator;
     public Meeting() {}
 
-    public Meeting(String uid, String title, String address, String date, String creator,
+    public Meeting(String uid, String title, String address, String date, User creator,
                    String creatorUid, String time, int numberMember,
                    String description, String tupeDog, String urlImage){
         this.uid=uid;
@@ -65,11 +66,11 @@ public class Meeting {
         this.date = date;
     }
 
-    public String getCreator() {
+    public User getCreator() {
         return creator;
     }
 
-    public void setCreator(String creator) {
+    public void setCreator(User creator) {
         this.creator = creator;
     }
 

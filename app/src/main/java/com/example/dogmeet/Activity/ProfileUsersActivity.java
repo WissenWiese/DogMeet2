@@ -23,7 +23,7 @@ public class ProfileUsersActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_users);
 
-        TextView bio=findViewById(R.id.text_name);
+        /*TextView bio=findViewById(R.id.text_name);
 
         Intent i = getIntent();
         if(i != null)
@@ -43,6 +43,6 @@ public class ProfileUsersActivity extends AppCompatActivity {
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
+        });*/
     }
 }

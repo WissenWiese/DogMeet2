@@ -89,7 +89,9 @@ public class MeetingAdapter extends RecyclerView.Adapter<MeetingAdapter.MeetingV
             String url=meeting.urlImage;
             Glide.with(context).load(url).into(holder.imageView);
         }
-
+        else {
+            Glide.with(context).load(URI).into(holder.imageView);
+        }
     }
 
     @Override

@@ -2,6 +2,8 @@ package com.example.dogmeet.ui.profile;
 
 import static android.app.Activity.RESULT_OK;
 
+import static com.example.dogmeet.Constant.URI;
+
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
@@ -44,7 +46,7 @@ public class ProfileFragment extends Fragment {
     EditText about;
     DatabaseReference database;
     DatabaseReference ref;
-    private final int PICK_IMAGE_REQUEST = 82;
+    private final int PICK_IMAGE_REQUEST = 71;
     private View view;
     private Uri filePath;
     FirebaseStorage storage;
@@ -84,6 +86,9 @@ public class ProfileFragment extends Fragment {
                 if (user.getAvatarUri()!=null){
                     Glide.with(imageView.getContext()).load(user.getAvatarUri()).into(imageView);
                 }
+                else {
+                    Glide.with(imageView.getContext()).load(URI).into(imageView);
+                }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -119,7 +124,7 @@ public class ProfileFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent();
-                intent.setType("avatar/*");
+                intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
                 startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
             }

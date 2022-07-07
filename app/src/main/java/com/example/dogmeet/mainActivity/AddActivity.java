@@ -57,19 +57,22 @@ public class AddActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private DatabaseReference myMeet, users;
     private FirebaseAuth auth;
-    private String uid, creator, imageUrl;
+    private String uid, imageUrl;
     private int member_number;
     private final int PICK_IMAGE_REQUEST = 71;
     private Uri filePath;
     private ImageView imageView;
     FirebaseStorage storage;
     StorageReference storageReference;
+    User creator;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add);
         setTitle("Создать встречу");
+
+        creator=new User();
 
         titleEditText = findViewById(R.id.editTitle);
         addressEditText = findViewById(R.id.editPostalAddress);
@@ -176,7 +179,6 @@ public class AddActivity extends AppCompatActivity {
 
                 }
                 else {
-                    meet.setUrlImage(URI);
                     myMeet.push().setValue(meet);
                     AddActivity.this.finish();
                 }
@@ -227,7 +229,15 @@ public class AddActivity extends AppCompatActivity {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
-                creator=user.getName();
+                assert user!=null;
+                String creator_name=user.getName();
+                if (creator_name!=null) {
+                    creator.setName(creator_name);
+                }
+                String creator_url=user.getAvatarUri();
+                if (creator_url!=null) {
+                    creator.setAvatarUri(creator_url);
+                }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {

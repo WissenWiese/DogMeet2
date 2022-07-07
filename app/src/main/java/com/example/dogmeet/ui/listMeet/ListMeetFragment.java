@@ -108,10 +108,10 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
 
     @Override
     public void OnItemClick(int position) {
-        Meeting meeting = meetings.get(position);
+        Meeting meeting=meetings.get(position);
         Intent i = new Intent(getContext(), MeetingActivity.class);
         i.putExtra(Constant.MEETING_UID, meeting.getUid());
-        i.putExtra(Constant.MEETING_CREATOR_UID, meeting.creatorUid);
+        i.putExtra(Constant.MEETING_CREATOR_UID, meeting.getCreatorUid());
         startActivity(i);
     }
 }

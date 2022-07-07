@@ -4,23 +4,27 @@ import static com.example.dogmeet.Constant.URI;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import com.example.dogmeet.Constant;
 import com.example.dogmeet.R;
+import com.example.dogmeet.RecyclerViewInterface;
+import com.example.dogmeet.adapter.UserAdapter;
 import com.example.dogmeet.entity.Meeting;
 import com.example.dogmeet.entity.User;
 import com.example.dogmeet.mainActivity.LoginActivity;
-import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -30,24 +34,25 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
-import java.util.List;
+
 import com.bumptech.glide.Glide;
 
-public class MeetingActivity extends AppCompatActivity {
+public class MeetingActivity extends AppCompatActivity implements RecyclerViewInterface {
     private TextView meetTitle, meetDate, meetAddress, meetCreator, meetTime, meetDescription, meetNumber;
-    private String creatorUid, uid, meetUid;
+    private String creatorUid, uid, meetUid, userUrl;
     private Button button;
     private FirebaseAuth auth;
-    private DatabaseReference myMeet, users, ref;
-    private List<String> listMember;
+    private DatabaseReference myMeet, users, ref, url;
     private User user;
     private Meeting meeting;
-    private ListView listView;
-    private ArrayAdapter<String> adapter;
-    ImageView imageView;
+    ImageView imageView, meetCreat;
     DatabaseReference database;
     private int member_number;
     Context context;
+    CardView cardView;
+    private ArrayList<User> mUsers;
+    private RecyclerView recyclerView;
+    private UserAdapter userAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,13 +66,23 @@ public class MeetingActivity extends AppCompatActivity {
 
         imageView=findViewById(R.id.imageView_meet);
 
+        user=new User();
+
         myMeet = FirebaseDatabase.getInstance().getReference("meeting");
         users = FirebaseDatabase.getInstance().getReference("Users");
 
-        listView = findViewById(R.id.listView2);
-        listMember = new ArrayList<>();
-        adapter = new ArrayAdapter<>(this,android.R.layout.simple_list_item_1, listMember);
-        listView.setAdapter(adapter);
+        mUsers = new ArrayList<>();
+
+        recyclerView=findViewById(R.id.recycler_view_user);
+        recyclerView.setLayoutManager(new LinearLayoutManager(MeetingActivity.this));
+        recyclerView.setHasFixedSize(true);
+
+        userAdapter= new UserAdapter(mUsers, this);
+
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.addItemDecoration(new DividerItemDecoration(MeetingActivity.this, LinearLayoutManager.HORIZONTAL));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this,LinearLayoutManager.HORIZONTAL, false));
+        recyclerView.setAdapter(userAdapter);
 
         FirebaseUser cur_user = auth.getInstance().getCurrentUser();
 
@@ -78,11 +93,12 @@ public class MeetingActivity extends AppCompatActivity {
             uid = cur_user.getUid();
         }
 
+        getMember();
+
         if (creatorUid.equals(uid)){
             button.setText("Редактировать");
-
         }
-        else if (member_number==0){
+        else /*if (member_number==0)*/{
             button.setText("Присоединиться");
         }
 
@@ -90,7 +106,8 @@ public class MeetingActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (button.getText().equals("Присоединиться")){
-                    myMeet.child(meetUid).child("members").child(uid).setValue(user.getName());
+
+                    myMeet.child(meetUid).child("members").child(uid).setValue(user);
                     int member_number1=member_number+1;
                     myMeet.child(meetUid).child("numberMember").setValue(member_number1);
                     button.setText("Покинуть");
@@ -109,8 +126,6 @@ public class MeetingActivity extends AppCompatActivity {
             }
         });
 
-        getMember();
-
         getDataFromDB();
     }
     private void init()
@@ -122,16 +137,14 @@ public class MeetingActivity extends AppCompatActivity {
         meetTime=findViewById(R.id.meetTime);
         meetDescription=findViewById(R.id.meetDescription);
         meetNumber=findViewById(R.id.meetNumber);
-        meetCreator.setClickable(true);
-        meetCreator.setOnClickListener(new View.OnClickListener() {
+        cardView=findViewById(R.id.cardView);
+        meetCreat=findViewById(R.id.imageCreat);
+        cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = getIntent();
-                if(i != null)
-                {
-                    Intent intent = new Intent(MeetingActivity.this, ProfileUsersActivity.class);
-                    intent.putExtra(Constant.MEETING_TITLE, i.getStringExtra(Constant.MEETING_CREATOR_UID));
-                }
+                Intent i = new Intent(MeetingActivity.this, ProfileUsersActivity.class);
+                i.putExtra(Constant.MEETING_CREATOR_UID, creatorUid);
+                startActivity(i);
             }
         });
     }
@@ -149,17 +162,34 @@ public class MeetingActivity extends AppCompatActivity {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         meeting = snapshot.getValue(Meeting.class);
+                        User creator=meeting.getCreator();
+                        if (creator!=null){
+                            String creator_name=creator.getName();
+                            meetCreator.setText(creator_name);
+                        }
+
                         if (meeting != null) {
                             meetTitle.setText(meeting.title);
                             meetDate.setText(meeting.date);
                             meetAddress.setText(meeting.address);
-                            meetCreator.setText(meeting.creator);
                             meetTime.setText(meeting.time);
                             meetDescription.setText(meeting.description);
                             member_number=meeting.numberMember;
                             meetNumber.setText(Integer.toString(member_number));
                             String url=meeting.urlImage;
-                            Glide.with(context).load(url).into(imageView);
+                            if (url!=null){
+                                Glide.with(imageView.getContext()).load(url).into(imageView);
+                            }
+                            else {
+                                Glide.with(imageView.getContext()).load(URI).into(imageView);
+                            }
+                        }
+                        String creatorUrl =creator.getAvatarUri();
+                        if (creatorUrl !=null) {
+                            Glide.with(meetCreat.getContext()).load(creatorUrl).into(meetCreat);
+                        }
+                        else {
+                            Glide.with(meetCreat.getContext()).load(URI).into(meetCreat);
                         }
                     }
 
@@ -178,7 +208,16 @@ public class MeetingActivity extends AppCompatActivity {
         users.child(uid).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
-                user = dataSnapshot.getValue(User.class);
+                User mUser = dataSnapshot.getValue(User.class);
+                assert mUser!=null;
+                String user_name=mUser.getName();
+                if (user_name!=null) {
+                    user.setName(user_name);
+                }
+                String user_uri=mUser.getAvatarUri();
+                if (user_uri!=null) {
+                    user.setAvatarUri(user_uri);
+                }
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -193,21 +232,21 @@ public class MeetingActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                if(listMember.size() > 0)listMember.clear();
+                if(mUsers.size() > 0)mUsers.clear();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren())
                 {
                     if (dataSnapshot.getKey().equals(uid) ) {
                         ref = dataSnapshot.getRef();
                         button.setText("Покинуть");
                     }
-                    else{
+                    /*else if (!creatorUid.equals(uid)){
                         button.setText("Присоединиться");
-                    }
-                    String user_name =dataSnapshot.getValue(String.class);
-                    assert user_name != null;
-                    listMember.add(user_name);
+                    }*/
+                    User member =dataSnapshot.getValue(User.class);
+                    assert member != null;
+                    mUsers.add(member);
                 }
-                adapter.notifyDataSetChanged();
+                userAdapter.notifyDataSetChanged();
             }
 
             @Override
@@ -219,4 +258,11 @@ public class MeetingActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void OnItemClick(int position) {
+        User user = mUsers.get(position);
+        Intent i = new Intent(MeetingActivity.this, ProfileUsersActivity.class);
+        i.putExtra(Constant.MEETING_CREATOR_UID, user.getUid());
+        startActivity(i);
+    }
 }
