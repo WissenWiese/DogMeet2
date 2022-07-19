@@ -23,8 +23,11 @@ import com.example.dogmeet.entity.Meeting;
 import com.example.dogmeet.entity.Pet;
 import com.example.dogmeet.mainActivity.AddActivity;
 import com.example.dogmeet.mainActivity.LoginActivity;
+import com.google.android.gms.tasks.Continuation;
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -64,7 +67,9 @@ public class AddPetActivity extends AppCompatActivity {
         button_upload_avatar=findViewById(R.id.button_upload_avatar_pet);
         database = FirebaseDatabase.getInstance();
         users = database.getReference("Users");
-        imageView=findViewById(R.id.imageView3);
+        imageView=findViewById(R.id.imageView_pet);
+
+        Glide.with(imageView.getContext()).load(URI).into(imageView);
 
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
@@ -96,7 +101,7 @@ public class AddPetActivity extends AppCompatActivity {
                     uploadImage(pet);
                 }
                 else {
-                    users.child("pets").push().setValue(pet);
+                    users.child(uid).child("pets").push().setValue(pet);
                     AddPetActivity.this.finish();
                 }
             }
@@ -141,16 +146,14 @@ public class AddPetActivity extends AppCompatActivity {
             progressDialog.show();
 
             StorageReference ref = storageReference.child("pet/"+ UUID.randomUUID().toString());
-            ref.putFile(filePath)
+            UploadTask upload_image=ref.putFile(filePath);
+            upload_image
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                         @Override
                         public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                             progressDialog.dismiss();
                             Toast.makeText(AddPetActivity.this, "Uploaded", Toast.LENGTH_SHORT).show();
                             Uri downloadUri = taskSnapshot.getUploadSessionUri();
-                            pet.setAvatar_pet(downloadUri.toString());
-                            users.child("pets").push().setValue(pet);
-                            AddPetActivity.this.finish();
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
@@ -168,6 +171,29 @@ public class AddPetActivity extends AppCompatActivity {
                             progressDialog.setMessage("Uploaded "+(int)progress+"%");
                         }
                     });
+            Task<Uri> urlTask = upload_image.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+                    return ref.getDownloadUrl();
+
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if (task.isSuccessful()) {
+                        Uri downloadUri = task.getResult();
+                        pet.setAvatar_pet(downloadUri.toString());
+                        users.child(uid).child("pets").push().setValue(pet);
+                        AddPetActivity.this.finish();
+
+                    } else {
+                        Toast.makeText(AddPetActivity.this, "Failed", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
 
         }
     }

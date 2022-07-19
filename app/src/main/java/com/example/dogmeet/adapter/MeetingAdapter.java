@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -34,19 +35,20 @@ public class MeetingAdapter extends RecyclerView.Adapter<MeetingAdapter.MeetingV
 
 
     public static class MeetingViewHolder extends RecyclerView.ViewHolder {
-        public TextView title;
-        public TextView address;
-        public TextView date;
-        public TextView member;
+        public TextView title, address, date, member, time, comments;
         public ImageView imageView;
+        public ImageButton imageButton;
 
         public MeetingViewHolder(View itemView, RecyclerViewInterface recyclerViewInterface) {
             super(itemView);
             title =itemView.findViewById(R.id.TitleTextView);
             address =itemView.findViewById(R.id.AddressTextView);
             date =itemView.findViewById(R.id.DateTextView);
+            time=itemView.findViewById(R.id.TimetextView);
             member =itemView.findViewById(R.id.MemberTextView);
+            comments=itemView.findViewById(R.id.nubComments);
             imageView=itemView.findViewById(R.id.imageView2);
+            imageButton=itemView.findViewById(R.id.imageButtonMessage);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -60,6 +62,20 @@ public class MeetingAdapter extends RecyclerView.Adapter<MeetingAdapter.MeetingV
                     }
                 }
             });
+
+            imageButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (recyclerViewInterface!=null){
+                        int pos=getAdapterPosition();
+
+                        if (pos!=RecyclerView.NO_POSITION){
+                            recyclerViewInterface.OnItemClick(pos);
+                        }
+                    }
+                }
+            });
+
         }
     }
 
@@ -83,7 +99,9 @@ public class MeetingAdapter extends RecyclerView.Adapter<MeetingAdapter.MeetingV
         holder.title.setText(meeting.getTitle());
         holder.address.setText(meeting.getAddress());
         holder.date.setText(meeting.getDate());
+        holder.time.setText(meeting.getTime());
         holder.member.setText(Integer.toString(meeting.getNumberMember()));
+        holder.comments.setText(Integer.toString(meeting.getNumberComments()));
 
         if (meeting.urlImage!=null){
             String url=meeting.urlImage;

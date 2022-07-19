@@ -1,4 +1,4 @@
-package com.example.dogmeet.ui.profile;
+package com.example.dogmeet.Fragment;
 
 import static android.app.Activity.RESULT_OK;
 
@@ -18,16 +18,25 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.dogmeet.Activity.AddPetActivity;
 import com.example.dogmeet.R;
+import com.example.dogmeet.RecyclerViewInterface;
+import com.example.dogmeet.adapter.PetAdapter;
+import com.example.dogmeet.entity.Pet;
 import com.example.dogmeet.entity.User;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -39,18 +48,21 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment implements RecyclerViewInterface{
     ImageButton buttonEdit, buttonAdd, buttonSave, imageView;
     EditText about;
-    DatabaseReference database;
-    DatabaseReference ref;
+    DatabaseReference database, ref, pets;
     private final int PICK_IMAGE_REQUEST = 71;
     private View view;
     private Uri filePath;
     FirebaseStorage storage;
     StorageReference storageReference;
+    private ArrayList<Pet> mPets;
+    private RecyclerView recyclerView;
+    private PetAdapter petAdapter;
 
     public ProfileFragment(){
 
@@ -61,6 +73,7 @@ public class ProfileFragment extends Fragment {
                              ViewGroup container, Bundle savedInstanceState) {
 
         view = inflater.inflate(R.layout.fragment_profile, container, false);
+        mPets = new ArrayList<>();
 
         FirebaseAuth auth = FirebaseAuth.getInstance();
         TextView bio=view.findViewById(R.id.text_name);
@@ -72,6 +85,20 @@ public class ProfileFragment extends Fragment {
 
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
+
+        recyclerView=view.findViewById(R.id.r_v_pet);
+        recyclerView.setHasFixedSize(true);
+
+        petAdapter= new PetAdapter(mPets, this);
+
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.HORIZONTAL));
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL, false));
+        recyclerView.setAdapter(petAdapter);
+
+
+
+
 
         database = FirebaseDatabase.getInstance().getReference();
         ref = database.child("Users").child(auth.getUid());
@@ -92,6 +119,26 @@ public class ProfileFragment extends Fragment {
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+        pets=database.child("Users").child(auth.getUid()).child("pets");
+        pets.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if(mPets.size() > 0)mPets.clear();
+                for(DataSnapshot dataSnapshot : snapshot.getChildren())
+                {
+                    Pet pet =dataSnapshot.getValue(Pet.class);
+                    assert pet != null;
+                    mPets.add(pet);
+                }
+                petAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
 
             }
         });
@@ -195,5 +242,10 @@ public class ProfileFragment extends Fragment {
                 });
             }
         }
+    }
+
+    @Override
+    public void OnItemClick(int position) {
+
     }
 }

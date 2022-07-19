@@ -27,13 +27,16 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder>{
 
 
     public static class PetViewHolder extends RecyclerView.ViewHolder {
-        public TextView name;
+        public TextView name, age, breed, gender;
         public ImageView imageView;
 
         public PetViewHolder(View itemView, RecyclerViewInterface recyclerViewInterface) {
             super(itemView);
-            name =itemView.findViewById(R.id.textViewName);
-            imageView=itemView.findViewById(R.id.imageViewAvatar);
+            name =itemView.findViewById(R.id.name);
+            age =itemView.findViewById(R.id.age);
+            breed =itemView.findViewById(R.id.breed);
+            gender =itemView.findViewById(R.id.gender);
+            imageView=itemView.findViewById(R.id.avatar);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -58,7 +61,7 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder>{
     @Override
     public PetViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         context= parent.getContext();
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.user_item, parent, false);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_pet, parent, false);
         PetViewHolder evh = new PetViewHolder(v, recyclerViewInterface);
         return evh;
     }
@@ -68,6 +71,9 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder>{
         Pet pet = mPets.get(position);
 
         holder.name.setText(pet.getName());
+        holder.age.setText(pet.getAge());
+        holder.breed.setText(pet.getBreed());
+        holder.gender.setText(pet.getGender());
 
         if (pet.getAvatar_pet()!=null){
             String url=pet.getAvatar_pet();

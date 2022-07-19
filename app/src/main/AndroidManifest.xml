@@ -38,7 +38,7 @@
             android:name=".Activity.AddPetActivity"
             android:exported="false" />
         <activity
-            android:name=".NavigatActivity"
+            android:name=".mainActivity.NavigatActivity"
             android:exported="false"
             android:theme="@style/Theme.DogMeet.NoActionBar" />
         <activity

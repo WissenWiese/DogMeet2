@@ -1,6 +1,7 @@
 package com.example.dogmeet.Activity;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
@@ -33,6 +34,7 @@ public class EditMeetingActivity extends AppCompatActivity {
 
     private FirebaseDatabase database;
     private DatabaseReference myMeet;
+    Toolbar toolbar;
 
 
     @Override
@@ -40,44 +42,30 @@ public class EditMeetingActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_meeting);
 
+        toolbar = findViewById(R.id.toolbar_edit);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        toolbar.setTitle("Редактировать мероприятие");
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v){
+                onBackPressed();// возврат на предыдущий activity
+            }
+        });
+
         titleEditText = findViewById(R.id.editTitle2);
         addressEditText = findViewById(R.id.editPostalAddress2);
         dateEditText = findViewById(R.id.editDate2);
         timeEditText=findViewById(R.id.editTime2);
         descriptionEditText=findViewById(R.id.editDescription2);
-        numberEditText=findViewById(R.id.editNumberMember2);
         caveButton = findViewById(R.id.btnSave);
         deleteButton = findViewById(R.id.btnDelete);
 
 
         database = FirebaseDatabase.getInstance();
         myMeet = database.getReference("meeting");
-
-        meet_for=findViewById(R.id.size_dog_view2);
-
-        String[] size = { "Любых пород", "Мелких пород", "Средних пород", "Крупных пород"};
-
-        Spinner size_spinner = findViewById(R.id.size_spinner2);
-
-        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, size);
-
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        size_spinner.setAdapter(adapter);
-
-        AdapterView.OnItemSelectedListener itemSelectedListener = new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                // Получаем выбранный объект
-                String item = (String)parent.getItemAtPosition(position);
-                meet_for.setText(item);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        };
 
         getIntentMain();
 
@@ -89,16 +77,12 @@ public class EditMeetingActivity extends AppCompatActivity {
                 String dateText = dateEditText.getText().toString();
                 String timeText=timeEditText.getText().toString();
                 String descriptionText=descriptionEditText.getText().toString();
-                String numberText=numberEditText.getText().toString();
-                String tupeText=meet_for.getText().toString();
 
                 myMeet.child(meetUid).child("title").setValue(titleText);
                 myMeet.child(meetUid).child("address").setValue(addressText);
                 myMeet.child(meetUid).child("date").setValue(dateText);
                 myMeet.child(meetUid).child("time").setValue(timeText);
                 myMeet.child(meetUid).child("description").setValue(descriptionText);
-                myMeet.child(meetUid).child("numberMember").setValue(numberText);
-                myMeet.child(meetUid).child("tupeDog").setValue(tupeText);
 
                 EditMeetingActivity.this.finish();
             }
@@ -130,8 +114,6 @@ public class EditMeetingActivity extends AppCompatActivity {
                         addressEditText.setText(meeting.address);
                         timeEditText.setText(meeting.time);
                         descriptionEditText.setText(meeting.description);
-                        numberEditText.setText(Integer.toString(meeting.numberMember));
-                        meet_for.setText(meeting.tupeDog);
                     }
                 }
                 @Override

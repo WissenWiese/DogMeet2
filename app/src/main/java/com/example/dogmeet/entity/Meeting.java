@@ -12,14 +12,14 @@ import java.util.Objects;
 
 @Entity
 public class Meeting {
-    public String uid, title, address, date, creatorUid, time, description, tupeDog, urlImage;
-    public int numberMember;
+    public String uid, title, address, date, creatorUid, time, description, urlImage;
+    public int numberMember, numberComments;
     public User creator;
     public Meeting() {}
 
     public Meeting(String uid, String title, String address, String date, User creator,
-                   String creatorUid, String time, int numberMember,
-                   String description, String tupeDog, String urlImage){
+                   String creatorUid, String time, int numberMember, int numberComments,
+                   String description, String urlImage){
         this.uid=uid;
         this.title=title;
         this.address=address;
@@ -28,8 +28,8 @@ public class Meeting {
         this.creatorUid=creatorUid;
         this.time=time;
         this.numberMember=numberMember;
+        this.numberComments=numberComments;
         this.description=description;
-        this.tupeDog=tupeDog;
         this.urlImage= urlImage;
 
     }
@@ -106,14 +106,6 @@ public class Meeting {
         this.description = description;
     }
 
-    public String getTupeDog() {
-        return tupeDog;
-    }
-
-    public void setTupeDog(String tupeDog) {
-        this.tupeDog = tupeDog;
-    }
-
     public String getUrlImage() {
         return urlImage;
     }
@@ -122,6 +114,13 @@ public class Meeting {
         this.urlImage = urlImage;
     }
 
+    public int getNumberComments() {
+        return numberComments;
+    }
+
+    public void setNumberComments(int numberComments) {
+        this.numberComments = numberComments;
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -132,12 +131,11 @@ public class Meeting {
                 && date.equals(meeting.date) && creator.equals(meeting.creator)
                 && creatorUid.equals(meeting.creatorUid)
                 && time.equals(meeting.time)
-                && description.equals(meeting.description)
-                && tupeDog.equals(meeting.tupeDog);
+                && description.equals(meeting.description);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, address, date, creator, creatorUid, time, numberMember, description, tupeDog);
+        return Objects.hash(title, address, date, creator, creatorUid, time, numberMember, description);
     }
 }

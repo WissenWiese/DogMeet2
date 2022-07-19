@@ -1,5 +1,6 @@
 package com.example.dogmeet.mainActivity;
 
+
 import static com.example.dogmeet.Constant.URI;
 
 import android.app.DatePickerDialog;
@@ -9,22 +10,18 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.text.TextUtils;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.Spinner;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.example.dogmeet.R;
@@ -35,6 +32,7 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -58,66 +56,53 @@ public class AddActivity extends AppCompatActivity {
     private DatabaseReference myMeet, users;
     private FirebaseAuth auth;
     private String uid, imageUrl;
-    private int member_number;
+    private int member_number, comments_number;
     private final int PICK_IMAGE_REQUEST = 71;
     private Uri filePath;
     private ImageView imageView;
     FirebaseStorage storage;
     StorageReference storageReference;
     User creator;
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add);
-        setTitle("Создать встречу");
+        toolbar = findViewById(R.id.toolbar_add_activity);
+        setSupportActionBar(toolbar);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        toolbar.setTitle("Создать встречу");
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v){
+                onBackPressed();// возврат на предыдущий activity
+            }
+        });
 
         creator=new User();
 
         titleEditText = findViewById(R.id.editTitle);
         addressEditText = findViewById(R.id.editPostalAddress);
         dateEditText = findViewById(R.id.editDate);
-        timeEditText=findViewById(R.id.editTime);
-        descriptionEditText=findViewById(R.id.editDescription);
+        timeEditText =findViewById(R.id.editTime);
+        descriptionEditText=findViewById(R.id.editMessage);
+        
         addButton = findViewById(R.id.btnAdd);
-        cancelButton = findViewById(R.id.btnCancel);
         button_upload=findViewById(R.id.button_upload_photo);
+
         database = FirebaseDatabase.getInstance();
         myMeet = database.getReference("meeting");
         users = database.getReference("Users");
+
         imageView=findViewById(R.id.imageView3);
 
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
 
         Glide.with(imageView.getContext()).load(URI).into(imageView);
-
-        TextView meet_for=findViewById(R.id.size_dog_view);
-
-        String[] size = { "Любых пород", "Мелких пород", "Средних пород", "Крупных пород"};
-
-        Spinner size_spinner = findViewById(R.id.size_spinner);
-
-        ArrayAdapter adapter = new ArrayAdapter(this, android.R.layout.simple_spinner_item, size);
-
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
-        size_spinner.setAdapter(adapter);
-
-        AdapterView.OnItemSelectedListener itemSelectedListener = new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-
-                // Получаем выбранный объект
-                String item = (String)parent.getItemAtPosition(position);
-                meet_for.setText(item);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-            }
-        };
-        size_spinner.setOnItemSelectedListener(itemSelectedListener);
 
         FirebaseUser cur_user = auth.getInstance().getCurrentUser();
 
@@ -155,14 +140,38 @@ public class AddActivity extends AppCompatActivity {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if(TextUtils.isEmpty(titleEditText.getText().toString())) {
+                    Toast.makeText(AddActivity.this, "Введите название", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if(TextUtils.isEmpty(addressEditText.getText().toString())) {
+                    Toast.makeText(AddActivity.this, "Введите адрес", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if(TextUtils.isEmpty(dateEditText.getText().toString())) {
+                    Toast.makeText(AddActivity.this, "Введите дату", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if(TextUtils.isEmpty(timeEditText.getText().toString())) {
+                    Toast.makeText(AddActivity.this, "Введите время", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                if(TextUtils.isEmpty(descriptionEditText.getText().toString())) {
+                    Toast.makeText(AddActivity.this, "Введите описание", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 String titleText = titleEditText.getText().toString();
                 String addressText = addressEditText.getText().toString();
                 String dateText = dateEditText.getText().toString();
-                String timeText=timeEditText.getText().toString();
+                String timeText= timeEditText.getText().toString();
                 String descriptionText=descriptionEditText.getText().toString();
-                String tupeText=meet_for.getText().toString();
                 member_number=0;
+                comments_number=0;
 
                 Meeting meet = new Meeting();
                 meet.setTitle(titleText);
@@ -172,7 +181,6 @@ public class AddActivity extends AppCompatActivity {
                 meet.setCreator(creator);
                 meet.setTime(timeText);
                 meet.setDescription(descriptionText);
-                meet.setTupeDog(tupeText);
                 meet.setNumberMember(member_number);
                 if (filePath!=null) {
                     uploadImage(meet);
@@ -184,13 +192,6 @@ public class AddActivity extends AppCompatActivity {
                 }
 
 
-            }
-        });
-
-        cancelButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                AddActivity.this.finish();
             }
         });
 

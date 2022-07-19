@@ -1,4 +1,4 @@
-package com.example.dogmeet.ui.listMeet;
+package com.example.dogmeet.Fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -19,6 +19,10 @@ import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
 import com.example.dogmeet.adapter.MeetingAdapter;
 import com.example.dogmeet.entity.Meeting;
+import com.example.dogmeet.entity.User;
+import com.example.dogmeet.mainActivity.AddActivity;
+import com.example.dogmeet.mainActivity.NavigatActivity;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -26,6 +30,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ListMeetFragment extends Fragment implements RecyclerViewInterface {
     private DatabaseReference myMeet;
@@ -34,6 +40,8 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
     private RecyclerView recyclerView;
     private MeetingAdapter meetingAdapter;
     private View view;
+    private FloatingActionButton fabAddMeet;
+
 
     public ListMeetFragment() {
 
@@ -46,6 +54,16 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
         view = inflater.inflate(R.layout.fragment_list_meet, container, false);
         myMeet = FirebaseDatabase.getInstance().getReference("meeting");
         meetings = new ArrayList<>();
+
+        fabAddMeet=view.findViewById(R.id.fabAddMeet);
+
+        fabAddMeet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i=new Intent(getActivity(), AddActivity.class);
+                startActivity(i);
+            }
+        });
 
         recyclerView=view.findViewById(R.id.recycle_view_meeting_list);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -61,8 +79,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
         return view;
     }
 
-    private void getDataFromDB()
-    {
+    private void getDataFromDB(){
         ValueEventListener meetListener = new ValueEventListener()  {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {

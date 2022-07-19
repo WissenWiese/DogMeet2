@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.profile.ProfileFragment">
+    tools:context=".Fragment.ProfileFragment">
 
     <ImageButton
         android:id="@+id/imageViewAvatar"
@@ -81,7 +81,7 @@
         app:layout_constraintStart_toEndOf="@+id/editBtn"
         app:layout_constraintTop_toBottomOf="@+id/text_name"
         android:background="@color/primary_dark"
-        app:srcCompat="@android:drawable/ic_menu_save" />
+        app:srcCompat="@drawable/save" />
 
     <ImageButton
         android:id="@+id/editBtn"
@@ -92,7 +92,7 @@
         android:background="@color/primary_dark"
         app:layout_constraintStart_toEndOf="@+id/text_about_me"
         app:layout_constraintTop_toBottomOf="@+id/text_name"
-        app:srcCompat="@android:drawable/ic_menu_edit" />
+        app:srcCompat="@drawable/edit" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/r_v_pet"

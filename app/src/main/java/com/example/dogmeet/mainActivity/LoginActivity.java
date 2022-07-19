@@ -16,7 +16,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import com.example.dogmeet.NavigatActivity;
 import com.example.dogmeet.R;
 import com.example.dogmeet.entity.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -124,7 +123,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(DialogInterface dialogInterface, int which) {
                if(TextUtils.isEmpty(name.getText().toString())) {
-                   Snackbar.make(root, "Введите вашу имя", Snackbar.LENGTH_LONG).show();
+                   Snackbar.make(root, "Введите ваше имя", Snackbar.LENGTH_LONG).show();
                    return;
                }
 
