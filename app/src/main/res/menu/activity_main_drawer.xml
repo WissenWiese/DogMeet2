@@ -20,10 +20,5 @@
             android:id="@+id/nav_settings"
             android:icon="@drawable/settings"
             android:title="Настройки" />
-
-        <item
-            android:id="@+id/nav_comment"
-            android:icon="@android:drawable/stat_notify_chat"
-            android:title="Комментарии" />
     </group>
 </menu>

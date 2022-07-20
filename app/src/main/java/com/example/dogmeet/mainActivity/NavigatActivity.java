@@ -67,7 +67,7 @@ public class NavigatActivity extends AppCompatActivity {
 
         database = FirebaseDatabase.getInstance().getReference();
         user = database.child("Users").child(auth.getUid());
-        user.addListenerForSingleValueEvent(new ValueEventListener() {
+        user.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user1 = dataSnapshot.getValue(User.class);

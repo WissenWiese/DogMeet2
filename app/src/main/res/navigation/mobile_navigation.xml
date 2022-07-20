@@ -29,11 +29,5 @@
         android:label="Настройки"
         tools:layout="@layout/fragment_settings" />
 
-    <fragment
-        android:id="@+id/nav_comment"
-        android:name="com.example.dogmeet.Fragment.MeetingFragment"
-        android:label="Комментарии"
-        tools:layout="@layout/fragment_meeting" />
-
 
 </navigation>

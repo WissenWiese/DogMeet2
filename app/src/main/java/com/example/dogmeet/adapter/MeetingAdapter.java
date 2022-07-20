@@ -70,7 +70,7 @@ public class MeetingAdapter extends RecyclerView.Adapter<MeetingAdapter.MeetingV
                         int pos=getAdapterPosition();
 
                         if (pos!=RecyclerView.NO_POSITION){
-                            recyclerViewInterface.OnItemClick(pos);
+                            recyclerViewInterface.OnButtonClick(pos);
                         }
                     }
                 }

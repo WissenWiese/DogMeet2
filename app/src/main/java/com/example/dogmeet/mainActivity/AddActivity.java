@@ -178,7 +178,6 @@ public class AddActivity extends AppCompatActivity {
                 meet.setAddress(addressText);
                 meet.setDate(dateText);
                 meet.setCreatorUid(uid);
-                meet.setCreator(creator);
                 meet.setTime(timeText);
                 meet.setDescription(descriptionText);
                 meet.setNumberMember(member_number);

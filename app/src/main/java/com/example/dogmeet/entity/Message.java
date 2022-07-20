@@ -3,17 +3,26 @@ package com.example.dogmeet.entity;
 import java.util.Date;
 
 public class Message {
-    private String user, message, userName, userImage;
+    private String user, message, userName, userImage, uid;
     private long time;
 
-    public Message(String user, String message, String userName, String userImage) {
+    public Message(String user, String message, String userName, String userImage, String uid) {
         this.user = user;
         this.message = message;
         this.userName = userName;
         this.userImage = userImage;
+        this.uid=uid;
 
         // Initialize to current time
         time = new Date().getTime();
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public Message(){

@@ -96,13 +96,9 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL, false));
         recyclerView.setAdapter(petAdapter);
 
-
-
-
-
         database = FirebaseDatabase.getInstance().getReference();
         ref = database.child("Users").child(auth.getUid());
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+        ref.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
@@ -124,7 +120,7 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
         });
 
         pets=database.child("Users").child(auth.getUid()).child("pets");
-        pets.addListenerForSingleValueEvent(new ValueEventListener() {
+        pets.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if(mPets.size() > 0)mPets.clear();
@@ -246,6 +242,11 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
 
     @Override
     public void OnItemClick(int position) {
+
+    }
+
+    @Override
+    public void OnButtonClick(int position) {
 
     }
 }

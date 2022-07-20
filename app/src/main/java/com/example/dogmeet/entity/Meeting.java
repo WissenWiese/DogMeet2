@@ -8,23 +8,22 @@ import androidx.room.Entity;
 import com.example.dogmeet.Activity.MeetingActivity;
 import com.example.dogmeet.Constant;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 @Entity
 public class Meeting {
     public String uid, title, address, date, creatorUid, time, description, urlImage;
     public int numberMember, numberComments;
-    public User creator;
     public Meeting() {}
 
-    public Meeting(String uid, String title, String address, String date, User creator,
+    public Meeting(String uid, String title, String address, String date,
                    String creatorUid, String time, int numberMember, int numberComments,
                    String description, String urlImage){
         this.uid=uid;
         this.title=title;
         this.address=address;
         this.date=date;
-        this.creator=creator;
         this.creatorUid=creatorUid;
         this.time=time;
         this.numberMember=numberMember;
@@ -64,14 +63,6 @@ public class Meeting {
 
     public void setDate(String date) {
         this.date = date;
-    }
-
-    public User getCreator() {
-        return creator;
-    }
-
-    public void setCreator(User creator) {
-        this.creator = creator;
     }
 
     public String getCreatorUid() {
@@ -128,7 +119,7 @@ public class Meeting {
         if (o == null || getClass() != o.getClass()) return false;
         Meeting meeting = (Meeting) o;
         return title.equals(meeting.title) && address.equals(meeting.address)
-                && date.equals(meeting.date) && creator.equals(meeting.creator)
+                && date.equals(meeting.date)
                 && creatorUid.equals(meeting.creatorUid)
                 && time.equals(meeting.time)
                 && description.equals(meeting.description);
@@ -136,6 +127,6 @@ public class Meeting {
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, address, date, creator, creatorUid, time, numberMember, description);
+        return Objects.hash(title, address, date, creatorUid, time, numberMember, description);
     }
 }

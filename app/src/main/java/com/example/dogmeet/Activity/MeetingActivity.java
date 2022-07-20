@@ -1,5 +1,6 @@
 package com.example.dogmeet.Activity;
 
+import static com.example.dogmeet.Constant.IS_COMMENT;
 import static com.example.dogmeet.Constant.URI;
 
 import androidx.annotation.NonNull;
@@ -47,14 +48,15 @@ public class MeetingActivity extends AppCompatActivity{
     private TextView meetDate, meetAddress, meetTime;
     ImageView meetImageView;
     Toolbar toolbar;
-    String creatorUid, uid, meetUid, description, number;
-    private DatabaseReference myMeet, users;
+    String creatorUid, uid, meetUid;
+    private DatabaseReference myMeet;
     private Meeting meeting;
     TabLayout tabLayout;
     CardView addMessage;
     private ImageButton spendMessage;
     private EditText editComment;
     int numberComments;
+    Boolean isComment;
 
 
     @Override
@@ -155,6 +157,7 @@ public class MeetingActivity extends AppCompatActivity{
         {
             meetUid=i.getStringExtra(Constant.MEETING_UID);
             creatorUid=i.getStringExtra(Constant.MEETING_CREATOR_UID);
+            isComment=i.getExtras().getBoolean(IS_COMMENT);
             if (meetUid!=null) {
                 ValueEventListener meetingListener = new ValueEventListener() {
                     @Override
@@ -183,6 +186,18 @@ public class MeetingActivity extends AppCompatActivity{
                 };
 
                 myMeet.child(meetUid).addValueEventListener(meetingListener);
+                if (!isComment) {
+                    TabLayout.Tab tab=tabLayout.getTabAt(0);
+                    assert tab != null;
+                    tab.select();
+                    ReviewFragment reviewFragment = ReviewFragment.newInstance(meetUid, creatorUid);
+                    replaceFragment(reviewFragment);
+                }
+                else{
+                    TabLayout.Tab tab=tabLayout.getTabAt(1);
+                    assert tab != null;
+                    tab.select();
+                }
             }
         }
     }

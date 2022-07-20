@@ -2,6 +2,7 @@ package com.example.dogmeet.Fragment;
 
 import static com.example.dogmeet.Constant.URI;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import android.util.Log;
@@ -21,7 +22,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.dogmeet.Dictionary;
+import com.example.dogmeet.Activity.MeetingActivity;
+import com.example.dogmeet.Activity.ProfileUsersActivity;
+import com.example.dogmeet.Constant;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
 import com.example.dogmeet.adapter.UserAdapter;
@@ -35,6 +38,10 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.HashMap;
+import java.util.Hashtable;
+import java.util.Map;
 
 public class ReviewFragment extends Fragment implements RecyclerViewInterface {
     private TextView meetDescription, meetNumber, meetCreator;
@@ -49,7 +56,7 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
     Meeting meeting;
     View view;
     private DatabaseReference myMeet, ref;
-    User mUser=new User();
+    Map<String, User> usersDictionary;
 
     public static ReviewFragment newInstance(String meetUid, String creatorUid) {
         ReviewFragment reviewFragment = new ReviewFragment();
@@ -78,8 +85,6 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
 
         uid= FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        getUser();
-
         myMeet = FirebaseDatabase.getInstance().getReference("meeting");
 
         button=view.findViewById(R.id.button);
@@ -88,10 +93,6 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
         meetNumber=view.findViewById(R.id.meetNumber);
         cardView=view.findViewById(R.id.cardView);
         meetCreat=view.findViewById(R.id.imageCreat);
-
-        getData();
-        setButton();
-        getListMember();
 
         mUsers = new ArrayList<>();
 
@@ -105,11 +106,32 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL, false));
         recyclerView.setAdapter(userAdapter);
 
+        getUser();
+        setButton();
+
+        cardView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getContext(), ProfileUsersActivity.class);
+                i.putExtra(Constant.USER_UID, creatorUid);
+                startActivity(i);
+            }
+        });
+
         return view;
     }
 
     @Override
     public void OnItemClick(int position) {
+        User user=mUsers.get(position);
+        Intent i = new Intent(getContext(), ProfileUsersActivity.class);
+        i.putExtra(Constant.USER_UID, user.getUid());
+        startActivity(i);
+
+    }
+
+    @Override
+    public void OnButtonClick(int position) {
 
     }
 
@@ -120,7 +142,7 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 meeting = snapshot.getValue(Meeting.class);
                 assert meeting!=null;
-                User creator=meeting.creator;
+                User creator=usersDictionary.get(creatorUid);
                 assert creator!=null;
                 meetCreator.setText(creator.getName());
                 if (creator.getAvatarUri()!=null) {
@@ -154,7 +176,7 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
             @Override
             public void onClick(View view) {
                 if (button.getText().equals("Присоединиться")){
-                    myMeet.child(meetUid).child("members").child(uid).setValue(mUser);
+                    myMeet.child(meetUid).child("members").push().setValue(uid);
                     int member_number1=member_number+1;
                     myMeet.child(meetUid).child("numberMember").setValue(member_number1);
                     button.setText("Покинуть");
@@ -180,13 +202,14 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
                 if(mUsers.size() > 0)mUsers.clear();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren())
                 {
-                    if (dataSnapshot.getKey().equals(uid) ) {
+                    String memberUid=dataSnapshot.getValue(String.class);
+                    if (memberUid.equals(uid)) {
                         ref = dataSnapshot.getRef();
                         button.setText("Покинуть");
                         button.setBackground(getResources().getDrawable(R.drawable.btn2));
 
                     }
-                    User member=dataSnapshot.getValue(User.class);
+                    User member = usersDictionary.get(memberUid);
                     assert member != null;
                     mUsers.add(member);
                 }
@@ -204,19 +227,28 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
     public void getUser(){
         DatabaseReference users= FirebaseDatabase.getInstance().getReference("Users");
 
+        usersDictionary=new HashMap<String, User>();
+
         ValueEventListener userListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    User user = snapshot.getValue(User.class);
-                    assert user != null;
-                    mUser.setName(user.getName());
-                    mUser.setAvatarUri(user.getAvatarUri());
+                if (usersDictionary.size()>0) usersDictionary.clear();
+                for(DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    User user =dataSnapshot.getValue(User.class);
+                    assert user!=null;
+                    user.setUid(dataSnapshot.getKey());
+                    user.setName(user.getName());
+                    user.setAvatarUri(user.getAvatarUri());
+                    usersDictionary.put(dataSnapshot.getKey(), user);
+                }
+                getData();
+                getListMember();
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
             }
         };
-        users.child(uid).addListenerForSingleValueEvent(userListener);
+        users.addValueEventListener(userListener);
     }
 }

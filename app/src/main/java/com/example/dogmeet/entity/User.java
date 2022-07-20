@@ -1,5 +1,6 @@
 package com.example.dogmeet.entity;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 public class User {
@@ -14,7 +15,6 @@ public class User {
         this.info=info;
         this.avatarUri = avatarUri;
         this.uid=uid;
-
     }
 
     public String getName(){
@@ -64,6 +64,7 @@ public class User {
     public void setUid(String uid) {
         this.uid = uid;
     }
+
 
     @Override
     public boolean equals(Object o) {
