@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -40,13 +41,14 @@ public class ProfileUsersActivity extends AppCompatActivity implements RecyclerV
     private ArrayList<Pet> mPets;
     private RecyclerView recyclerView;
     private PetAdapter petAdapter;
+    Button message;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile_users);
 
-        toolbar = findViewById(R.id.toolbar_user);
+        toolbar = findViewById(R.id.toolbar_chat);
         setSupportActionBar(toolbar);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
@@ -63,10 +65,12 @@ public class ProfileUsersActivity extends AppCompatActivity implements RecyclerV
     }
 
     public void init(){
-        avatar=findViewById(R.id.imageViewAvatar);
+        avatar=findViewById(R.id.chatAvatar);
         name=findViewById(R.id.text_name);
         bio=findViewById(R.id.text_about_me);
         recyclerView=findViewById(R.id.r_v_pet);
+
+        message=findViewById(R.id.message);
 
         mPets = new ArrayList<>();
 
@@ -123,6 +127,15 @@ public class ProfileUsersActivity extends AppCompatActivity implements RecyclerV
                 }
             });
         }
+
+        message.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(ProfileUsersActivity.this, ChatActivity.class);
+                i.putExtra(Constant.USER_UID, uid);
+                startActivity(i);
+            }
+        });
     }
 
     @Override

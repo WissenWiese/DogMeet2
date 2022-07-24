@@ -30,10 +30,10 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
         public MessageViewHolder(@NonNull View itemView, RecyclerViewInterface recyclerViewInterface) {
             super(itemView);
-            nameTextView = itemView.findViewById(R.id.textViewName);
-            messageTextView = itemView.findViewById(R.id.textViewMessage);
-            dateTextView = itemView.findViewById(R.id.textViewDate);
-            avatar = itemView.findViewById(R.id.imageViewAvatar);
+            nameTextView = itemView.findViewById(R.id.chatUser);
+            messageTextView = itemView.findViewById(R.id.lastMessage);
+            dateTextView = itemView.findViewById(R.id.chatDate);
+            avatar = itemView.findViewById(R.id.chatAvatar);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

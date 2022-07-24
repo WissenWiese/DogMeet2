@@ -98,7 +98,7 @@ public class MeetingAdapter extends RecyclerView.Adapter<MeetingAdapter.MeetingV
 
         holder.title.setText(meeting.getTitle());
         holder.address.setText(meeting.getAddress());
-        holder.date.setText(meeting.getDate());
+        holder.date.setText(meeting.getDate()+",");
         holder.time.setText(meeting.getTime());
         holder.member.setText(Integer.toString(meeting.getNumberMember()));
         holder.comments.setText(Integer.toString(meeting.getNumberComments()));

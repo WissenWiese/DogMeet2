@@ -10,7 +10,7 @@
         android:layout_height="match_parent">
 
         <ImageView
-            android:id="@+id/imageViewAvatar"
+            android:id="@+id/chatAvatar"
             android:layout_width="50dp"
             android:layout_height="50dp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -21,14 +21,14 @@
             tools:srcCompat="@tools:sample/avatars" />
 
         <TextView
-            android:id="@+id/textViewName"
+            android:id="@+id/chatUser"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
             android:text="TextView"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageViewAvatar" />
+            app:layout_constraintTop_toBottomOf="@+id/chatAvatar" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.cardview.widget.CardView>

@@ -107,19 +107,6 @@ public class MapFragment extends Fragment {
 
                 @Override
                 public boolean onMarkerClick(Marker arg0) {
-                    /*AlertDialog.Builder meet_dialog=new AlertDialog.Builder(getActivity());
-
-                    LayoutInflater inflator= LayoutInflater.from(getActivity());
-                    View meet_window= inflator.inflate(R.layout.meet_window, null);
-                    meet_dialog.setView(meet_window);
-
-                    TextView title=meet_window.findViewById(R.id.title_meet);
-                    TextView description=meet_window.findViewById(R.id.description_meet);
-
-                    title.setText(arg0.getTitle());
-                    description.setText(arg0.getSnippet());
-
-                    meet_dialog.show();*/
                     if (arg0.getTitle().equals("doghanter")){
                         AlertDialog.Builder doghanter_dialog=new AlertDialog.Builder(getActivity());
                         LayoutInflater inflator= LayoutInflater.from(getActivity());
@@ -177,9 +164,7 @@ public class MapFragment extends Fragment {
 
                         doghanter_dialog.show();
                     }
-
                     return true;
-
                 }
             });
             
@@ -280,33 +265,7 @@ public class MapFragment extends Fragment {
         database = FirebaseDatabase.getInstance();
         myMeet = database.getReference("meeting");
 
-
-        ValueEventListener meetListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot dataSnapshot : snapshot.getChildren())
-                {
-                    Meeting meeting =dataSnapshot.getValue(Meeting.class);
-
-                    assert meeting != null;
-                    String title= meeting.getTitle();
-                    String address=meeting.getAddress();
-                    String date= meeting.getDate();
-
-                    LatLng point=getLocationFromAddress(getActivity(), address);
-
-                    //addMarker(point, title, address, date);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        };
-        myMeet.addValueEventListener(meetListener);
-
-        loadingDoghanter();
+        //loadingDoghanter();
     }
 
     private void showFABMenu(){
@@ -326,19 +285,6 @@ public class MapFragment extends Fragment {
         fab.animate().translationY(getResources().getDimension(R.dimen.standard_100));
         fab1.animate().translationY(getResources().getDimension(R.dimen.standard_100));
         fab2.animate().translationY(getResources().getDimension(R.dimen.standard_100));
-    }
-
-    private void addMarker(LatLng point, String title, String address, String date){
-
-        if(null != mMap){
-            mMap.addMarker(new MarkerOptions()
-                    .position(point)
-                    .title(title)
-                    .snippet(address+"\n"
-                            +date+"\n")
-                    .draggable(true)
-            );
-        }
     }
 
     public LatLng getLocationFromAddress(Context context, String strAddress) {

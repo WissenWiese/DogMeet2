@@ -44,7 +44,6 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
     private RecyclerView commentView;
     private MessageAdapter messageAdapter;
     private View view;
-    private int numberComment;
     Map<String, User>  usersDictionary;
 
     public static CommentsFragment newInstance(String meetUid) {

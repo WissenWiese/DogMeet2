@@ -112,9 +112,11 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
         cardView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent i = new Intent(getContext(), ProfileUsersActivity.class);
-                i.putExtra(Constant.USER_UID, creatorUid);
-                startActivity(i);
+                if (!creatorUid.equals(uid)){
+                    Intent i = new Intent(getContext(), ProfileUsersActivity.class);
+                    i.putExtra(Constant.USER_UID, creatorUid);
+                    startActivity(i);
+                }
             }
         });
 
@@ -124,10 +126,11 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
     @Override
     public void OnItemClick(int position) {
         User user=mUsers.get(position);
-        Intent i = new Intent(getContext(), ProfileUsersActivity.class);
-        i.putExtra(Constant.USER_UID, user.getUid());
-        startActivity(i);
-
+        if (!user.getUid().equals(uid)){
+            Intent i = new Intent(getContext(), ProfileUsersActivity.class);
+            i.putExtra(Constant.USER_UID, user.getUid());
+            startActivity(i);
+        }
     }
 
     @Override

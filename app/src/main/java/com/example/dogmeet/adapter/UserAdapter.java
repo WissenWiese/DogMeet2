@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
-import com.example.dogmeet.entity.Meeting;
 import com.example.dogmeet.entity.User;
 
 import java.util.ArrayList;
@@ -32,8 +31,8 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
 
         public UserViewHolder(View itemView, RecyclerViewInterface recyclerViewInterface) {
             super(itemView);
-            name =itemView.findViewById(R.id.textViewName);
-            imageView=itemView.findViewById(R.id.imageViewAvatar);
+            name =itemView.findViewById(R.id.chatUser);
+            imageView=itemView.findViewById(R.id.chatAvatar);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override

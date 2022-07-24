@@ -24,14 +24,11 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.example.dogmeet.Constant;
-import com.example.dogmeet.Dictionary;
 import com.example.dogmeet.Fragment.CommentsFragment;
 import com.example.dogmeet.Fragment.ReviewFragment;
 import com.example.dogmeet.R;
 import com.example.dogmeet.entity.Meeting;
 import com.example.dogmeet.entity.Message;
-import com.example.dogmeet.entity.User;
-import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -41,8 +38,6 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 public class MeetingActivity extends AppCompatActivity{
     private TextView meetDate, meetAddress, meetTime;
@@ -165,7 +160,7 @@ public class MeetingActivity extends AppCompatActivity{
                         meeting = snapshot.getValue(Meeting.class);
                         if (meeting != null) {
                             toolbar.setTitle(meeting.title);
-                            meetDate.setText(meeting.date);
+                            meetDate.setText(meeting.date+",");
                             meetAddress.setText(meeting.address);
                             meetTime.setText(meeting.time);
                             numberComments=meeting.numberComments;
@@ -186,6 +181,7 @@ public class MeetingActivity extends AppCompatActivity{
                 };
 
                 myMeet.child(meetUid).addValueEventListener(meetingListener);
+
                 if (!isComment) {
                     TabLayout.Tab tab=tabLayout.getTabAt(0);
                     assert tab != null;
@@ -210,7 +206,7 @@ public class MeetingActivity extends AppCompatActivity{
     }
 
     public void spendComments(){
-        editComment =findViewById(R.id.editComment);
+        editComment =findViewById(R.id.editMessage);
         spendMessage=findViewById(R.id.imageButton);
 
         Message message=new Message();

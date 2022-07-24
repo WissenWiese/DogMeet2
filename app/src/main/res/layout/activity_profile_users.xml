@@ -7,7 +7,7 @@
     tools:context=".Activity.ProfileUsersActivity">
 
     <androidx.appcompat.widget.Toolbar
-        android:id="@+id/toolbar_user"
+        android:id="@+id/toolbar_chat"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/primary_dark"
@@ -17,12 +17,12 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
-        android:id="@+id/imageViewAvatar"
+        android:id="@+id/chatAvatar"
         android:layout_width="match_parent"
         android:layout_height="230dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar_user" />
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_chat" />
 
     <TextView
         android:id="@+id/text_name"
@@ -32,7 +32,7 @@
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/imageViewAvatar"
+        app:layout_constraintTop_toBottomOf="@+id/chatAvatar"
         tools:text="TextView" />
 
     <TextView
@@ -67,5 +67,15 @@
         android:layout_marginTop="10dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/text_my_pet" />
+
+    <Button
+        android:id="@+id/message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="10dp"
+        android:text="Сообщение"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/r_v_pet" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
