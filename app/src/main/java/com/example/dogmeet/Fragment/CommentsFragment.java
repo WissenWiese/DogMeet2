@@ -6,9 +6,13 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -34,6 +38,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.database.core.ValueEventRegistration;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -45,6 +50,8 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
     private MessageAdapter messageAdapter;
     private View view;
     Map<String, User>  usersDictionary;
+    private ImageButton spendMessage;
+    private EditText editComment;
 
     public static CommentsFragment newInstance(String meetUid) {
         CommentsFragment сommentsFragment = new CommentsFragment();
@@ -84,7 +91,11 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
         commentView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
         commentView.setAdapter(messageAdapter);
 
+        editComment =view.findViewById(R.id.editMessage);
+        spendMessage=view.findViewById(R.id.imageButton);
+
         getUser();
+        spendComments();
 
         return view;
     }
@@ -163,6 +174,45 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
 
     @Override
     public void OnButtonClick(int position) {
+
+    }
+
+    public void spendComments(){
+        Message message=new Message();
+
+        spendMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                long date=new Date().getTime();
+
+                if(!editComment.getFreezesText()) {
+                    Toast.makeText(getContext(), "Введите комментарий", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                message.setUser(FirebaseAuth.getInstance()
+                        .getCurrentUser()
+                        .getUid());
+                message.setTime(date);
+                message.setMessage(editComment.getText().toString());
+                FirebaseDatabase.getInstance()
+                        .getReference()
+                        .child("meeting")
+                        .child(meetUid)
+                        .child("comments")
+                        .push()
+                        .setValue(message);
+
+                int numberComments=messageArrayList.size()+1;
+                FirebaseDatabase.getInstance()
+                        .getReference()
+                        .child("meeting")
+                        .child(meetUid)
+                        .child("numberComments")
+                        .setValue(numberComments);
+                editComment.setText(null);
+            }
+        });
 
     }
 }

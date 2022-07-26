@@ -59,6 +59,11 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
     public void onBindViewHolder(@NonNull ChatAdapter.ChatViewHolder chatViewHolder, int i) {
         Message message=messageList.get(i);
         if (!uid.equals(messageList.get(i).getUser())){
+            chatViewHolder.incomingUser.setVisibility(View.VISIBLE);
+            chatViewHolder.incomingMessage.setVisibility(View.VISIBLE);
+            chatViewHolder.incomingDate.setVisibility(View.VISIBLE);
+            chatViewHolder.outgoidDate.setVisibility(View.GONE);
+            chatViewHolder.outgoidMessage.setVisibility(View.GONE);
             chatViewHolder.incomingUser.setText(message.getUserName());
             if (message.getUserImage()!=null){
                 String url=message.getUserImage();
@@ -69,14 +74,14 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
             }
             chatViewHolder.incomingMessage.setText(message.getMessage());
             chatViewHolder.incomingDate.setText(DateFormat.format("HH:mm", message.getTime()));
-            chatViewHolder.outgoidDate.setVisibility(View.GONE);
-            chatViewHolder.outgoidMessage.setVisibility(View.GONE);
         }
         else{
             chatViewHolder.incomingUser.setVisibility(View.GONE);
             chatViewHolder.avatar.setImageResource(0);
             chatViewHolder.incomingMessage.setVisibility(View.GONE);
             chatViewHolder.incomingDate.setVisibility(View.GONE);
+            chatViewHolder.outgoidDate.setVisibility(View.VISIBLE);
+            chatViewHolder.outgoidMessage.setVisibility(View.VISIBLE);
             chatViewHolder.outgoidDate.setText(DateFormat.format("HH:mm", message.getTime()));
             chatViewHolder.outgoidMessage.setText(message.getMessage());
         }
@@ -84,6 +89,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
 
         if (lastdate==null || !lastdate.equals(thisdate)){
+            chatViewHolder.date.setVisibility(View.VISIBLE);
             chatViewHolder.date.setText(thisdate);
             lastdate=thisdate;
         }

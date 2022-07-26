@@ -6,4 +6,11 @@
         android:title="Редактировать"
         android:icon="@drawable/edit"
         app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_save"
+        android:title="Сохранить"
+        android:icon="@drawable/save"
+        app:showAsAction="ifRoom"/>
+
 </menu>

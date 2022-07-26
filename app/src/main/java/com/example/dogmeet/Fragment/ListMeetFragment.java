@@ -2,7 +2,10 @@ package com.example.dogmeet.Fragment;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -29,7 +32,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -66,7 +72,10 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
         });
 
         recyclerView=view.findViewById(R.id.recycle_view_meeting_list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, true);
+        linearLayoutManager.setStackFromEnd(true);
+        linearLayoutManager.setReverseLayout(true);
+        recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);
 
         meetingAdapter= new MeetingAdapter(meetings, this);
@@ -89,9 +98,21 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
                 {
                     Meeting meeting =dataSnapshot.getValue(Meeting.class);
                     assert meeting != null;
-                    uidMeet=dataSnapshot.getKey();
-                    meeting.setUid(uidMeet);
-                    meetings.add(meeting);
+                    if (UpdateListMeeting(meeting)){
+                        FirebaseDatabase.getInstance()
+                                .getReference()
+                                .child("archive")
+                                .child("meeting")
+                                .child(dataSnapshot.getKey())
+                                .setValue(meeting);
+
+                        dataSnapshot.getRef().removeValue();
+                    }
+                    else {
+                        uidMeet = dataSnapshot.getKey();
+                        meeting.setUid(uidMeet);
+                        meetings.add(meeting);
+                    }
                 }
                 meetingAdapter.notifyDataSetChanged();
             }
@@ -141,5 +162,25 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
         i.putExtra(Constant.MEETING_CREATOR_UID, meeting.getCreatorUid());
         i.putExtra(Constant.IS_COMMENT, true);
         startActivity(i);
+    }
+
+    private boolean UpdateListMeeting(Meeting meeting){
+        long date=new Date().getTime();
+        long dateMeet = 0;
+
+        SimpleDateFormat f = new SimpleDateFormat("dd.MM.yyyy");
+        try {
+            Date d = f.parse(meeting.getDate());
+            dateMeet = d.getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        if (dateMeet<date){
+            return true;
+        }
+        else {
+            return false;
+        }
     }
 }

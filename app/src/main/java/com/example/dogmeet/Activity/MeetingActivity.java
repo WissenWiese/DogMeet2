@@ -47,9 +47,6 @@ public class MeetingActivity extends AppCompatActivity{
     private DatabaseReference myMeet;
     private Meeting meeting;
     TabLayout tabLayout;
-    CardView addMessage;
-    private ImageButton spendMessage;
-    private EditText editComment;
     int numberComments;
     Boolean isComment;
 
@@ -77,7 +74,6 @@ public class MeetingActivity extends AppCompatActivity{
 
         init();
         getIntentMain();
-        spendComments();
     }
 
     @Override
@@ -88,6 +84,9 @@ public class MeetingActivity extends AppCompatActivity{
 
         MenuItem editMenuItem = menu.findItem(R.id.action_edit);
         editMenuItem.setVisible(isCreator);
+
+        MenuItem saveMenuItem = menu.findItem(R.id.action_save);
+        saveMenuItem.setVisible(false);
         return true;
     }
 
@@ -110,7 +109,6 @@ public class MeetingActivity extends AppCompatActivity{
         meetAddress = findViewById(R.id.meetAddress);
         meetTime=findViewById(R.id.meetTime);
         meetImageView=findViewById(R.id.meetImageView);
-        addMessage=findViewById(R.id.setMessage);
 
         tabLayout=findViewById(R.id.tabLayout);
 
@@ -121,13 +119,11 @@ public class MeetingActivity extends AppCompatActivity{
                     case 0:
                         ReviewFragment reviewFragment=ReviewFragment.newInstance(meetUid, creatorUid);
                         replaceFragment(reviewFragment);
-                        addMessage.animate().translationY(0);
                         break;
 
                     case 1:
                         CommentsFragment сommentsFragment=CommentsFragment.newInstance(meetUid);
                         replaceFragment(сommentsFragment);
-                        addMessage.animate().translationY(-getResources().getDimension(R.dimen.standard_50));
                         break;
                 }
             }
@@ -193,6 +189,7 @@ public class MeetingActivity extends AppCompatActivity{
                     TabLayout.Tab tab=tabLayout.getTabAt(1);
                     assert tab != null;
                     tab.select();
+
                 }
             }
         }
@@ -203,48 +200,6 @@ public class MeetingActivity extends AppCompatActivity{
         FragmentTransaction transaction=fragmentManager.beginTransaction();
         transaction.replace(R.id.frame_container, someFragment, meetUid).addToBackStack(null);
         transaction.commit();
-    }
-
-    public void spendComments(){
-        editComment =findViewById(R.id.editMessage);
-        spendMessage=findViewById(R.id.imageButton);
-
-        Message message=new Message();
-
-        spendMessage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                long date=new Date().getTime();
-
-                if(!editComment.getFreezesText()) {
-                    Toast.makeText(MeetingActivity.this, "Введите комментарий", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                message.setUser(FirebaseAuth.getInstance()
-                        .getCurrentUser()
-                        .getUid());
-                message.setTime(date);
-                message.setMessage(editComment.getText().toString());
-                FirebaseDatabase.getInstance()
-                        .getReference()
-                        .child("meeting")
-                        .child(meetUid)
-                        .child("comments")
-                        .push()
-                        .setValue(message);
-
-                int numberComments1=numberComments+1;
-                FirebaseDatabase.getInstance()
-                        .getReference()
-                        .child("meeting")
-                        .child(meetUid)
-                        .child("numberComments")
-                        .setValue(numberComments1);
-                editComment.setText(null);
-            }
-        });
-
     }
 
 }

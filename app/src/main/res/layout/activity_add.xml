@@ -16,124 +16,134 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:layout_editor_absoluteX="56dp" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
-        android:layout_width="300dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:gravity="center"
-        android:orientation="vertical"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar_add_activity"
-        tools:ignore="MissingConstraints">
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_add_activity">
 
-        <ImageView
-            android:id="@+id/imageView3"
-            android:layout_width="300dp"
-            android:layout_height="70dp"
-            android:scaleType="centerCrop"
-            app:layout_collapseMode="parallax"
-            android:layout_marginBottom="10dp"
-            tools:srcCompat="@tools:sample/avatars" />
-
-        <Button
-            android:id="@+id/button_upload_photo"
-            android:layout_width="300dp"
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/btn"
-            android:text="загрузить фото"
-            android:textColor="@color/white" />
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="100dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            tools:ignore="MissingConstraints">
 
-        <EditText
-            android:id="@+id/editTitle"
-            android:layout_width="300dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/edit_text"
-            android:ems="10"
-            android:hint="@string/name_meets"
-            android:inputType="text|textCapSentences"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:textColor="@color/primary_dark"
-            android:textColorHint="@color/primary"
-            android:textSize="20sp" />
+            <ImageButton
+                android:id="@+id/uploadPhoto"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:layout_marginBottom="10dp"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/image" />
 
-        <EditText
-            android:id="@+id/editPostalAddress"
-            android:layout_width="300dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/edit_text"
-            android:ems="10"
-            android:hint="@string/address"
-            android:inputType="textCapSentences|textPostalAddress"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:textColor="@color/primary_dark"
-            android:textColorHint="@color/primary"
-            android:textSize="20sp" />
+            <TextView
+                android:id="@+id/titleAdd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/name_meets"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/editTitle"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/edit_text"
+                android:ems="10"
+                android:inputType="text|textCapSentences"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:textColor="@color/primary_dark"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/addressAdd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/address"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/editPostalAddress"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/edit_text"
+                android:ems="10"
+                android:inputType="textCapSentences|textPostalAddress"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:textColor="@color/primary_dark"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/dateAdd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/date"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/editDate"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/edit_text"
+                android:ems="10"
+                android:inputType="date"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:textColor="@color/primary_dark"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/timeAdd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/time"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/editTime"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/edit_text"
+                android:ems="10"
+                android:inputType="time"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:textColor="@color/primary_dark"
+                android:textSize="20sp"
+                tools:ignore="MissingClass" />
+
+            <TextView
+                android:id="@+id/descriptionAdd"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/description"
+                android:textSize="18sp" />
 
 
-        <EditText
-            android:id="@+id/editDate"
-            android:layout_width="300dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/edit_text"
-            android:ems="10"
-            android:hint="@string/date"
-            android:inputType="date"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:textColor="@color/primary_dark"
-            android:textColorHint="@color/primary"
-            android:textSize="20sp" />
+            <EditText
+                android:id="@+id/editMessage"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/edit_text"
+                android:ems="10"
+                android:inputType="text|textCapSentences"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:textColor="@color/primary_dark"
+                android:textSize="20sp" />
 
-        <EditText
-            android:id="@+id/editTime"
-            android:layout_width="300dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/edit_text"
-            android:ems="10"
-            android:hint="Время начала"
-            android:inputType="time"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:textColor="@color/primary_dark"
-            android:textColorHint="@color/primary"
-            android:textSize="20sp"
-            tools:ignore="MissingClass" />
-
-
-        <EditText
-            android:id="@+id/editMessage"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:minHeight="50dp"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/edit_text"
-            android:ems="10"
-            android:hint="Информация о встрече"
-            android:inputType="text|textCapSentences"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:textColor="@color/primary_dark"
-            android:textColorHint="@color/primary"
-            android:textSize="20sp" />
-
-        <Button
-            android:id="@+id/btnAdd"
-            android:layout_width="300dp"
-            android:layout_height="55dp"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/btn"
-            android:text="Добавить"
-            android:textColor="@color/white" />
-
-    </LinearLayout>
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

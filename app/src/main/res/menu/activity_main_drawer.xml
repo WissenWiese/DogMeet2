@@ -8,19 +8,21 @@
             android:id="@+id/nav_profile"
             android:icon="@drawable/profil"
             android:title="Профиль" />
+
+        <item
+            android:id="@+id/nav_messager"
+            android:icon="@drawable/chat"
+            android:title="Сообшения" />
+
         <item
             android:id="@+id/nav_list_meet"
             android:icon="@drawable/list"
             android:title="Список" />
+
         <item
             android:id="@+id/nav_map"
             android:icon="@drawable/map"
             android:title="Карта" />
-
-        <item
-            android:id="@+id/nav_messager"
-            android:icon="@android:drawable/stat_notify_chat"
-            android:title="Сообшения" />
 
         <item
             android:id="@+id/nav_settings"

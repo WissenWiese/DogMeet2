@@ -12,112 +12,178 @@
         android:layout_height="wrap_content"
         android:background="@color/primary_dark"
         android:minHeight="?attr/actionBarSize"
-        android:theme="@style/Theme.DogMeet.AppBarOverlay" />
+        android:theme="@style/Theme.DogMeet.AppBarOverlay"
+        app:collapseIcon="?attr/actionModeCloseDrawable" />
 
-    <LinearLayout
-        android:id="@+id/linearLayout"
+    <androidx.cardview.widget.CardView
+        android:id="@+id/imageWindow"
         android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:background="@drawable/background"
+        app:layout_constraintTop_toBottomOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <Button
+                android:id="@+id/download"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:text="@string/download" />
+
+            <Button
+                android:id="@+id/deletePhoto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:text="@string/delete" />
+        </LinearLayout>
+    </androidx.cardview.widget.CardView>
+
+
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
-        android:gravity="center"
-        android:orientation="vertical"
-        app:layout_constraintTop_toBottomOf="@+id/toolbar_edit"
-        tools:ignore="MissingConstraints"
-        tools:layout_editor_absoluteX="10dp">
+        android:fillViewport="true"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toolbar_edit">
 
-        <EditText
-            android:id="@+id/editTitle2"
-            android:layout_width="300dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/edit_text"
-            android:ems="10"
-            android:hint="@string/name_meets"
-            android:inputType="text"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:textColor="@color/primary_dark"
-            android:textColorHint="@color/primary"
-            android:textSize="20sp" />
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="24dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginBottom="100dp"
+            android:gravity="center"
+            android:orientation="vertical"
+            tools:ignore="MissingConstraints">
 
-        <EditText
-            android:id="@+id/editPostalAddress2"
-            android:layout_width="300dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/edit_text"
-            android:ems="10"
-            android:hint="@string/address"
-            android:inputType="textPostalAddress"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:textColor="@color/primary_dark"
-            android:textColorHint="@color/primary"
-            android:textSize="20sp" />
+            <ImageButton
+                android:id="@+id/imageEdit"
+                android:layout_width="match_parent"
+                android:layout_height="250dp"
+                android:layout_marginBottom="10dp"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/image" />
+
+            <TextView
+                android:id="@+id/titleEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/name_meets"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/editTitleEdit"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/edit_text"
+                android:ems="10"
+                android:inputType="text"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:textColor="@color/primary_dark"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/addressEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/address"
+                android:textSize="18sp" />
+
+            <EditText
+                android:id="@+id/editPostalAddressEdit"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/edit_text"
+                android:ems="10"
+                android:inputType="textPostalAddress"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:textColor="@color/primary_dark"
+                android:textSize="20sp" />
 
 
-        <EditText
-            android:id="@+id/editDate2"
-            android:layout_width="300dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/edit_text"
-            android:ems="10"
-            android:hint="@string/date"
-            android:inputType="date"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:textColor="@color/primary_dark"
-            android:textColorHint="@color/primary"
-            android:textSize="20sp" />
+            <TextView
+                android:id="@+id/dateEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/date"
+                android:textSize="18sp" />
 
-        <EditText
-            android:id="@+id/editTime2"
-            android:layout_width="300dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/edit_text"
-            android:ems="10"
-            android:hint="Промежуток времени"
-            android:inputType="time"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:textColor="@color/primary_dark"
-            android:textColorHint="@color/primary"
-            android:textSize="20sp" />
+            <EditText
+                android:id="@+id/editDateEdit"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/edit_text"
+                android:ems="10"
+                android:inputType="date"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:textColor="@color/primary_dark"
+                android:textSize="20sp" />
 
-        <EditText
-            android:id="@+id/editDescription2"
-            android:layout_width="300dp"
-            android:layout_height="50dp"
-            android:layout_marginBottom="10dp"
-            android:background="@drawable/edit_text"
-            android:ems="10"
-            android:hint="Информация о встрече"
-            android:inputType="text"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:textColor="@color/primary_dark"
-            android:textColorHint="@color/primary"
-            android:textSize="20sp" />
+            <TextView
+                android:id="@+id/timeEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/time"
+                android:textSize="18sp" />
 
-        <Button
-            android:id="@+id/btnSave"
-            android:layout_width="300dp"
-            android:layout_height="55dp"
-            android:layout_marginBottom="25dp"
-            android:background="@drawable/btn"
-            android:text="Сохранить"
-            android:textColor="@color/white" />
+            <EditText
+                android:id="@+id/editTimeEdit"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/edit_text"
+                android:ems="10"
+                android:inputType="time"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:textColor="@color/primary_dark"
+                android:textSize="20sp" />
 
-        <Button
-            android:id="@+id/btnDelete"
-            android:layout_width="300dp"
-            android:layout_height="55dp"
-            android:background="@drawable/btn2"
-            android:text="Удалить"
-            android:textColor="@color/white" />
+            <TextView
+                android:id="@+id/descriptionEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/description"
+                android:textSize="18sp" />
 
-    </LinearLayout>
+            <EditText
+                android:id="@+id/editDescriptionEdit"
+                android:layout_width="match_parent"
+                android:layout_height="100dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/edit_text"
+                android:ems="10"
+                android:inputType="text"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:textColor="@color/primary_dark"
+                android:textSize="20sp" />
+
+            <Button
+                android:id="@+id/btnDelete"
+                android:layout_width="300dp"
+                android:layout_height="55dp"
+                android:background="@drawable/btn2"
+                android:text="@string/delete"
+                android:textColor="@color/white"
+                android:textSize="18sp" />
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

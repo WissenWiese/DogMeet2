@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -52,7 +53,7 @@ import java.util.UUID;
 public class ProfileFragment extends Fragment implements RecyclerViewInterface{
     ImageButton buttonEdit, buttonAdd, buttonSave, imageView;
     EditText about;
-    DatabaseReference database, ref, pets;
+    DatabaseReference users, pets;
     private final int PICK_IMAGE_REQUEST = 71;
     private View view;
     private Uri filePath;
@@ -84,6 +85,9 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
 
+        users = FirebaseDatabase.getInstance().getReference("Users").child(auth.getUid());
+        pets=FirebaseDatabase.getInstance().getReference("Users").child(auth.getUid()).child("pets");
+
         recyclerView=view.findViewById(R.id.r_v_pet);
         recyclerView.setHasFixedSize(true);
 
@@ -94,9 +98,7 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL, false));
         recyclerView.setAdapter(petAdapter);
 
-        database = FirebaseDatabase.getInstance().getReference();
-        ref = database.child("Users").child(auth.getUid());
-        ref.addValueEventListener(new ValueEventListener() {
+        users.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
@@ -117,7 +119,6 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
             }
         });
 
-        pets=database.child("Users").child(auth.getUid()).child("pets");
         pets.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -145,7 +146,7 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
                     buttonSave.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View view) {
-                            ref.child("info").setValue(about.getText().toString());
+                            users.child("info").setValue(about.getText().toString());
                             about.setEnabled(false);
                         }
                     });
@@ -164,10 +165,7 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+                showImageWindow();
             }
         });
 
@@ -227,7 +225,7 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
                     public void onComplete(@NonNull Task<Uri> task) {
                         if (task.isSuccessful()) {
                             Uri downloadUri = task.getResult();
-                            ref.child("avatarUri").setValue(downloadUri.toString());
+                            users.child("avatarUri").setValue(downloadUri.toString());
 
                         } else {
                             Toast.makeText(getContext(), "Failed", Toast.LENGTH_SHORT).show();
@@ -246,5 +244,44 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
     @Override
     public void OnButtonClick(int position) {
 
+    }
+
+    private void showImageWindow(){
+        androidx.appcompat.app.AlertDialog.Builder dialog=new androidx.appcompat.app.AlertDialog.Builder(getContext());
+
+        LayoutInflater inflator= LayoutInflater.from(getContext());
+        View image_window= inflator.inflate(R.layout.image_window, null);
+        dialog.setView(image_window);
+
+        Button downloadBtn=image_window.findViewById(R.id.download);
+        Button delete=image_window.findViewById(R.id.deletePhoto);
+
+        downloadBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+            }
+        });
+
+        delete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                users.child("avatarUri").addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        dataSnapshot.getRef().removeValue();
+                    }
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+
+                    }
+                });
+            }
+        });
+
+        dialog.show();
     }
 }

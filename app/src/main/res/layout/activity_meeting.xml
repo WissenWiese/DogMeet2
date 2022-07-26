@@ -19,49 +19,35 @@
             android:layout_width="match_parent"
             android:theme="@style/Theme.DogMeet.AppBarOverlay"
             android:layout_height="?attr/actionBarSize"
-            android:background="@color/primary_dark"/>
+            android:background="@color/primary_dark"
+            app:layout_scrollFlags="scroll|snap"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:id="@+id/appbarInfo"
+            app:layout_scrollFlags="scroll|snap">
 
             <TextView
                 android:id="@+id/meetDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
                 android:layout_marginTop="5dp"
                 android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/meetAddress"
-                tools:layout_editor_absoluteX="24dp"
                 tools:text="TextView" />
-
-            <com.google.android.material.tabs.TabLayout
-                android:id="@+id/tabLayout"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                app:layout_constraintBottom_toBottomOf="parent">
-
-                <com.google.android.material.tabs.TabItem
-                    android:id="@+id/review_tab"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="обзор" />
-
-                <com.google.android.material.tabs.TabItem
-                    android:id="@+id/comments_tab"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="комментарии" />
-
-            </com.google.android.material.tabs.TabLayout>
 
             <TextView
                 android:id="@+id/meetTime"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
+                android:layout_marginBottom="10dp"
                 android:clickable="true"
                 android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/meetDate"
                 app:layout_constraintTop_toTopOf="@+id/meetDate"
                 tools:text="TextView" />
@@ -81,12 +67,32 @@
                 android:id="@+id/meetAddress"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="20dp"
                 android:layout_marginTop="10dp"
                 android:textSize="16sp"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/meetImageView"
-                tools:layout_editor_absoluteX="24dp"
                 tools:text="TextView" />
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/review_tab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="обзор" />
+
+            <com.google.android.material.tabs.TabItem
+                android:id="@+id/comments_tab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="комментарии" />
+
+        </com.google.android.material.tabs.TabLayout>
 
     </com.google.android.material.appbar.AppBarLayout>
 

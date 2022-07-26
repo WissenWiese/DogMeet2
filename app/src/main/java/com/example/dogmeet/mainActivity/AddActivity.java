@@ -11,11 +11,14 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Toast;
 
@@ -32,7 +35,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -51,15 +53,13 @@ import java.util.UUID;
 
 public class AddActivity extends AppCompatActivity {
     private EditText titleEditText, addressEditText, dateEditText, timeEditText, descriptionEditText;
-    private Button addButton, cancelButton, button_upload;
-    private FirebaseDatabase database;
     private DatabaseReference myMeet, users;
     private FirebaseAuth auth;
-    private String uid, imageUrl;
+    private String uid;
     private int member_number, comments_number;
     private final int PICK_IMAGE_REQUEST = 71;
     private Uri filePath;
-    private ImageView imageView;
+    private ImageButton uploadPhoto;
     FirebaseStorage storage;
     StorageReference storageReference;
     User creator;
@@ -89,20 +89,8 @@ public class AddActivity extends AppCompatActivity {
         dateEditText = findViewById(R.id.editDate);
         timeEditText =findViewById(R.id.editTime);
         descriptionEditText=findViewById(R.id.editMessage);
-        
-        addButton = findViewById(R.id.btnAdd);
-        button_upload=findViewById(R.id.button_upload_photo);
 
-        database = FirebaseDatabase.getInstance();
-        myMeet = database.getReference("meeting");
-        users = database.getReference("Users");
-
-        imageView=findViewById(R.id.imageView3);
-
-        storage = FirebaseStorage.getInstance();
-        storageReference = storage.getReference();
-
-        Glide.with(imageView.getContext()).load(URI).into(imageView);
+        uploadPhoto=findViewById(R.id.uploadPhoto);
 
         FirebaseUser cur_user = auth.getInstance().getCurrentUser();
 
@@ -112,6 +100,12 @@ public class AddActivity extends AppCompatActivity {
         } else {
             uid = cur_user.getUid();
         }
+
+        myMeet = FirebaseDatabase.getInstance().getReference("meeting");
+        users = FirebaseDatabase.getInstance().getReference("Users").child(uid);
+
+        storage = FirebaseStorage.getInstance();
+        storageReference = storage.getReference();
 
         getMeetCreator();
 
@@ -137,64 +131,7 @@ public class AddActivity extends AppCompatActivity {
             }
         });
 
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(TextUtils.isEmpty(titleEditText.getText().toString())) {
-                    Toast.makeText(AddActivity.this, "Введите название", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if(TextUtils.isEmpty(addressEditText.getText().toString())) {
-                    Toast.makeText(AddActivity.this, "Введите адрес", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if(TextUtils.isEmpty(dateEditText.getText().toString())) {
-                    Toast.makeText(AddActivity.this, "Введите дату", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if(TextUtils.isEmpty(timeEditText.getText().toString())) {
-                    Toast.makeText(AddActivity.this, "Введите время", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                if(TextUtils.isEmpty(descriptionEditText.getText().toString())) {
-                    Toast.makeText(AddActivity.this, "Введите описание", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                String titleText = titleEditText.getText().toString();
-                String addressText = addressEditText.getText().toString();
-                String dateText = dateEditText.getText().toString();
-                String timeText= timeEditText.getText().toString();
-                String descriptionText=descriptionEditText.getText().toString();
-                member_number=0;
-                comments_number=0;
-
-                Meeting meet = new Meeting();
-                meet.setTitle(titleText);
-                meet.setAddress(addressText);
-                meet.setDate(dateText);
-                meet.setCreatorUid(uid);
-                meet.setTime(timeText);
-                meet.setDescription(descriptionText);
-                meet.setNumberMember(member_number);
-                if (filePath!=null) {
-                    uploadImage(meet);
-
-                }
-                else {
-                    myMeet.push().setValue(meet);
-                    AddActivity.this.finish();
-                }
-
-
-            }
-        });
-
-        button_upload.setOnClickListener(new View.OnClickListener() {
+        uploadPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent();
@@ -223,9 +160,7 @@ public class AddActivity extends AppCompatActivity {
     }
 
     public void getMeetCreator() {
-        DatabaseReference database = FirebaseDatabase.getInstance().getReference();
-        DatabaseReference ref = database.child("Users").child(uid);
-        ref.addListenerForSingleValueEvent(new ValueEventListener() {
+        users.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
@@ -253,10 +188,9 @@ public class AddActivity extends AppCompatActivity {
                 && data != null && data.getData() != null )
         {
             filePath = data.getData();
-            button_upload.setText("Изображение загружено");
             try {
                 Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-                imageView.setImageBitmap(bitmap);
+                uploadPhoto.setImageBitmap(bitmap);
             }
             catch (IOException e)
             {
@@ -266,7 +200,6 @@ public class AddActivity extends AppCompatActivity {
     }
 
     private void uploadImage(Meeting meet) {
-
         if(filePath != null)
         {
             final ProgressDialog progressDialog = new ProgressDialog(this);
@@ -322,5 +255,82 @@ public class AddActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.activity_menu, menu);
+
+        MenuItem editMenuItem = menu.findItem(R.id.action_edit);
+        editMenuItem.setVisible(false);
+
+        MenuItem saveMenuItem = menu.findItem(R.id.action_save);
+        saveMenuItem.setVisible(true);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_save:
+                saveEdit();
+
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void saveEdit(){
+        if(TextUtils.isEmpty(titleEditText.getText().toString())) {
+            Toast.makeText(AddActivity.this, "Введите название", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(TextUtils.isEmpty(addressEditText.getText().toString())) {
+            Toast.makeText(AddActivity.this, "Введите адрес", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(TextUtils.isEmpty(dateEditText.getText().toString())) {
+            Toast.makeText(AddActivity.this, "Введите дату", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(TextUtils.isEmpty(timeEditText.getText().toString())) {
+            Toast.makeText(AddActivity.this, "Введите время", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(TextUtils.isEmpty(descriptionEditText.getText().toString())) {
+            Toast.makeText(AddActivity.this, "Введите описание", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String titleText = titleEditText.getText().toString();
+        String addressText = addressEditText.getText().toString();
+        String dateText = dateEditText.getText().toString();
+        String timeText= timeEditText.getText().toString();
+        String descriptionText=descriptionEditText.getText().toString();
+        member_number=0;
+        comments_number=0;
+
+        Meeting meet = new Meeting();
+        meet.setTitle(titleText);
+        meet.setAddress(addressText);
+        meet.setDate(dateText);
+        meet.setCreatorUid(uid);
+        meet.setTime(timeText);
+        meet.setDescription(descriptionText);
+        meet.setNumberMember(member_number);
+        if (filePath!=null) {
+            uploadImage(meet);
+
+        }
+        else {
+            myMeet.push().setValue(meet);
+            AddActivity.this.finish();
+        }
+
     }
 }

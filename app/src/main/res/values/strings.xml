@@ -5,7 +5,10 @@
     <string name="name_meets">Название</string>
     <string name="address">Адрес</string>
     <string name="date">Дата</string>
-    <string name="add">Добавить</string>
+    <string name="time">Время</string>
+    <string name="description">Описание</string>
+    <string name="delete">Удалить</string>
+    <string name="download">Загрузить</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
