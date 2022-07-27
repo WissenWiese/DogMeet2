@@ -38,6 +38,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.Hashtable;
@@ -55,8 +56,9 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
     private UserAdapter userAdapter;
     Meeting meeting;
     View view;
-    private DatabaseReference myMeet, ref;
+    private DatabaseReference myMeet, ref, users;
     Map<String, User> usersDictionary;
+    long date;
 
     public static ReviewFragment newInstance(String meetUid, String creatorUid) {
         ReviewFragment reviewFragment = new ReviewFragment();
@@ -86,6 +88,7 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
         uid= FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         myMeet = FirebaseDatabase.getInstance().getReference("meeting");
+        users= FirebaseDatabase.getInstance().getReference("Users");
 
         button=view.findViewById(R.id.button);
         meetCreator = view.findViewById(R.id.meetCreator);
@@ -105,6 +108,8 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
         recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.HORIZONTAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL, false));
         recyclerView.setAdapter(userAdapter);
+
+        date=new Date().getTime();
 
         getUser();
         setButton();
@@ -182,6 +187,7 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
                     myMeet.child(meetUid).child("members").push().setValue(uid);
                     int member_number1=member_number+1;
                     myMeet.child(meetUid).child("numberMember").setValue(member_number1);
+                    users.child(uid).child("myMeetings").child(meetUid).setValue(date);
                     button.setText("Покинуть");
                     button.setBackground(getResources().getDrawable(R.drawable.btn2));
                 }
@@ -189,6 +195,7 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
                     ref.removeValue();
                     int member_number1=member_number-1;
                     myMeet.child(meetUid).child("numberMember").setValue(member_number1);
+                    users.child(uid).child("myMeetings").child(meetUid).removeValue();
                     button.setText("Присоединиться");
                     button.setBackground(getResources().getDrawable(R.drawable.btn));
                 }
@@ -228,8 +235,6 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
     }
 
     public void getUser(){
-        DatabaseReference users= FirebaseDatabase.getInstance().getReference("Users");
-
         usersDictionary=new HashMap<String, User>();
 
         ValueEventListener userListener = new ValueEventListener() {

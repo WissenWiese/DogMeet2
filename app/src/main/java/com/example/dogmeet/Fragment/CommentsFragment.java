@@ -211,6 +211,7 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
                         .child("numberComments")
                         .setValue(numberComments);
                 editComment.setText(null);
+                commentView.smoothScrollToPosition(commentView.getAdapter().getItemCount() - 1);
             }
         });
 

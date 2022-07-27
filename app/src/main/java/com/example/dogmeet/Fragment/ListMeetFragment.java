@@ -1,6 +1,7 @@
 package com.example.dogmeet.Fragment;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
@@ -8,8 +9,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.CheckedTextView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -26,6 +32,7 @@ import com.example.dogmeet.entity.User;
 import com.example.dogmeet.mainActivity.AddActivity;
 import com.example.dogmeet.mainActivity.NavigatActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -35,18 +42,24 @@ import com.google.firebase.database.ValueEventListener;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ListMeetFragment extends Fragment implements RecyclerViewInterface {
-    private DatabaseReference myMeet;
+    private DatabaseReference myMeet, users;
     private ArrayList<Meeting> meetings;
-    private String uidMeet;
+    private String uidMeet, uid;
     private RecyclerView recyclerView;
     private MeetingAdapter meetingAdapter;
     private View view;
-    private FloatingActionButton fabAddMeet;
+    private FloatingActionButton fabAddMeet, fabFilter;
+    private CardView filters;
+    private Button sortPopular, sortDate, filterMy;
 
 
     public ListMeetFragment() {
@@ -58,16 +71,94 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
                              ViewGroup container, Bundle savedInstanceState) {
 
         view = inflater.inflate(R.layout.fragment_list_meet, container, false);
+
+        uid= FirebaseAuth.getInstance().getCurrentUser().getUid();
+        users= FirebaseDatabase.getInstance().getReference("Users").child(uid).child("myMeetings");
+
         myMeet = FirebaseDatabase.getInstance().getReference("meeting");
         meetings = new ArrayList<>();
 
         fabAddMeet=view.findViewById(R.id.fabAddMeet);
+        fabFilter=view.findViewById(R.id.fabFilter);
+
+        filters=view.findViewById(R.id.filter);
+
+        sortPopular=view.findViewById(R.id.button2);
+        sortDate=view.findViewById(R.id.button3);
+        filterMy=view.findViewById(R.id.button4);
 
         fabAddMeet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent i=new Intent(getActivity(), AddActivity.class);
                 startActivity(i);
+            }
+        });
+
+        fabFilter.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                switch (fabFilter.getTag().toString()) {
+                    case "close":
+                        filters.animate().translationY(getResources().getDimension(R.dimen.standard_100));
+                        fabFilter.animate().translationY(getResources().getDimension(R.dimen.standard_100));
+                        fabFilter.setTag("open");
+                        fabFilter.setImageDrawable(getResources().getDrawable(R.drawable.up));
+                        break;
+                    case "open":
+                        filters.animate().translationY(0);
+                        fabFilter.animate().translationY(0);
+                        fabFilter.setTag("close");
+                        fabFilter.setImageDrawable(getResources().getDrawable(R.drawable.poits));
+                        break;
+                }
+            }
+        });
+
+        filterMy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                ValueEventListener myMeetListener = new ValueEventListener()  {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        ArrayList<Meeting> meetings1 = new ArrayList<>();
+                        for(DataSnapshot dataSnapshot : snapshot.getChildren())
+                        {
+                            String myMeetUid=dataSnapshot.getKey();
+                            for (Meeting meeting : meetings){
+                                if (meeting.getUid().equals(myMeetUid)){
+                                    meetings1.add(meeting);
+                                }
+                            }
+                        }
+                        meetings.clear();
+                        meetings.addAll(meetings1);
+                        meetingAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                    }
+                };
+                users.addValueEventListener(myMeetListener);
+            }
+        });
+
+        sortDate.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onClick(View view) {
+                Collections.sort(meetings, Collections.reverseOrder(Comparator.comparing(Meeting::getDate)));
+                meetingAdapter.notifyDataSetChanged();
+            }
+        });
+
+        sortPopular.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
+            @Override
+            public void onClick(View view) {
+                Collections.sort(meetings, Comparator.comparing(Meeting::getNumberMember));
+                meetingAdapter.notifyDataSetChanged();
             }
         });
 
@@ -115,6 +206,9 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
                     }
                 }
                 meetingAdapter.notifyDataSetChanged();
+                if (recyclerView.getAdapter().getItemCount()>2) {
+                    recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount() - 1);
+                }
             }
 
             @Override
@@ -166,21 +260,13 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
 
     private boolean UpdateListMeeting(Meeting meeting){
         long date=new Date().getTime();
-        long dateMeet = 0;
+        long dateMeet = meeting.getDate();
 
-        SimpleDateFormat f = new SimpleDateFormat("dd.MM.yyyy");
-        try {
-            Date d = f.parse(meeting.getDate());
-            dateMeet = d.getTime();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        if (dateMeet<date){
-            return true;
+        if (dateMeet>=date){
+            return false;
         }
         else {
-            return false;
+            return true;
         }
     }
 }

@@ -16,6 +16,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -133,9 +134,9 @@ public class EditMeetingActivity extends AppCompatActivity {
                     Meeting meeting = dataSnapshot.getValue(Meeting.class);
                     if (meeting!=null){
                         titleEditText.setText(meeting.title);
-                        dateEditText.setText(meeting.date);
+                        dateEditText.setText(DateFormat.format("dd.MM.yyyy", meeting.date));
                         addressEditText.setText(meeting.address);
-                        timeEditText.setText(meeting.time);
+                        timeEditText.setText(DateFormat.format("HH:mm", meeting.date));
                         descriptionEditText.setText(meeting.description);
                         String url=meeting.urlImage;
                         if (url!=null){

@@ -13,19 +13,19 @@ import java.util.Objects;
 
 @Entity
 public class Meeting {
-    public String uid, title, address, date, creatorUid, time, description, urlImage;
+    public String uid, title, address, creatorUid, description, urlImage;
     public int numberMember, numberComments;
+    public long date;
     public Meeting() {}
 
-    public Meeting(String uid, String title, String address, String date,
-                   String creatorUid, String time, int numberMember, int numberComments,
+    public Meeting(String uid, String title, String address, long date,
+                   String creatorUid, int numberMember, int numberComments,
                    String description, String urlImage){
         this.uid=uid;
         this.title=title;
         this.address=address;
         this.date=date;
         this.creatorUid=creatorUid;
-        this.time=time;
         this.numberMember=numberMember;
         this.numberComments=numberComments;
         this.description=description;
@@ -57,11 +57,11 @@ public class Meeting {
         this.address = address;
     }
 
-    public String getDate() {
+    public long getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(long date) {
         this.date = date;
     }
 
@@ -71,14 +71,6 @@ public class Meeting {
 
     public void setCreatorUid(String creatorUid) {
         this.creatorUid = creatorUid;
-    }
-
-    public String getTime() {
-        return time;
-    }
-
-    public void setTime(String time) {
-        this.time = time;
     }
 
     public int getNumberMember() {
@@ -119,14 +111,12 @@ public class Meeting {
         if (o == null || getClass() != o.getClass()) return false;
         Meeting meeting = (Meeting) o;
         return title.equals(meeting.title) && address.equals(meeting.address)
-                && date.equals(meeting.date)
                 && creatorUid.equals(meeting.creatorUid)
-                && time.equals(meeting.time)
                 && description.equals(meeting.description);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, address, date, creatorUid, time, numberMember, description);
+        return Objects.hash(title, address, date, creatorUid, numberMember, description);
     }
 }

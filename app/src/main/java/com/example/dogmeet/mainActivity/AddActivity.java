@@ -48,7 +48,10 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.UUID;
 
 public class AddActivity extends AppCompatActivity {
@@ -315,12 +318,21 @@ public class AddActivity extends AppCompatActivity {
         member_number=0;
         comments_number=0;
 
+        long dateMeet=0;
+
+        SimpleDateFormat f = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+        try {
+            Date d = f.parse(dateText+" "+timeText);
+            dateMeet = d.getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
         Meeting meet = new Meeting();
         meet.setTitle(titleText);
         meet.setAddress(addressText);
-        meet.setDate(dateText);
+        meet.setDate(dateMeet);
         meet.setCreatorUid(uid);
-        meet.setTime(timeText);
         meet.setDescription(descriptionText);
         meet.setNumberMember(member_number);
         if (filePath!=null) {

@@ -76,7 +76,7 @@ public class SettingsFragment extends Fragment {
 
         email=user.getEmail();
 
-        emailEdit.setText(email);
+        emailEdit.setText(user.getEmail());
 
         users.addValueEventListener(new ValueEventListener() {
             @Override
@@ -273,6 +273,7 @@ public class SettingsFragment extends Fragment {
 
                                 passwordOldEdit.setText(null);
                                 passwordNewEdit.setText(null);
+                                passwordNewEdit.setEnabled(false);
                                 passwordSave.setVisibility(View.GONE);
                             }
                         }

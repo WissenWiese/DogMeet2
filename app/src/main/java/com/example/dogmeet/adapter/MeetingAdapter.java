@@ -4,6 +4,7 @@ import static com.example.dogmeet.Constant.URI;
 
 import android.content.Context;
 import android.content.Intent;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,7 +36,7 @@ public class MeetingAdapter extends RecyclerView.Adapter<MeetingAdapter.MeetingV
 
 
     public static class MeetingViewHolder extends RecyclerView.ViewHolder {
-        public TextView title, address, date, member, time, comments;
+        public TextView title, address, date, member, comments;
         public ImageView imageView;
         public ImageButton imageButton;
 
@@ -44,7 +45,6 @@ public class MeetingAdapter extends RecyclerView.Adapter<MeetingAdapter.MeetingV
             title =itemView.findViewById(R.id.TitleTextView);
             address =itemView.findViewById(R.id.AddressTextView);
             date =itemView.findViewById(R.id.DateTextView);
-            time=itemView.findViewById(R.id.TimetextView);
             member =itemView.findViewById(R.id.MemberTextView);
             comments=itemView.findViewById(R.id.nubComments);
             imageView=itemView.findViewById(R.id.imageView2);
@@ -98,8 +98,7 @@ public class MeetingAdapter extends RecyclerView.Adapter<MeetingAdapter.MeetingV
 
         holder.title.setText(meeting.getTitle());
         holder.address.setText(meeting.getAddress());
-        holder.date.setText(meeting.getDate()+",");
-        holder.time.setText(meeting.getTime());
+        holder.date.setText(DateFormat.format("dd.MM, HH:mm", meeting.getDate()));
         holder.member.setText(Integer.toString(meeting.getNumberMember()));
         holder.comments.setText(Integer.toString(meeting.getNumberComments()));
 

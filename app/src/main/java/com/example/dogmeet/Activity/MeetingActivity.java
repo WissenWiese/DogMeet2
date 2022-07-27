@@ -13,6 +13,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -40,7 +41,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.Date;
 
 public class MeetingActivity extends AppCompatActivity{
-    private TextView meetDate, meetAddress, meetTime;
+    private TextView meetDate, meetAddress;
     ImageView meetImageView;
     Toolbar toolbar;
     String creatorUid, uid, meetUid;
@@ -107,7 +108,6 @@ public class MeetingActivity extends AppCompatActivity{
     public void init(){
         meetDate = findViewById(R.id.meetDate);
         meetAddress = findViewById(R.id.meetAddress);
-        meetTime=findViewById(R.id.meetTime);
         meetImageView=findViewById(R.id.meetImageView);
 
         tabLayout=findViewById(R.id.tabLayout);
@@ -156,9 +156,8 @@ public class MeetingActivity extends AppCompatActivity{
                         meeting = snapshot.getValue(Meeting.class);
                         if (meeting != null) {
                             toolbar.setTitle(meeting.title);
-                            meetDate.setText(meeting.date+",");
+                            meetDate.setText(DateFormat.format("dd.MM, HH:mm", meeting.getDate()));
                             meetAddress.setText(meeting.address);
-                            meetTime.setText(meeting.time);
                             numberComments=meeting.numberComments;
                             String url=meeting.urlImage;
                             if (url!=null){

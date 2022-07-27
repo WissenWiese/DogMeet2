@@ -63,17 +63,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
 
-        <TextView
-            android:id="@+id/TimetextView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="5dp"
-            android:text="TextView"
-            android:textSize="16sp"
-            app:layout_constraintStart_toEndOf="@+id/DateTextView"
-            app:layout_constraintTop_toBottomOf="@+id/AddressTextView" />
-
         <ImageView
             android:id="@+id/imageView3"
             android:layout_width="wrap_content"
@@ -99,12 +88,11 @@
             android:id="@+id/imageButtonMessage"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:layout_marginTop="-5dp"
             android:layout_marginEnd="5dp"
             android:layout_marginBottom="10dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/nubComments"
-            app:layout_constraintTop_toBottomOf="@+id/TimetextView"
+            app:layout_constraintTop_toBottomOf="@+id/DateTextView"
             app:srcCompat="@drawable/comment" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
