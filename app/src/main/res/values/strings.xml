@@ -9,6 +9,13 @@
     <string name="description">Описание</string>
     <string name="delete">Удалить</string>
     <string name="download">Загрузить</string>
+
+    <string-array name="sortList">
+        <item>По умолчанию</item>
+        <item>По популярности</item>
+        <item>По дате</item>
+    </string-array>
+
     <string name="title_activity_main">MainActivity</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>

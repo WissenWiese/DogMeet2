@@ -42,14 +42,14 @@ import java.util.Date;
 
 public class MeetingActivity extends AppCompatActivity{
     private TextView meetDate, meetAddress;
-    ImageView meetImageView;
-    Toolbar toolbar;
-    String creatorUid, uid, meetUid;
+    private ImageView meetImageView;
+    private Toolbar toolbar;
+    private String creatorUid, uid, meetUid, database;
     private DatabaseReference myMeet;
     private Meeting meeting;
-    TabLayout tabLayout;
+    private TabLayout tabLayout;
     int numberComments;
-    Boolean isComment;
+    private Boolean isComment;
 
 
     @Override
@@ -70,8 +70,6 @@ public class MeetingActivity extends AppCompatActivity{
         });
 
         uid= FirebaseAuth.getInstance().getCurrentUser().getUid();
-
-        myMeet = FirebaseDatabase.getInstance().getReference("meeting");
 
         init();
         getIntentMain();
@@ -117,12 +115,12 @@ public class MeetingActivity extends AppCompatActivity{
             public void onTabSelected(TabLayout.Tab tab) {
                 switch (tab.getPosition()) {
                     case 0:
-                        ReviewFragment reviewFragment=ReviewFragment.newInstance(meetUid, creatorUid);
+                        ReviewFragment reviewFragment=ReviewFragment.newInstance(meetUid, creatorUid, database);
                         replaceFragment(reviewFragment);
                         break;
 
                     case 1:
-                        CommentsFragment сommentsFragment=CommentsFragment.newInstance(meetUid);
+                        CommentsFragment сommentsFragment=CommentsFragment.newInstance(meetUid, database);
                         replaceFragment(сommentsFragment);
                         break;
                 }
@@ -149,7 +147,14 @@ public class MeetingActivity extends AppCompatActivity{
             meetUid=i.getStringExtra(Constant.MEETING_UID);
             creatorUid=i.getStringExtra(Constant.MEETING_CREATOR_UID);
             isComment=i.getExtras().getBoolean(IS_COMMENT);
+            database=i.getStringExtra(Constant.DATABASE);
             if (meetUid!=null) {
+                if (database.equals("meeting")){
+                    myMeet = FirebaseDatabase.getInstance().getReference("meeting");
+                }
+                else {
+                    myMeet= FirebaseDatabase.getInstance().getReference("archive").child("meeting");
+                }
                 ValueEventListener meetingListener = new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -181,7 +186,7 @@ public class MeetingActivity extends AppCompatActivity{
                     TabLayout.Tab tab=tabLayout.getTabAt(0);
                     assert tab != null;
                     tab.select();
-                    ReviewFragment reviewFragment = ReviewFragment.newInstance(meetUid, creatorUid);
+                    ReviewFragment reviewFragment = ReviewFragment.newInstance(meetUid, creatorUid, database);
                     replaceFragment(reviewFragment);
                 }
                 else{

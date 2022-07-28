@@ -44,7 +44,7 @@ import java.util.Map;
 
 public class CommentsFragment extends Fragment implements RecyclerViewInterface {
     private DatabaseReference myMeet;
-    String meetUid, uid;
+    String meetUid, uid, database;
     private ArrayList<Message> messageArrayList;
     private RecyclerView commentView;
     private MessageAdapter messageAdapter;
@@ -53,10 +53,11 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
     private ImageButton spendMessage;
     private EditText editComment;
 
-    public static CommentsFragment newInstance(String meetUid) {
+    public static CommentsFragment newInstance(String meetUid, String database) {
         CommentsFragment сommentsFragment = new CommentsFragment();
         Bundle args = new Bundle();
         args.putString("MeetUid", meetUid);
+        args.putString("Database", database);
         сommentsFragment.setArguments(args);
         return сommentsFragment;
     }
@@ -69,6 +70,7 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         meetUid = getArguments().getString("MeetUid", "");
+        database = getArguments().getString("Database", "");
         usersDictionary = new HashMap<String, User>();
     }
 
@@ -78,7 +80,12 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
         view = inflater.inflate(R.layout.fragment_comments, container, false);
         commentView=view.findViewById(R.id.commentsView);
 
-        myMeet = FirebaseDatabase.getInstance().getReference("meeting");
+        if (database.equals("meeting")){
+            myMeet = FirebaseDatabase.getInstance().getReference("meeting");
+        }
+        else {
+            myMeet= FirebaseDatabase.getInstance().getReference("archive").child("meeting");
+        }
 
         uid= FirebaseAuth.getInstance().getCurrentUser().getUid();
 

@@ -10,6 +10,7 @@ public class Constant {
     public final static String CHAT_UID = "chat_uid";
     public final static String MEETING_CREATOR_UID = "meeting_creatorUid";
     public final static String IS_COMMENT="is_comment";
+    public final static String  DATABASE="database";
 
 
     public final static String USER_UID = "user_uid";

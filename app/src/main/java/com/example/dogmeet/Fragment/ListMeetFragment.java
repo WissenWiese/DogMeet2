@@ -9,8 +9,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckedTextView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -51,21 +54,23 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ListMeetFragment extends Fragment implements RecyclerViewInterface {
-    private DatabaseReference myMeet, users;
+    private DatabaseReference myMeet, users, archive;
     private ArrayList<Meeting> meetings;
-    private String uidMeet, uid;
+    private String uidMeet, uid, database;
     private RecyclerView recyclerView;
     private MeetingAdapter meetingAdapter;
     private View view;
     private FloatingActionButton fabAddMeet, fabFilter;
     private CardView filters;
-    private Button sortPopular, sortDate, filterMy;
+    private Spinner spinner;
+    private CheckedTextView checkedMy, checkedArchive;
 
 
     public ListMeetFragment() {
 
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -74,6 +79,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
 
         uid= FirebaseAuth.getInstance().getCurrentUser().getUid();
         users= FirebaseDatabase.getInstance().getReference("Users").child(uid).child("myMeetings");
+        archive= FirebaseDatabase.getInstance().getReference("archive").child("meeting");
 
         myMeet = FirebaseDatabase.getInstance().getReference("meeting");
         meetings = new ArrayList<>();
@@ -82,10 +88,6 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
         fabFilter=view.findViewById(R.id.fabFilter);
 
         filters=view.findViewById(R.id.filter);
-
-        sortPopular=view.findViewById(R.id.button2);
-        sortDate=view.findViewById(R.id.button3);
-        filterMy=view.findViewById(R.id.button4);
 
         fabAddMeet.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,53 +117,6 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
             }
         });
 
-        filterMy.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                ValueEventListener myMeetListener = new ValueEventListener()  {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        ArrayList<Meeting> meetings1 = new ArrayList<>();
-                        for(DataSnapshot dataSnapshot : snapshot.getChildren())
-                        {
-                            String myMeetUid=dataSnapshot.getKey();
-                            for (Meeting meeting : meetings){
-                                if (meeting.getUid().equals(myMeetUid)){
-                                    meetings1.add(meeting);
-                                }
-                            }
-                        }
-                        meetings.clear();
-                        meetings.addAll(meetings1);
-                        meetingAdapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                    }
-                };
-                users.addValueEventListener(myMeetListener);
-            }
-        });
-
-        sortDate.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void onClick(View view) {
-                Collections.sort(meetings, Collections.reverseOrder(Comparator.comparing(Meeting::getDate)));
-                meetingAdapter.notifyDataSetChanged();
-            }
-        });
-
-        sortPopular.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void onClick(View view) {
-                Collections.sort(meetings, Comparator.comparing(Meeting::getNumberMember));
-                meetingAdapter.notifyDataSetChanged();
-            }
-        });
-
         recyclerView=view.findViewById(R.id.recycle_view_meeting_list);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext(), LinearLayoutManager.VERTICAL, true);
         linearLayoutManager.setStackFromEnd(true);
@@ -176,6 +131,123 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
         recyclerView.setAdapter(meetingAdapter);
 
         getDataFromDB();
+
+        checkedMy=view.findViewById(R.id.checkedMy);
+
+        checkedMy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (checkedMy.isChecked()){
+                    if (!checkedArchive.isChecked()){
+                        getDataFromDB();
+                    }
+                    checkedMy.setChecked(false);
+                    checkedMy.setCheckMarkDrawable(getResources().getDrawable(R.drawable.checkbox));
+                }
+                else {
+                    ValueEventListener myMeetListener = new ValueEventListener()  {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+                            ArrayList<Meeting> meetings1 = new ArrayList<>();
+                            for(DataSnapshot dataSnapshot : snapshot.getChildren())
+                            {
+                                String myMeetUid=dataSnapshot.getKey();
+                                for (Meeting meeting : meetings){
+                                    if (meeting.getUid().equals(myMeetUid)){
+                                        meetings1.add(meeting);
+                                    }
+                                }
+                            }
+                            meetings.clear();
+                            meetings.addAll(meetings1);
+                            meetingAdapter.notifyDataSetChanged();
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                        }
+                    };
+                    users.addValueEventListener(myMeetListener);
+                    checkedMy.setChecked(true);
+                    checkedMy.setCheckMarkDrawable(getResources().getDrawable(R.drawable.checked_checkbox));
+                }
+            }
+        });
+
+        checkedArchive=view.findViewById(R.id.checkedArchive);
+
+        checkedArchive.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (checkedArchive.isChecked()){
+                    getDataFromDB();
+                    checkedArchive.setChecked(false);
+                    checkedArchive.setCheckMarkDrawable(getResources().getDrawable(R.drawable.checkbox));
+                }
+                else {
+                    ValueEventListener archiveListener = new ValueEventListener()  {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                            if(meetings.size() > 0) meetings.clear();
+                            for(DataSnapshot dataSnapshot : snapshot.getChildren())
+                            {
+                                Meeting meeting =dataSnapshot.getValue(Meeting.class);
+                                assert meeting != null;
+                                uidMeet = dataSnapshot.getKey();
+                                meeting.setUid(uidMeet);
+                                meetings.add(meeting);
+                            }
+                            meetingAdapter.notifyDataSetChanged();
+                            if (recyclerView.getAdapter().getItemCount()>2) {
+                                recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount() - 1);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError error) {
+                        }
+                    };
+                    archive.addValueEventListener(archiveListener);
+                    database="archive";
+                    checkedArchive.setChecked(true);
+                    checkedArchive.setCheckMarkDrawable(getResources().getDrawable(R.drawable.checked_checkbox));
+                }
+            }
+        });
+
+        ArrayAdapter<?> adapter =
+                ArrayAdapter.createFromResource(getContext(), R.array.sortList,
+                        android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner = view.findViewById(R.id.sortSpinner);
+        spinner.setAdapter(adapter);
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                switch (adapterView.getItemAtPosition(i).toString()){
+                    case "По умолчанию":
+                        Collections.sort(meetings, Comparator.comparing(Meeting::getUid));
+                        meetingAdapter.notifyDataSetChanged();
+                        break;
+                    case "По популярности":
+                        Collections.sort(meetings, Comparator.comparing(Meeting::getNumberMember));
+                        meetingAdapter.notifyDataSetChanged();
+                        break;
+                    case "По дате":
+                        Collections.sort(meetings, Collections.reverseOrder(Comparator.comparing(Meeting::getDate)));
+                        meetingAdapter.notifyDataSetChanged();
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
         return view;
     }
 
@@ -216,6 +288,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
             }
         };
         myMeet.addValueEventListener(meetListener);
+        database="meeting";
     }
 
     @Override
@@ -245,6 +318,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
         i.putExtra(Constant.MEETING_UID, meeting.getUid());
         i.putExtra(Constant.MEETING_CREATOR_UID, meeting.getCreatorUid());
         i.putExtra(Constant.IS_COMMENT, false);
+        i.putExtra(Constant.DATABASE, database);
         startActivity(i);
     }
 

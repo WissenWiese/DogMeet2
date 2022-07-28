@@ -50,7 +50,7 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
     private CardView cardView;
     ImageView meetCreat;
     private int member_number;
-    String meetUid, uid, creatorUid;
+    String meetUid, uid, creatorUid, database;
     private ArrayList<User> mUsers;
     private RecyclerView recyclerView;
     private UserAdapter userAdapter;
@@ -60,11 +60,12 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
     Map<String, User> usersDictionary;
     long date;
 
-    public static ReviewFragment newInstance(String meetUid, String creatorUid) {
+    public static ReviewFragment newInstance(String meetUid, String creatorUid, String database) {
         ReviewFragment reviewFragment = new ReviewFragment();
         Bundle args = new Bundle();
         args.putString("MeetUid", meetUid);
         args.putString("CreatorUid", creatorUid);
+        args.putString("Database", database);
         reviewFragment.setArguments(args);
         return reviewFragment;
     }
@@ -78,6 +79,7 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
         super.onCreate(savedInstanceState);
         meetUid = getArguments().getString("MeetUid", "");
         creatorUid = getArguments().getString("CreatorUid", "");
+        database = getArguments().getString("Database", "");
     }
 
     @Override
@@ -87,7 +89,13 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
 
         uid= FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        myMeet = FirebaseDatabase.getInstance().getReference("meeting");
+        if (database.equals("meeting")){
+            myMeet = FirebaseDatabase.getInstance().getReference("meeting");
+        }
+        else {
+            myMeet= FirebaseDatabase.getInstance().getReference("archive").child("meeting");
+        }
+
         users= FirebaseDatabase.getInstance().getReference("Users");
 
         button=view.findViewById(R.id.button);
@@ -173,7 +181,7 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
     }
 
     public void setButton(){
-        if (creatorUid.equals(uid)){
+        if (creatorUid.equals(uid) || database.equals("archive")){
             button.setVisibility(View.GONE);
         }
         else {
