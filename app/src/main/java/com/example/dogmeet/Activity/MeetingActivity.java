@@ -80,6 +80,9 @@ public class MeetingActivity extends AppCompatActivity{
         getMenuInflater().inflate(R.menu.activity_menu, menu);
 
         boolean isCreator=creatorUid.equals(uid);
+        if (database.equals("archive")){
+            isCreator=false;
+        }
 
         MenuItem editMenuItem = menu.findItem(R.id.action_edit);
         editMenuItem.setVisible(isCreator);

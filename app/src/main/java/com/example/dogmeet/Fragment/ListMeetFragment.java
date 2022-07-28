@@ -65,7 +65,6 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
     private Spinner spinner;
     private CheckedTextView checkedMy, checkedArchive;
 
-
     public ListMeetFragment() {
 
     }
@@ -138,39 +137,14 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
             @Override
             public void onClick(View view) {
                 if (checkedMy.isChecked()){
-                    if (!checkedArchive.isChecked()){
-                        getDataFromDB();
-                    }
                     checkedMy.setChecked(false);
                     checkedMy.setCheckMarkDrawable(getResources().getDrawable(R.drawable.checkbox));
                 }
                 else {
-                    ValueEventListener myMeetListener = new ValueEventListener()  {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            ArrayList<Meeting> meetings1 = new ArrayList<>();
-                            for(DataSnapshot dataSnapshot : snapshot.getChildren())
-                            {
-                                String myMeetUid=dataSnapshot.getKey();
-                                for (Meeting meeting : meetings){
-                                    if (meeting.getUid().equals(myMeetUid)){
-                                        meetings1.add(meeting);
-                                    }
-                                }
-                            }
-                            meetings.clear();
-                            meetings.addAll(meetings1);
-                            meetingAdapter.notifyDataSetChanged();
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-                        }
-                    };
-                    users.addValueEventListener(myMeetListener);
                     checkedMy.setChecked(true);
                     checkedMy.setCheckMarkDrawable(getResources().getDrawable(R.drawable.checked_checkbox));
                 }
+                update();
             }
         });
 
@@ -180,39 +154,14 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
             @Override
             public void onClick(View view) {
                 if (checkedArchive.isChecked()){
-                    getDataFromDB();
                     checkedArchive.setChecked(false);
                     checkedArchive.setCheckMarkDrawable(getResources().getDrawable(R.drawable.checkbox));
                 }
                 else {
-                    ValueEventListener archiveListener = new ValueEventListener()  {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                            if(meetings.size() > 0) meetings.clear();
-                            for(DataSnapshot dataSnapshot : snapshot.getChildren())
-                            {
-                                Meeting meeting =dataSnapshot.getValue(Meeting.class);
-                                assert meeting != null;
-                                uidMeet = dataSnapshot.getKey();
-                                meeting.setUid(uidMeet);
-                                meetings.add(meeting);
-                            }
-                            meetingAdapter.notifyDataSetChanged();
-                            if (recyclerView.getAdapter().getItemCount()>2) {
-                                recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount() - 1);
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-                        }
-                    };
-                    archive.addValueEventListener(archiveListener);
-                    database="archive";
                     checkedArchive.setChecked(true);
                     checkedArchive.setCheckMarkDrawable(getResources().getDrawable(R.drawable.checked_checkbox));
                 }
+                update();
             }
         });
 
@@ -341,6 +290,77 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
         }
         else {
             return true;
+        }
+    }
+
+    public void getArchive(){
+        ValueEventListener archiveListener = new ValueEventListener()  {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                if(meetings.size() > 0) meetings.clear();
+                for(DataSnapshot dataSnapshot : snapshot.getChildren())
+                {
+                    Meeting meeting =dataSnapshot.getValue(Meeting.class);
+                    assert meeting != null;
+                    uidMeet = dataSnapshot.getKey();
+                    meeting.setUid(uidMeet);
+                    meetings.add(meeting);
+                }
+                meetingAdapter.notifyDataSetChanged();
+                if (recyclerView.getAdapter().getItemCount()>2) {
+                    recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount() - 1);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        };
+        archive.addValueEventListener(archiveListener);
+        database="archive";
+    }
+
+    public void getMyMeet(){
+        ValueEventListener myMeetListener = new ValueEventListener()  {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                ArrayList<Meeting> meetings1 = new ArrayList<>();
+                for(DataSnapshot dataSnapshot : snapshot.getChildren())
+                {
+                    String myMeetUid=dataSnapshot.getKey();
+                    for (Meeting meeting : meetings){
+                        if (meeting.getUid().equals(myMeetUid)){
+                            meetings1.add(meeting);
+                        }
+                    }
+                }
+                meetings.clear();
+                meetings.addAll(meetings1);
+                meetingAdapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        };
+        users.addValueEventListener(myMeetListener);
+    }
+
+    private void update(){
+        if (!checkedMy.isChecked() && !checkedArchive.isChecked()){
+            getDataFromDB();
+        }
+        else if (!checkedMy.isChecked() && checkedArchive.isChecked()){
+            getArchive();
+        }
+        else if (checkedMy.isChecked() && !checkedArchive.isChecked()){
+            getDataFromDB();
+            getMyMeet();
+        }
+        else if (checkedMy.isChecked() && checkedArchive.isChecked()){
+            getArchive();
+            getMyMeet();
         }
     }
 }
