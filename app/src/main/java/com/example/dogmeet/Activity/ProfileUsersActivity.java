@@ -12,6 +12,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -41,7 +43,6 @@ public class ProfileUsersActivity extends AppCompatActivity implements RecyclerV
     private ArrayList<Pet> mPets;
     private RecyclerView recyclerView;
     private PetAdapter petAdapter;
-    Button message;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,17 +65,37 @@ public class ProfileUsersActivity extends AppCompatActivity implements RecyclerV
         getIntentMain();
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.profile_menu, menu);
+        MenuItem messageMenuItem = menu.findItem(R.id.action_message);
+        messageMenuItem.setVisible(true);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_message:
+                Intent i = new Intent(ProfileUsersActivity.this, ChatActivity.class);
+                i.putExtra(Constant.USER_UID, uid);
+                startActivity(i);
+
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
     public void init(){
         avatar=findViewById(R.id.chatAvatar);
         name=findViewById(R.id.text_name);
         bio=findViewById(R.id.text_about_me);
         recyclerView=findViewById(R.id.r_v_pet);
 
-        message=findViewById(R.id.message);
-
         mPets = new ArrayList<>();
 
-        petAdapter= new PetAdapter(mPets, this);
+        petAdapter= new PetAdapter(mPets, this, false);
 
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addItemDecoration(new DividerItemDecoration(ProfileUsersActivity.this, LinearLayoutManager.HORIZONTAL));
@@ -91,7 +112,7 @@ public class ProfileUsersActivity extends AppCompatActivity implements RecyclerV
                 @Override
                 public void onDataChange(DataSnapshot dataSnapshot) {
                     User user = dataSnapshot.getValue(User.class);
-                    name.setText(user.getName().toString() + ", " + user.getAge().toString());
+                    name.setText(user.getName().toString());
                     bio.setText(user.getInfo());
                     String url = user.getAvatarUri();
                     if (url != null) {
@@ -127,15 +148,6 @@ public class ProfileUsersActivity extends AppCompatActivity implements RecyclerV
                 }
             });
         }
-
-        message.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent i = new Intent(ProfileUsersActivity.this, ChatActivity.class);
-                i.putExtra(Constant.USER_UID, uid);
-                startActivity(i);
-            }
-        });
     }
 
     @Override

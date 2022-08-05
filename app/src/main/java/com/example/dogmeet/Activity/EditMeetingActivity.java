@@ -54,6 +54,9 @@ import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.UUID;
 
 public class EditMeetingActivity extends AppCompatActivity {
@@ -170,17 +173,10 @@ public class EditMeetingActivity extends AppCompatActivity {
         dialog.setPositiveButton("Да", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int which) {
-                myMeet.child(meetUid).addListenerForSingleValueEvent(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        dataSnapshot.getRef().removeValue();
-                        dialogInterface.dismiss();
-                        EditMeetingActivity.this.finish();
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-                    }
-                });
+                myMeet.child(meetUid).removeValue();
+                storageReference.child("meeting/").child(meetUid).delete();
+                dialogInterface.dismiss();
+                EditMeetingActivity.this.finish();
             }
         });
 
@@ -218,10 +214,19 @@ public class EditMeetingActivity extends AppCompatActivity {
         String timeText=timeEditText.getText().toString();
         String descriptionText=descriptionEditText.getText().toString();
 
+        long dateMeet=0;
+
+        SimpleDateFormat f = new SimpleDateFormat("dd.MM.yyyy HH:mm");
+        try {
+            Date d = f.parse(dateText+" "+timeText);
+            dateMeet = d.getTime();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
         myMeet.child(meetUid).child("title").setValue(titleText);
         myMeet.child(meetUid).child("address").setValue(addressText);
-        myMeet.child(meetUid).child("date").setValue(dateText);
-        myMeet.child(meetUid).child("time").setValue(timeText);
+        myMeet.child(meetUid).child("date").setValue(dateMeet);
         myMeet.child(meetUid).child("description").setValue(descriptionText);
         if (filePath!=null) {
             uploadImage();
@@ -229,38 +234,30 @@ public class EditMeetingActivity extends AppCompatActivity {
     }
 
     private void showImageWindow(){
-        imageWindow.animate().translationY(-getResources().getDimension(R.dimen.standard_100));
+        androidx.appcompat.app.AlertDialog.Builder dialog=new androidx.appcompat.app.AlertDialog.Builder(EditMeetingActivity.this);
 
-        Button downloadBtn=findViewById(R.id.download);
-        Button delete=findViewById(R.id.deletePhoto);
+        final String[] editPhoto={"Загрузить", "Удалить"};
 
-        downloadBtn.setOnClickListener(new View.OnClickListener() {
+        dialog.setItems(editPhoto, new DialogInterface.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
-                imageWindow.animate().translationY(0);
+            public void onClick(DialogInterface dialogInterface, int i) {
+                switch (editPhoto[i]){
+                    case "Загрузить":
+                        Intent intent = new Intent();
+                        intent.setType("image/*");
+                        intent.setAction(Intent.ACTION_GET_CONTENT);
+                        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+                        break;
+                    case "Удалить":
+                        myMeet.child(meetUid).child("urlImage").removeValue();
+                        storageReference.child("meeting/").child(meetUid).delete();
+                        break;
+                }
+                dialogInterface.dismiss();
             }
         });
 
-        delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                myMeet.child(meetUid).child("urlImage").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        dataSnapshot.getRef().removeValue();
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-            }
-        });
-
+        dialog.show();
     }
 
     @Override
@@ -270,14 +267,6 @@ public class EditMeetingActivity extends AppCompatActivity {
                 && data != null && data.getData() != null )
         {
             filePath = data.getData();
-            try {
-                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-                avatarButton.setImageBitmap(bitmap);
-            }
-            catch (IOException e)
-            {
-                e.printStackTrace();
-            }
         }
     }
 
@@ -288,7 +277,7 @@ public class EditMeetingActivity extends AppCompatActivity {
             progressDialog.setTitle("Uploading...");
             progressDialog.show();
 
-            StorageReference ref = storageReference.child("meeting/"+ UUID.randomUUID().toString());
+            StorageReference ref = storageReference.child("meeting/"+ meetUid);
             UploadTask upload_image=ref.putFile(filePath);
             upload_image
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -327,7 +316,7 @@ public class EditMeetingActivity extends AppCompatActivity {
                 public void onComplete(@NonNull Task<Uri> task) {
                     if (task.isSuccessful()) {
                         Uri downloadUri = task.getResult();
-                        myMeet.child(meetUid).child("urlImage").setValue(downloadUri);
+                        myMeet.child(meetUid).child("urlImage").setValue(downloadUri.toString());
 
                     } else {
                         Toast.makeText(EditMeetingActivity.this, "Failed", Toast.LENGTH_SHORT).show();

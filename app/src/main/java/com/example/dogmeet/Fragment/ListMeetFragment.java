@@ -3,18 +3,13 @@ package com.example.dogmeet.Fragment;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.format.DateFormat;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -31,9 +26,7 @@ import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
 import com.example.dogmeet.adapter.MeetingAdapter;
 import com.example.dogmeet.entity.Meeting;
-import com.example.dogmeet.entity.User;
 import com.example.dogmeet.mainActivity.AddActivity;
-import com.example.dogmeet.mainActivity.NavigatActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -42,16 +35,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ListMeetFragment extends Fragment implements RecyclerViewInterface {
     private DatabaseReference myMeet, users, archive;
@@ -181,11 +168,11 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
                         meetingAdapter.notifyDataSetChanged();
                         break;
                     case "По популярности":
-                        Collections.sort(meetings, Comparator.comparing(Meeting::getNumberMember));
+                        Collections.sort(meetings, Comparator.comparing(Meeting::getNumberMember).thenComparing(Meeting::getNumberComments));
                         meetingAdapter.notifyDataSetChanged();
                         break;
                     case "По дате":
-                        Collections.sort(meetings, Collections.reverseOrder(Comparator.comparing(Meeting::getDate)));
+                        Collections.sort(meetings, Comparator.comparing(Meeting::getDate));
                         meetingAdapter.notifyDataSetChanged();
                         break;
                 }
@@ -278,6 +265,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
         i.putExtra(Constant.MEETING_UID, meeting.getUid());
         i.putExtra(Constant.MEETING_CREATOR_UID, meeting.getCreatorUid());
         i.putExtra(Constant.IS_COMMENT, true);
+        i.putExtra(Constant.DATABASE, database);
         startActivity(i);
     }
 

@@ -11,11 +11,11 @@
         android:layout_height="50dp"
         android:layout_marginStart="5dp"
         android:layout_marginTop="5dp"
+        android:scaleType="centerCrop"
+        android:visibility="visible"
+        app:layout_collapseMode="parallax"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/date"
-        android:visibility="visible"
-        android:scaleType="centerCrop"
-        app:layout_collapseMode="parallax"
         tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
@@ -24,9 +24,10 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="10dp"
         android:layout_marginTop="5dp"
+        android:maxWidth="300dp"
         android:text="TextView"
-        android:visibility="visible"
         android:textSize="16sp"
+        android:visibility="visible"
         app:layout_constraintStart_toEndOf="@+id/incoming_avatar"
         app:layout_constraintTop_toBottomOf="@+id/date" />
 
@@ -34,14 +35,15 @@
         android:id="@+id/incoming_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:maxWidth="300dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="5dp"
         android:background="@drawable/incoming"
         android:paddingHorizontal="5dp"
         android:paddingVertical="5dp"
-        android:visibility="visible"
         android:text="TextView"
         android:textSize="20sp"
+        android:visibility="visible"
         app:layout_constraintStart_toEndOf="@+id/incoming_avatar"
         app:layout_constraintTop_toBottomOf="@+id/incoming_user" />
 
@@ -50,9 +52,9 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
-        android:visibility="visible"
         android:text="TextView"
         android:textSize="12sp"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/incoming_message"
         app:layout_constraintStart_toEndOf="@+id/incoming_message" />
 
@@ -60,15 +62,16 @@
         android:id="@+id/outgoid_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:maxWidth="300dp"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="5dp"
         android:background="@drawable/btn"
         android:paddingHorizontal="5dp"
         android:paddingVertical="5dp"
-        android:visibility="visible"
         android:text="TextView"
         android:textColor="@color/white"
         android:textSize="20sp"
+        android:visibility="visible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/date" />
 
@@ -78,8 +81,8 @@
         android:layout_height="wrap_content"
         android:layout_marginEnd="5dp"
         android:text="TextView"
-        android:visibility="visible"
         android:textSize="12sp"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="@+id/outgoid_message"
         app:layout_constraintEnd_toStartOf="@+id/outgoid_message" />
 

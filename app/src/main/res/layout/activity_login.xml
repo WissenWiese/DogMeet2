@@ -5,7 +5,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".mainActivity.LoginActivity"
-    android:id="@+id/root_element">
+    android:id="@+id/root_element"
+    android:background="@drawable/ic_bg">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -28,6 +29,7 @@
             android:layout_marginTop="160dp"
             android:layout_marginBottom="120dp"
             android:text="@string/app_name"
+            android:fontFamily="@font/kanit_extrabold"
             android:textColor="@color/accent"
             android:textSize="32sp"
             app:layout_constraintEnd_toEndOf="parent"

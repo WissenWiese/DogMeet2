@@ -43,8 +43,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CommentsFragment extends Fragment implements RecyclerViewInterface {
-    private DatabaseReference myMeet;
-    String meetUid, uid, database;
+    private DatabaseReference myMeet, comments;
+    private String meetUid, uid, database, addressee;
     private ArrayList<Message> messageArrayList;
     private RecyclerView commentView;
     private MessageAdapter messageAdapter;
@@ -52,6 +52,7 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
     Map<String, User>  usersDictionary;
     private ImageButton spendMessage;
     private EditText editComment;
+    private Boolean isAnswer;
 
     public static CommentsFragment newInstance(String meetUid, String database) {
         CommentsFragment сommentsFragment = new CommentsFragment();
@@ -100,6 +101,8 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
 
         editComment =view.findViewById(R.id.editMessage);
         spendMessage=view.findViewById(R.id.imageButton);
+
+        isAnswer=false;
 
         getUser();
         spendComments();
@@ -152,6 +155,9 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
                     messageArrayList.add(message1);
                 }
                 messageAdapter.notifyDataSetChanged();
+                if (commentView.getAdapter().getItemCount()>2) {
+                    commentView.smoothScrollToPosition(commentView.getAdapter().getItemCount() - 1);
+                }
             }
 
             @Override
@@ -173,6 +179,7 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
                             ref.removeValue();
                             DatabaseReference comments= myMeet.child(meetUid).child("numberComments");
                             comments.setValue(messageArrayList.size()-1);
+                            dialog.dismiss();
                         }
                     })
                     .show();
@@ -181,7 +188,10 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
 
     @Override
     public void OnButtonClick(int position) {
-
+        Message message=messageArrayList.get(position);
+        editComment.setText(message.getUserName()+",");
+        isAnswer=true;
+        addressee=message.getUid();
     }
 
     public void spendComments(){
@@ -191,6 +201,16 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
             @Override
             public void onClick(View view) {
                 long date=new Date().getTime();
+
+                if (isAnswer){
+                    comments = FirebaseDatabase.getInstance().getReference()
+                            .child("meeting").child(meetUid).child("comments")
+                            .child(addressee).child("answers");
+                }
+                else {
+                    comments = FirebaseDatabase.getInstance().getReference()
+                            .child("meeting").child(meetUid).child("comments");
+                }
 
                 if(!editComment.getFreezesText()) {
                     Toast.makeText(getContext(), "Введите комментарий", Toast.LENGTH_SHORT).show();
@@ -202,13 +222,7 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
                         .getUid());
                 message.setTime(date);
                 message.setMessage(editComment.getText().toString());
-                FirebaseDatabase.getInstance()
-                        .getReference()
-                        .child("meeting")
-                        .child(meetUid)
-                        .child("comments")
-                        .push()
-                        .setValue(message);
+                comments.push().setValue(message);
 
                 int numberComments=messageArrayList.size()+1;
                 FirebaseDatabase.getInstance()
@@ -218,7 +232,9 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
                         .child("numberComments")
                         .setValue(numberComments);
                 editComment.setText(null);
-                commentView.smoothScrollToPosition(commentView.getAdapter().getItemCount() - 1);
+                if (commentView.getAdapter().getItemCount()>2) {
+                    commentView.smoothScrollToPosition(commentView.getAdapter().getItemCount() - 1);
+                }
             }
         });
 

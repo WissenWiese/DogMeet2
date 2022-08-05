@@ -2,6 +2,8 @@ package com.example.dogmeet.adapter;
 
 import static com.example.dogmeet.Constant.URI;
 
+import android.app.SearchManager;
+import android.content.DialogInterface;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +27,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public ArrayList<Message> messageList;
 
     public static class MessageViewHolder extends RecyclerView.ViewHolder {
-        public TextView nameTextView, messageTextView, dateTextView;
+        public TextView nameTextView, messageTextView, dateTextView, answer;
         public ImageView avatar;
 
         public MessageViewHolder(@NonNull View itemView, RecyclerViewInterface recyclerViewInterface) {
@@ -34,6 +36,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             messageTextView = itemView.findViewById(R.id.lastMessage);
             dateTextView = itemView.findViewById(R.id.chatDate);
             avatar = itemView.findViewById(R.id.chatAvatar);
+            answer=itemView.findViewById(R.id.answer);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -47,6 +50,22 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
                     }
                 }
             });
+
+            View.OnClickListener buttonClickListener=new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (recyclerViewInterface!=null){
+                        int pos=getAdapterPosition();
+
+                        if (pos!=RecyclerView.NO_POSITION){
+                            recyclerViewInterface.OnButtonClick(pos);
+                        }
+                    }
+                }
+            };
+
+            answer.setClickable(true);
+            answer.setOnClickListener(buttonClickListener);
         }
     }
 
@@ -68,7 +87,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
         messageViewHolder.nameTextView.setText(message.getUserName());
         messageViewHolder.messageTextView.setText(message.getMessage());
-        messageViewHolder.dateTextView.setText(DateFormat.format("dd-MM-yyyy (HH:mm:ss)", message.getTime()));
+        messageViewHolder.dateTextView.setText(DateFormat.format("dd.MM в HH:mm", message.getTime()));
 
         if (message.getUserImage()!=null){
             String url=message.getUserImage();

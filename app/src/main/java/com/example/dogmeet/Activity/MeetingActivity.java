@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -30,6 +31,7 @@ import com.example.dogmeet.Fragment.ReviewFragment;
 import com.example.dogmeet.R;
 import com.example.dogmeet.entity.Meeting;
 import com.example.dogmeet.entity.Message;
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -45,11 +47,15 @@ public class MeetingActivity extends AppCompatActivity{
     private ImageView meetImageView;
     private Toolbar toolbar;
     private String creatorUid, uid, meetUid, database;
-    private DatabaseReference myMeet;
+    private DatabaseReference myMeet, comments;
     private Meeting meeting;
     private TabLayout tabLayout;
     int numberComments;
     private Boolean isComment;
+    private ImageButton spendMessage;
+    private EditText editComment;
+    AppBarLayout appBarLayout;
+    CardView spendComments;
 
 
     @Override
@@ -68,6 +74,8 @@ public class MeetingActivity extends AppCompatActivity{
                 MeetingActivity.this.finish();// возврат на предыдущий activity
             }
         });
+
+        appBarLayout=findViewById(R.id.appbar);
 
         uid= FirebaseAuth.getInstance().getCurrentUser().getUid();
 
@@ -120,11 +128,14 @@ public class MeetingActivity extends AppCompatActivity{
                     case 0:
                         ReviewFragment reviewFragment=ReviewFragment.newInstance(meetUid, creatorUid, database);
                         replaceFragment(reviewFragment);
+                        spendComments.animate().translationY(0);
                         break;
 
                     case 1:
                         CommentsFragment сommentsFragment=CommentsFragment.newInstance(meetUid, database);
                         replaceFragment(сommentsFragment);
+                        spendComments.animate().translationY(-getResources().getDimension(R.dimen.standard_50));
+                        spendComments();
                         break;
                 }
             }
@@ -141,6 +152,9 @@ public class MeetingActivity extends AppCompatActivity{
         });
 
 
+        editComment =findViewById(R.id.editMessage);
+        spendMessage=findViewById(R.id.imageButton);
+        spendComments=findViewById(R.id.setMessage);
     }
 
     private void getIntentMain(){
@@ -189,14 +203,16 @@ public class MeetingActivity extends AppCompatActivity{
                     TabLayout.Tab tab=tabLayout.getTabAt(0);
                     assert tab != null;
                     tab.select();
-                    ReviewFragment reviewFragment = ReviewFragment.newInstance(meetUid, creatorUid, database);
+                    ReviewFragment reviewFragment=ReviewFragment.newInstance(meetUid, creatorUid, database);
                     replaceFragment(reviewFragment);
+                    spendComments.animate().translationY(0);
                 }
                 else{
                     TabLayout.Tab tab=tabLayout.getTabAt(1);
                     assert tab != null;
                     tab.select();
-
+                    spendComments.animate().translationY(-getResources().getDimension(R.dimen.standard_50));
+                    spendComments();
                 }
             }
         }
@@ -209,4 +225,39 @@ public class MeetingActivity extends AppCompatActivity{
         transaction.commit();
     }
 
+    public void spendComments(){
+        Message message=new Message();
+
+        spendMessage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                long date=new Date().getTime();
+
+                comments = FirebaseDatabase.getInstance().getReference()
+                        .child("meeting").child(meetUid).child("comments");
+
+                if(!editComment.getFreezesText()) {
+                    Toast.makeText(MeetingActivity.this, "Введите комментарий", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+                message.setUser(FirebaseAuth.getInstance()
+                        .getCurrentUser()
+                        .getUid());
+                message.setTime(date);
+                message.setMessage(editComment.getText().toString());
+                comments.push().setValue(message);
+
+                int numberComments1=numberComments+1;
+                FirebaseDatabase.getInstance()
+                        .getReference()
+                        .child("meeting")
+                        .child(meetUid)
+                        .child("numberComments")
+                        .setValue(numberComments1);
+                editComment.setText(null);
+            }
+        });
+
+    }
 }

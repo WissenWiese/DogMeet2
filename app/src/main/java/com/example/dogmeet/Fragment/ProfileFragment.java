@@ -5,19 +5,23 @@ import static android.app.Activity.RESULT_OK;
 import static com.example.dogmeet.Constant.URI;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -25,12 +29,13 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.dogmeet.Activity.AddPetActivity;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
 import com.example.dogmeet.adapter.PetAdapter;
+import com.example.dogmeet.entity.Meeting;
 import com.example.dogmeet.entity.Pet;
 import com.example.dogmeet.entity.User;
+import com.example.dogmeet.mainActivity.AddActivity;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -47,11 +52,12 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.UUID;
 
 public class ProfileFragment extends Fragment implements RecyclerViewInterface{
-    ImageButton buttonEdit, buttonAdd, buttonSave, imageView;
+    ImageButton buttonEdit, buttonSave, buttonAdd, imageView;
     EditText about;
     DatabaseReference users, pets;
     private final int PICK_IMAGE_REQUEST = 71;
@@ -62,6 +68,10 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
     private ArrayList<Pet> mPets;
     private RecyclerView recyclerView;
     private PetAdapter petAdapter;
+    private Boolean editPet, isPetAvatar;
+    FirebaseAuth auth;
+    String petUid;
+
 
     public ProfileFragment(){
 
@@ -73,12 +83,14 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
 
         view = inflater.inflate(R.layout.fragment_profile, container, false);
         mPets = new ArrayList<>();
+        editPet=false;
+        isPetAvatar=false;
 
-        FirebaseAuth auth = FirebaseAuth.getInstance();
+        auth = FirebaseAuth.getInstance();
         TextView bio=view.findViewById(R.id.text_name);
         buttonEdit=view.findViewById(R.id.editBtn);
-        buttonSave=view.findViewById(R.id.saveBtn);
         buttonAdd=view.findViewById(R.id.addPetBtn);
+        buttonSave=view.findViewById(R.id.saveBtn);
         imageView=view.findViewById(R.id.chatAvatar);
         about=view.findViewById(R.id.edit_about);
 
@@ -91,7 +103,7 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
         recyclerView=view.findViewById(R.id.r_v_pet);
         recyclerView.setHasFixedSize(true);
 
-        petAdapter= new PetAdapter(mPets, this);
+        petAdapter= new PetAdapter(mPets, this, editPet);
 
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.HORIZONTAL));
@@ -102,7 +114,7 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 User user = dataSnapshot.getValue(User.class);
-                bio.setText(user.getName().toString()+", "+user.getAge().toString());
+                bio.setText(user.getName().toString());
                 if (user.getInfo()!=null){
                     about.setText(user.getInfo());
                 }
@@ -142,23 +154,32 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
             @Override
             public void onClick(View view) {
                 about.setEnabled(true);
+                buttonEdit.setTag("save");
+                editPet=true;
+                buttonEdit.setVisibility(View.INVISIBLE);
+                buttonSave.setVisibility(View.VISIBLE);
+                petAdapter.notifyDataSetChanged();
+            }
+        });
+
+        buttonSave.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
                 if (about!=null){
-                    buttonSave.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            users.child("info").setValue(about.getText().toString());
-                            about.setEnabled(false);
-                        }
-                    });
+                    users.child("info").setValue(about.getText().toString());
+                    about.setEnabled(false);
                 }
+                editPet=false;
+                buttonEdit.setVisibility(View.VISIBLE);
+                buttonSave.setVisibility(View.INVISIBLE);
+                petAdapter.notifyDataSetChanged();
             }
         });
 
         buttonAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent=new Intent(getContext(), AddPetActivity.class);
-                startActivity(intent);
+                showPetWindow();
             }
         });
 
@@ -179,59 +200,11 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
                 && data != null && data.getData() != null )
         {
             filePath = data.getData();
-
             if(filePath != null)
             {
-                final ProgressDialog progressDialog = new ProgressDialog(getContext());
-                progressDialog.setTitle("Uploading...");
-                progressDialog.show();
-
-                StorageReference ref1 = storageReference.child("avatar/"+ UUID.randomUUID().toString());
-                UploadTask upload_image= ref1.putFile(filePath);
-                upload_image
-                        .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                progressDialog.dismiss();
-                                Toast.makeText(getContext(), "Uploaded", Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                progressDialog.dismiss();
-                                Toast.makeText(getContext(), "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
-                            }
-                        })
-                        .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
-                            @Override
-                            public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
-                                double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
-                                        .getTotalByteCount());
-                                progressDialog.setMessage("Uploaded "+(int)progress+"%");
-                            }
-                        });
-                Task<Uri> urlTask = upload_image.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
-                    @Override
-                    public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
-                        if (!task.isSuccessful()) {
-                            throw task.getException();
-                        }
-                        return ref1.getDownloadUrl();
-
-                    }
-                }).addOnCompleteListener(new OnCompleteListener<Uri>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Uri> task) {
-                        if (task.isSuccessful()) {
-                            Uri downloadUri = task.getResult();
-                            users.child("avatarUri").setValue(downloadUri.toString());
-
-                        } else {
-                            Toast.makeText(getContext(), "Failed", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+                if (!isPetAvatar){
+                    uploadImage(isPetAvatar);
+                }
             }
         }
     }
@@ -249,39 +222,146 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
     private void showImageWindow(){
         androidx.appcompat.app.AlertDialog.Builder dialog=new androidx.appcompat.app.AlertDialog.Builder(getContext());
 
+        final String[] editPhoto={"Загрузить", "Удалить"};
+
+        dialog.setItems(editPhoto, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                switch (editPhoto[i]){
+                    case "Загрузить":
+                        Intent intent = new Intent();
+                        intent.setType("image/*");
+                        intent.setAction(Intent.ACTION_GET_CONTENT);
+                        isPetAvatar=false;
+                        startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
+                        break;
+                    case "Удалить":
+                        users.child("avatarUri").removeValue();
+                        storageReference.child(auth.getUid()).child("avatar").delete();
+                        break;
+                }
+                dialogInterface.dismiss();
+            }
+        });
+
+        dialog.show();
+    }
+
+    private void showPetWindow(){
+        AlertDialog.Builder dialog=new AlertDialog.Builder(getContext());
+
         LayoutInflater inflator= LayoutInflater.from(getContext());
-        View image_window= inflator.inflate(R.layout.image_window, null);
-        dialog.setView(image_window);
+        View register_window= inflator.inflate(R.layout.item_edit_pet, null);
+        dialog.setView(register_window);
 
-        Button downloadBtn=image_window.findViewById(R.id.download);
-        Button delete=image_window.findViewById(R.id.deletePhoto);
+        final EditText namePet=register_window.findViewById(R.id.name);
+        final ImageButton avatarPet=register_window.findViewById(R.id.avatar);
 
-        downloadBtn.setOnClickListener(new View.OnClickListener() {
+        dialog.setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+                dialogInterface.dismiss();
+            }
+        });
+
+        dialog.setPositiveButton("Добавить", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+                if(TextUtils.isEmpty(namePet.getText().toString())) {
+                    Toast.makeText(getContext(), "Введите имя питомца", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                petUid=UUID.randomUUID().toString();
+                pets.child(petUid).child("name").setValue(namePet);
+                if (filePath!=null) {
+                    try {
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), filePath);
+                        avatarPet.setImageBitmap(bitmap);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    uploadImage(isPetAvatar);
+                }
+                dialogInterface.dismiss();
+            }
+        });
+
+        avatarPet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent();
                 intent.setType("image/*");
                 intent.setAction(Intent.ACTION_GET_CONTENT);
+                isPetAvatar=true;
                 startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
             }
         });
 
-        delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                users.child("avatarUri").addValueEventListener(new ValueEventListener() {
-                    @Override
-                    public void onDataChange(DataSnapshot dataSnapshot) {
-                        dataSnapshot.getRef().removeValue();
-                    }
-                    @Override
-                    public void onCancelled(DatabaseError databaseError) {
-
-                    }
-                });
-            }
-        });
-
         dialog.show();
+    }
+
+    private void uploadImage(Boolean isPetAvatar) {
+        if(filePath != null)
+        {
+            final ProgressDialog progressDialog = new ProgressDialog(getContext());
+            progressDialog.setTitle("Uploading...");
+            progressDialog.show();
+            StorageReference ref;
+            DatabaseReference databaseReference;
+            if (isPetAvatar){
+                ref = storageReference.child(auth.getUid()).child(petUid);
+                databaseReference=pets.child(petUid).child("avatar_pet");
+            }
+            else{
+                ref = storageReference.child(auth.getUid()).child("avatar");
+                databaseReference=users.child("avatarUri");
+            }
+
+            UploadTask upload_image=ref.putFile(filePath);
+            upload_image
+                    .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
+                            progressDialog.dismiss();
+                            Toast.makeText(getContext(), "Uploaded", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            progressDialog.dismiss();
+                            Toast.makeText(getContext(), "Failed "+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnProgressListener(new OnProgressListener<UploadTask.TaskSnapshot>() {
+                        @Override
+                        public void onProgress(UploadTask.TaskSnapshot taskSnapshot) {
+                            double progress = (100.0*taskSnapshot.getBytesTransferred()/taskSnapshot
+                                    .getTotalByteCount());
+                            progressDialog.setMessage("Uploaded "+(int)progress+"%");
+                        }
+                    });
+            Task<Uri> urlTask = upload_image.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
+                @Override
+                public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
+                    if (!task.isSuccessful()) {
+                        throw task.getException();
+                    }
+                    return ref.getDownloadUrl();
+
+                }
+            }).addOnCompleteListener(new OnCompleteListener<Uri>() {
+                @Override
+                public void onComplete(@NonNull Task<Uri> task) {
+                    if (task.isSuccessful()) {
+                        Uri downloadUri = task.getResult();
+                        databaseReference.setValue(downloadUri.toString());
+
+                    } else {
+                        Toast.makeText(getContext(), "Failed", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
     }
 }

@@ -110,7 +110,6 @@ public class LoginActivity extends AppCompatActivity {
         final EditText name=register_window.findViewById(R.id.name);
         final EditText email=register_window.findViewById(R.id.email);
         final EditText password=register_window.findViewById(R.id.password);
-        final EditText age=register_window.findViewById(R.id.age);
 
         dialog.setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
             @Override
@@ -137,11 +136,6 @@ public class LoginActivity extends AppCompatActivity {
                     return;
                 }
 
-                if(TextUtils.isEmpty(age.getText().toString())) {
-                    Snackbar.make(root, "Введите ваш возраст", Snackbar.LENGTH_LONG).show();
-                    return;
-                }
-
 
                 auth.createUserWithEmailAndPassword(email.getText().toString(), password.getText().toString())
                         .addOnCompleteListener(LoginActivity.this, new OnCompleteListener<AuthResult>() {
@@ -156,7 +150,6 @@ public class LoginActivity extends AppCompatActivity {
                                 User user = new User();
                                 user.setName(name.getText().toString());
                                 user.setEmail(email.getText().toString());
-                                user.setAge(age.getText().toString());
 
                                 users_db.child(auth.getUid()).setValue(user);
 

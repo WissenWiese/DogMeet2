@@ -3,14 +3,17 @@ package com.example.dogmeet.mainActivity;
 
 import static com.example.dogmeet.Constant.URI;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -20,6 +23,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -58,7 +62,7 @@ public class AddActivity extends AppCompatActivity {
     private EditText titleEditText, addressEditText, dateEditText, timeEditText, descriptionEditText;
     private DatabaseReference myMeet, users;
     private FirebaseAuth auth;
-    private String uid;
+    private String uid, meetUid;
     private int member_number, comments_number;
     private final int PICK_IMAGE_REQUEST = 71;
     private Uri filePath;
@@ -68,6 +72,7 @@ public class AddActivity extends AppCompatActivity {
     User creator;
     Toolbar toolbar;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -113,6 +118,7 @@ public class AddActivity extends AppCompatActivity {
         getMeetCreator();
 
         dateEditText.setOnTouchListener(new View.OnTouchListener() {
+            @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
@@ -129,6 +135,29 @@ public class AddActivity extends AppCompatActivity {
             public void onFocusChange(View view, boolean b) {
                 if (b) {
                     showDatePickDlg(dateEditText);
+                }
+
+            }
+        });
+
+        timeEditText.setOnTouchListener(new View.OnTouchListener() {
+            @SuppressLint("ClickableViewAccessibility")
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_DOWN) {
+                    showTimePickDlg(timeEditText);
+                    return true;
+                }
+
+                return false;
+            }
+        });
+
+        timeEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    showTimePickDlg(timeEditText);
                 }
 
             }
@@ -160,6 +189,37 @@ public class AddActivity extends AppCompatActivity {
             }
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
         datePickerDialog.show();
+    }
+
+    protected void showTimePickDlg(EditText time){
+        // получаем текущее время
+        final Calendar cal = Calendar.getInstance();
+        int mHour = cal.get(Calendar.HOUR_OF_DAY);
+        int mMinute = cal.get(Calendar.MINUTE);
+
+
+
+        // инициализируем диалог выбора времени текущими значениями
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this,
+                new TimePickerDialog.OnTimeSetListener() {
+                    @Override
+                    public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+                        view.setIs24HourView(true);
+                        if (hourOfDay<10 && minute<10){
+                            time.setText("0"+hourOfDay + ":0" + minute);
+                        }
+                        else if (hourOfDay>=10 && minute<10){
+                            time.setText(hourOfDay + ":0" + minute);
+                        }
+                        else if (hourOfDay<10 && minute>=10){
+                            time.setText("0"+hourOfDay + ":" + minute);
+                        }
+                        else if (hourOfDay>=10 && minute>=10){
+                            time.setText(hourOfDay + ":" + minute);
+                        }
+                    }
+                }, mHour, mMinute, true);
+        timePickerDialog.show();
     }
 
     public void getMeetCreator() {
@@ -209,7 +269,7 @@ public class AddActivity extends AppCompatActivity {
             progressDialog.setTitle("Uploading...");
             progressDialog.show();
 
-            StorageReference ref = storageReference.child("meeting/"+UUID.randomUUID().toString());
+            StorageReference ref = storageReference.child("meeting/"+meetUid);
             UploadTask upload_image=ref.putFile(filePath);
             upload_image
                     .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
@@ -249,7 +309,7 @@ public class AddActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         Uri downloadUri = task.getResult();
                         meet.setUrlImage(downloadUri.toString());
-                        myMeet.push().setValue(meet);
+                        myMeet.child(meetUid).setValue(meet);
                         AddActivity.this.finish();
 
                     } else {
@@ -310,6 +370,7 @@ public class AddActivity extends AppCompatActivity {
             return;
         }
 
+        meetUid=UUID.randomUUID().toString();
         String titleText = titleEditText.getText().toString();
         String addressText = addressEditText.getText().toString();
         String dateText = dateEditText.getText().toString();
@@ -340,7 +401,7 @@ public class AddActivity extends AppCompatActivity {
 
         }
         else {
-            myMeet.push().setValue(meet);
+            myMeet.child(meetUid).setValue(meet);
             AddActivity.this.finish();
         }
 

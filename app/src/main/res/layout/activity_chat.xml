@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Activity.ChatActivity">
+    tools:context=".Activity.ChatActivity"
+    android:background="@drawable/ic_bg">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar_chat"
@@ -39,12 +40,13 @@
             <EditText
                 android:id="@+id/editMessage"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
+                android:minHeight="50dp"
+                android:maxHeight="100dp"
                 android:layout_marginStart="24dp"
                 android:layout_marginTop="10dp"
                 android:ems="10"
-                android:hint="Введите комментарий"
-                android:inputType="textPersonName"
+                android:inputType="textMultiLine|textCapSentences"
                 app:layout_constraintEnd_toStartOf="@+id/imageButton"
                 app:layout_constraintStart_toStartOf="parent" />
 

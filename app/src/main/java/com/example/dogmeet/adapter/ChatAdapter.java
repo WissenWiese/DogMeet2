@@ -88,13 +88,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         String thisdate=DateFormat.format("dd-MM", message.getTime()).toString();
 
 
-        if (lastdate==null || !lastdate.equals(thisdate)){
+        if (lastdate!=null && lastdate.equals(thisdate)){
+            chatViewHolder.date.setVisibility(View.GONE);
+        }
+        else {
             chatViewHolder.date.setVisibility(View.VISIBLE);
             chatViewHolder.date.setText(thisdate);
             lastdate=thisdate;
-        }
-        else {
-            chatViewHolder.date.setVisibility(View.GONE);
         }
     }
 

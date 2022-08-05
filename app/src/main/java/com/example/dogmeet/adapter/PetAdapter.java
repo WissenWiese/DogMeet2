@@ -6,6 +6,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -24,21 +25,34 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder>{
 
     private ArrayList<Pet> mPets;
     private Context context;
+    private Boolean editPet;
 
 
     public static class PetViewHolder extends RecyclerView.ViewHolder {
-        public TextView name, age, breed, gender;
+        public TextView name;
         public ImageView imageView;
+        public ImageButton deleteBtn;
 
         public PetViewHolder(View itemView, RecyclerViewInterface recyclerViewInterface) {
             super(itemView);
             name =itemView.findViewById(R.id.name);
-            age =itemView.findViewById(R.id.age);
-            breed =itemView.findViewById(R.id.breed);
-            gender =itemView.findViewById(R.id.gender);
             imageView=itemView.findViewById(R.id.avatar);
+            deleteBtn=itemView.findViewById(R.id.delete_pet);
 
             itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (recyclerViewInterface!=null){
+                        int pos=getAdapterPosition();
+
+                        if (pos!=RecyclerView.NO_POSITION){
+                            recyclerViewInterface.OnItemClick(pos);
+                        }
+                    }
+                }
+            });
+
+            deleteBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (recyclerViewInterface!=null){
@@ -53,9 +67,10 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder>{
         }
     }
 
-    public PetAdapter(ArrayList<Pet> pets, RecyclerViewInterface recyclerViewInterface) {
+    public PetAdapter(ArrayList<Pet> pets, RecyclerViewInterface recyclerViewInterface, Boolean editPet) {
         mPets =pets;
         this.recyclerViewInterface=recyclerViewInterface;
+        this.editPet=editPet;
     }
 
     @Override
@@ -71,9 +86,6 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder>{
         Pet pet = mPets.get(position);
 
         holder.name.setText(pet.getName());
-        holder.age.setText(pet.getAge());
-        holder.breed.setText(pet.getBreed());
-        holder.gender.setText(pet.getGender());
 
         if (pet.getAvatar_pet()!=null){
             String url=pet.getAvatar_pet();
@@ -81,6 +93,13 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder>{
         }
         else {
             Glide.with(context).load(URI).into(holder.imageView);
+        }
+
+        if (editPet){
+            holder.deleteBtn.setVisibility(View.VISIBLE);
+        }
+        else{
+            holder.deleteBtn.setVisibility(View.INVISIBLE);
         }
     }
 

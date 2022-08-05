@@ -181,7 +181,11 @@ public class ChatActivity extends AppCompatActivity {
                     messages.add(message);
                 }
                 chatAdapter.notifyDataSetChanged();
+                if (recyclerView.getAdapter().getItemCount()>2) {
+                    recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount() - 1);
+                }
             }
+
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
