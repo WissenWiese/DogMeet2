@@ -47,6 +47,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -417,6 +418,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
                 else{
                     dateFilter.setText(dateForFilter);
                 }
+
             }
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
 
