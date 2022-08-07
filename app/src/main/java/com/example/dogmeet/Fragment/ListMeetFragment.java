@@ -1,6 +1,7 @@
 package com.example.dogmeet.Fragment;
 
 import android.app.DatePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -55,7 +56,7 @@ import java.util.Date;
 public class ListMeetFragment extends Fragment implements RecyclerViewInterface {
     private DatabaseReference myMeet, users, archive;
     private ArrayList<Meeting> meetings;
-    private String uidMeet, uid, database;
+    private String uidMeet, uid, database, date, dateForFilter;
     private RecyclerView recyclerView;
     private MeetingAdapter meetingAdapter;
     private View view;
@@ -65,6 +66,8 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
     private CheckedTextView checkedMy, checkedArchive;
     private ImageButton calendar;
     private TextView dateFilter;
+    int click;
+    long dateMin=0, dateMax=0;
 
     public ListMeetFragment() {
 
@@ -202,6 +205,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
         dateFilter=view.findViewById(R.id.date);
 
         calendar.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View view) {
                 showDatePickDlg();
@@ -398,34 +402,78 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     protected void showDatePickDlg() {
         dateFilter.setText(null);
+        click=0;
         Calendar calendar = Calendar.getInstance();
         DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
                 monthOfYear=monthOfYear+1;
                 if (monthOfYear<10) {
-                    dateFilter.setText(dayOfMonth + ".0" + monthOfYear + "." + year);
+                    dateFilter.setText(dateForFilter);
                 }
                 else{
-                    dateFilter.setText(dayOfMonth + "." + monthOfYear + "." + year);
+                    dateFilter.setText(dateForFilter);
                 }
-
-
             }
         }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+
+        datePickerDialog.getDatePicker().setOnDateChangedListener(new DatePicker.OnDateChangedListener() {
+            @Override
+            public void onDateChanged(DatePicker datePicker, int year, int monthOfYear, int dayOfMonth) {
+
+                click=click+1;
+                monthOfYear=monthOfYear+1;
+                if (monthOfYear<10) {
+                    date=dayOfMonth + ".0" + monthOfYear;
+                }
+                else{
+                    date=dayOfMonth + "." + monthOfYear;
+                }
+                long dateLong=0;
+
+                SimpleDateFormat f = new SimpleDateFormat("dd.MM.yyyy");
+                try {
+                    Date d = f.parse(dayOfMonth +"."+ monthOfYear +"."+ year);
+                    dateLong = d.getTime();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                if (click==1){
+                    datePickerDialog.getDatePicker().setMinDate(dateLong);
+                    dateForFilter=date;
+                    dateMin=dateLong;
+                    dateMax=0;
+                }
+                else if (click==2){
+                    dateMax=dateLong;
+                    if (dateMin!=dateMax){
+                        datePickerDialog.getDatePicker().setMaxDate(dateLong);
+                        dateForFilter=dateForFilter+'-'+date;
+                    }
+                    click=0;
+                    datePickerDialog.getDatePicker().setMinDate(0);
+                }
+            }
+        });
         datePickerDialog.show();
     }
 
     private void getDateMeet(){
         ArrayList<Meeting> meetings1 = new ArrayList<>();
-        for (Meeting meeting : meetings){
-            String date= DateFormat.format("dd.MM.yyyy", meeting.getDate()).toString();
-            if (date.equals(dateFilter.getText().toString())){
+        for (Meeting meeting : meetings) {
+            String date = DateFormat.format("dd.MM.yyyy", meeting.getDate()).toString();
+            String date_min = DateFormat.format("dd.MM.yyyy", dateMin).toString();
+            if (dateMax==0 && date.equals(date_min)) {
+                meetings1.add(meeting);
+            }
+            else if (dateMax!=0 && meeting.getDate()>=dateMin && meeting.getDate()<=dateMax){
                 meetings1.add(meeting);
             }
         }
+
         meetings.clear();
         meetings.addAll(meetings1);
         meetingAdapter.notifyDataSetChanged();
