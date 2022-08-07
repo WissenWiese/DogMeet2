@@ -1,15 +1,24 @@
 package com.example.dogmeet.Fragment;
 
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
+import android.widget.DatePicker;
+import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -35,7 +44,10 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
@@ -51,6 +63,8 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
     private CardView filters;
     private Spinner spinner;
     private CheckedTextView checkedMy, checkedArchive;
+    private ImageButton calendar;
+    private TextView dateFilter;
 
     public ListMeetFragment() {
 
@@ -181,6 +195,38 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
 
+            }
+        });
+
+        calendar=view.findViewById(R.id.calendar);
+        dateFilter=view.findViewById(R.id.date);
+
+        calendar.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDatePickDlg();
+            }
+        });
+
+        dateFilter.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (!TextUtils.isEmpty(dateFilter.getText().toString())) {
+                    getDateMeet();
+                }
+                else {
+                    update();
+                }
             }
         });
 
@@ -350,5 +396,38 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
             getArchive();
             getMyMeet();
         }
+    }
+
+    protected void showDatePickDlg() {
+        dateFilter.setText(null);
+        Calendar calendar = Calendar.getInstance();
+        DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                monthOfYear=monthOfYear+1;
+                if (monthOfYear<10) {
+                    dateFilter.setText(dayOfMonth + ".0" + monthOfYear + "." + year);
+                }
+                else{
+                    dateFilter.setText(dayOfMonth + "." + monthOfYear + "." + year);
+                }
+
+
+            }
+        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
+        datePickerDialog.show();
+    }
+
+    private void getDateMeet(){
+        ArrayList<Meeting> meetings1 = new ArrayList<>();
+        for (Meeting meeting : meetings){
+            String date= DateFormat.format("dd.MM.yyyy", meeting.getDate()).toString();
+            if (date.equals(dateFilter.getText().toString())){
+                meetings1.add(meeting);
+            }
+        }
+        meetings.clear();
+        meetings.addAll(meetings1);
+        meetingAdapter.notifyDataSetChanged();
     }
 }
