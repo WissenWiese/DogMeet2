@@ -20,17 +20,17 @@ import com.example.dogmeet.entity.Message;
 
 import java.util.ArrayList;
 
-public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.MessageViewHolder> {
+public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.AnswerViewHolder> {
     private final RecyclerViewInterface recyclerViewInterface;
 
     public ArrayList<Answer> answersList;
 
-    public static class MessageViewHolder extends RecyclerView.ViewHolder {
+    public static class AnswerViewHolder extends RecyclerView.ViewHolder {
         public TextView nameTextView, messageTextView, dateTextView, answer;
         public ImageView avatar;
         public RecyclerView answerView;
 
-        public MessageViewHolder(@NonNull View itemView, RecyclerViewInterface recyclerViewInterface) {
+        public AnswerViewHolder(@NonNull View itemView, RecyclerViewInterface recyclerViewInterface) {
             super(itemView);
             nameTextView = itemView.findViewById(R.id.chatUser);
             messageTextView = itemView.findViewById(R.id.lastMessage);
@@ -78,25 +78,25 @@ public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.MessageVie
 
     @NonNull
     @Override
-    public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
+    public AnswerViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_message, viewGroup, false);
-        return new MessageViewHolder(view, recyclerViewInterface);
+        return new AnswerViewHolder(view, recyclerViewInterface);
     }
 
     @Override
-    public void onBindViewHolder(@NonNull MessageViewHolder messageViewHolder, int i) {
+    public void onBindViewHolder(@NonNull AnswerViewHolder answerViewHolder, int i) {
         Answer answer= answersList.get(i);
 
-        messageViewHolder.nameTextView.setText(answer.getUserName());
-        messageViewHolder.messageTextView.setText(answer.getMessage());
-        messageViewHolder.dateTextView.setText(DateFormat.format("dd.MM в HH:mm", answer.getTime()));
+        answerViewHolder.nameTextView.setText(answer.getUserName());
+        answerViewHolder.messageTextView.setText(answer.getMessage());
+        answerViewHolder.dateTextView.setText(DateFormat.format("dd.MM в HH:mm", answer.getTime()));
 
         if (answer.getUserImage()!=null){
             String url=answer.getUserImage();
-            Glide.with(messageViewHolder.avatar.getContext()).load(url).into(messageViewHolder.avatar);
+            Glide.with(answerViewHolder.avatar.getContext()).load(url).into(answerViewHolder.avatar);
         }
         else {
-            Glide.with(messageViewHolder.avatar.getContext()).load(URI).into(messageViewHolder.avatar);
+            Glide.with(answerViewHolder.avatar.getContext()).load(URI).into(answerViewHolder.avatar);
         }
     }
 

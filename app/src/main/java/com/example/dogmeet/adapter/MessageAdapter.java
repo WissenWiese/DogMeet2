@@ -17,6 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.dogmeet.OnAnswerPass;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
 import com.example.dogmeet.entity.Answer;
@@ -32,7 +33,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     public ArrayList<Answer> answersList;
     private Context context;
     //public String uid= FirebaseAuth.getInstance().getCurrentUser().getUid();
-    //private OnAnswerPass onAnswerPass;
+    private OnAnswerPass onAnswerPass;
 
     @Override
     public void OnItemClick(int position) {
@@ -45,7 +46,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         String userName=answer.getUserName()+",";
         String uidComment=answer.getMainUid();
         Boolean isAnswer=true;
-        //onAnswerPass.onAnswerPass(userName, uidComment, isAnswer);
+        onAnswerPass.onAnswerPass(userName, uidComment, isAnswer);
     }
 
     public static class MessageViewHolder extends RecyclerView.ViewHolder {

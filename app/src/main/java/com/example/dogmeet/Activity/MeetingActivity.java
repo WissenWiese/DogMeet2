@@ -27,6 +27,7 @@ import com.bumptech.glide.Glide;
 import com.example.dogmeet.Constant;
 import com.example.dogmeet.Fragment.CommentsFragment;
 import com.example.dogmeet.Fragment.ReviewFragment;
+import com.example.dogmeet.OnAnswerPass;
 import com.example.dogmeet.R;
 import com.example.dogmeet.entity.Meeting;
 import com.example.dogmeet.entity.Message;
@@ -41,7 +42,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.Date;
 
-public class MeetingActivity extends AppCompatActivity implements CommentsFragment.OnDataPass {
+public class MeetingActivity extends AppCompatActivity implements CommentsFragment.OnDataPass, OnAnswerPass {
     private TextView meetDate, meetAddress, nameAnswer;
     private ImageView meetImageView;
     private Toolbar toolbar;
@@ -164,6 +165,7 @@ public class MeetingActivity extends AppCompatActivity implements CommentsFragme
             public void onClick(View view) {
                 isAnswer=false;
                 answerName.setVisibility(View.INVISIBLE);
+                editComment.setText(null);
             }
         });
     }
@@ -292,4 +294,14 @@ public class MeetingActivity extends AppCompatActivity implements CommentsFragme
     }
 
 
+    @Override
+    public void onAnswerPass(String name, String uidComment, Boolean isAnswer) {
+        editComment.setText(name+",");
+        this.uidComment=uidComment;
+        this.isAnswer=isAnswer;
+        if (isAnswer){
+            answerName.setVisibility(View.VISIBLE);
+            nameAnswer.setText(name);
+        }
+    }
 }

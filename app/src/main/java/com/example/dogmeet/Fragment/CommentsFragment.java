@@ -181,7 +181,7 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
     @Override
     public void OnButtonClick(int position) {
         Message message=messageArrayList.get(position);
-        String userName=message.getUserName()+",";
+        String userName=message.getUserName();
         String uidComment=message.getUid();
         Boolean isAnswer=true;
         mDataPasser.onDataPass(userName, uidComment, isAnswer);
