@@ -127,20 +127,8 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
                 if(messageArrayList.size() > 0) messageArrayList.clear();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren())
                 {
-                    ArrayList<Answer> answers=new ArrayList<>();
                     Message message1 =dataSnapshot.getValue(Message.class);
                     assert message1 !=null;
-                    for (DataSnapshot answersSnapshot: dataSnapshot.child("answers").getChildren()){
-                        Answer answer=answersSnapshot.getValue(Answer.class);
-                        User user1=usersDictionary.get(answer.getUser());
-                        if (user1!=null) {
-                            answer.setUserName(user1.getName());
-                            answer.setUserImage(user1.getAvatarUri());
-                        }
-                        answer.setMainUid(dataSnapshot.getKey());
-                        answers.add(answer);
-                    }
-                    message1.setAnswerArrayList(answers);
                     User user=usersDictionary.get(message1.getUser());
                     if (user!=null) {
                         message1.setUserName(user.getName());
@@ -148,6 +136,17 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
                     }
                     message1.setUid(dataSnapshot.getKey());
                     messageArrayList.add(message1);
+                    for (DataSnapshot answersSnapshot: dataSnapshot.child("answers").getChildren()){
+                        Message answer=answersSnapshot.getValue(Message.class);
+                        User user1=usersDictionary.get(answer.getUser());
+                        if (user1!=null) {
+                            answer.setUserName(user1.getName());
+                            answer.setUserImage(user1.getAvatarUri());
+                        }
+                        answer.setMainUid(dataSnapshot.getKey());
+                        answer.setUid(answersSnapshot.getKey());
+                        messageArrayList.add(answer);
+                    }
                 }
                 messageAdapter.notifyDataSetChanged();
             }
@@ -182,7 +181,13 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
     public void OnButtonClick(int position) {
         Message message=messageArrayList.get(position);
         String userName=message.getUserName();
-        String uidComment=message.getUid();
+        String uidComment;
+        if (message.getMainUid()!=null){
+            uidComment=message.getMainUid();
+        }
+        else{
+            uidComment=message.getUid();
+        }
         Boolean isAnswer=true;
         mDataPasser.onDataPass(userName, uidComment, isAnswer);
     }

@@ -4,17 +4,16 @@ import java.util.ArrayList;
 import java.util.Date;
 
 public class Message {
-    private String user, message, userName, userImage, uid;
+    private String user, message, userName, userImage, uid, mainUid;
     private long time;
-    private ArrayList<Answer> answerArrayList;
 
-    public Message(String user, String message, String userName, String userImage, String uid, ArrayList<Answer> answers) {
+    public Message(String user, String message, String userName, String userImage, String uid, String mainUid) {
         this.user = user;
         this.message = message;
         this.userName = userName;
         this.userImage = userImage;
         this.uid=uid;
-        this.answerArrayList =answers;
+        this.mainUid=mainUid;
 
         // Initialize to current time
         time = new Date().getTime();
@@ -72,11 +71,11 @@ public class Message {
         this.time = time;
     }
 
-    public ArrayList<Answer> getAnswerArrayList() {
-        return answerArrayList;
+    public String getMainUid() {
+        return mainUid;
     }
 
-    public void setAnswerArrayList(ArrayList<Answer> answerArrayList) {
-        this.answerArrayList = answerArrayList;
+    public void setMainUid(String mainUid) {
+        this.mainUid = mainUid;
     }
 }

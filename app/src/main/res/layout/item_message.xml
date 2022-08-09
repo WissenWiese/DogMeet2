@@ -6,6 +6,46 @@
     android:layout_height="wrap_content">
 
     <ImageView
+        android:id="@+id/chatAvatar2"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="5dp"
+        android:scaleType="centerCrop"
+        android:visibility="invisible"
+        app:layout_collapseMode="parallax"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:srcCompat="@tools:sample/avatars" />
+
+    <TextView
+        android:id="@+id/lastMessage2"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:text="TextView"
+        android:textColor="@color/text"
+        android:textSize="20sp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="@+id/answer"
+        app:layout_constraintStart_toEndOf="@+id/chatAvatar2"
+        app:layout_constraintTop_toBottomOf="@+id/chatUser" />
+
+    <TextView
+        android:id="@+id/chatUser2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:text="TextView"
+        android:textColor="@color/text"
+        android:textSize="16sp"
+        android:visibility="invisible"
+        app:layout_constraintStart_toEndOf="@+id/chatAvatar2"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
         android:id="@+id/chatAvatar"
         android:layout_width="50dp"
         android:layout_height="50dp"
@@ -62,14 +102,4 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/lastMessage" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/answersView"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
-        android:layout_marginTop="5dp"
-        android:visibility="invisible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/answer" />
 </androidx.constraintlayout.widget.ConstraintLayout>

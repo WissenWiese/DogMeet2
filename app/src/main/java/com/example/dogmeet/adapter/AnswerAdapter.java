@@ -37,7 +37,6 @@ public class AnswerAdapter extends RecyclerView.Adapter<AnswerAdapter.AnswerView
             dateTextView = itemView.findViewById(R.id.chatDate);
             avatar = itemView.findViewById(R.id.chatAvatar);
             answer=itemView.findViewById(R.id.answer);
-            answerView=itemView.findViewById(R.id.answersView);
             answerView.setVisibility(View.GONE);
 
             itemView.setOnClickListener(new View.OnClickListener() {
