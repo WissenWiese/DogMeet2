@@ -1,14 +1,7 @@
 package com.example.dogmeet.entity;
 
-import android.content.Intent;
-import android.net.Uri;
-
 import androidx.room.Entity;
 
-import com.example.dogmeet.Activity.MeetingActivity;
-import com.example.dogmeet.Constant;
-
-import java.util.ArrayList;
 import java.util.Objects;
 
 @Entity

@@ -5,7 +5,6 @@ import static com.example.dogmeet.Constant.URI;
 import android.content.Intent;
 import android.os.Bundle;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,7 +21,6 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.dogmeet.Activity.MeetingActivity;
 import com.example.dogmeet.Activity.ProfileUsersActivity;
 import com.example.dogmeet.Constant;
 import com.example.dogmeet.R;
@@ -39,9 +37,7 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Dictionary;
 import java.util.HashMap;
-import java.util.Hashtable;
 import java.util.Map;
 
 public class ReviewFragment extends Fragment implements RecyclerViewInterface {

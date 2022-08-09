@@ -1,32 +1,25 @@
 package com.example.dogmeet.Fragment;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.example.dogmeet.Activity.MeetingActivity;
-import com.example.dogmeet.Dictionary;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
 import com.example.dogmeet.adapter.MessageAdapter;
-import com.example.dogmeet.adapter.UserAdapter;
-import com.example.dogmeet.entity.Meeting;
+import com.example.dogmeet.entity.Answer;
 import com.example.dogmeet.entity.Message;
 import com.example.dogmeet.entity.User;
 import com.google.firebase.auth.FirebaseAuth;
@@ -35,24 +28,20 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.database.core.ValueEventRegistration;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class CommentsFragment extends Fragment implements RecyclerViewInterface {
-    private DatabaseReference myMeet, comments;
-    private String meetUid, uid, database, addressee;
+    private DatabaseReference myMeet;
+    private String meetUid, uid, database;
     private ArrayList<Message> messageArrayList;
     private RecyclerView commentView;
     private MessageAdapter messageAdapter;
     private View view;
     Map<String, User>  usersDictionary;
-    private ImageButton spendMessage;
-    private EditText editComment;
-    private Boolean isAnswer;
+    private OnDataPass mDataPasser;
 
     public static CommentsFragment newInstance(String meetUid, String database) {
         CommentsFragment сommentsFragment = new CommentsFragment();
@@ -99,13 +88,7 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
         commentView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
         commentView.setAdapter(messageAdapter);
 
-        editComment =view.findViewById(R.id.editMessage);
-        spendMessage=view.findViewById(R.id.imageButton);
-
-        isAnswer=false;
-
         getUser();
-        spendComments();
 
         return view;
     }
@@ -144,8 +127,20 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
                 if(messageArrayList.size() > 0) messageArrayList.clear();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren())
                 {
+                    ArrayList<Answer> answers=new ArrayList<>();
                     Message message1 =dataSnapshot.getValue(Message.class);
                     assert message1 !=null;
+                    for (DataSnapshot answersSnapshot: dataSnapshot.child("answers").getChildren()){
+                        Answer answer=answersSnapshot.getValue(Answer.class);
+                        User user1=usersDictionary.get(answer.getUser());
+                        if (user1!=null) {
+                            answer.setUserName(user1.getName());
+                            answer.setUserImage(user1.getAvatarUri());
+                        }
+                        answer.setMainUid(dataSnapshot.getKey());
+                        answers.add(answer);
+                    }
+                    message1.setAnswerArrayList(answers);
                     User user=usersDictionary.get(message1.getUser());
                     if (user!=null) {
                         message1.setUserName(user.getName());
@@ -155,9 +150,6 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
                     messageArrayList.add(message1);
                 }
                 messageAdapter.notifyDataSetChanged();
-                if (commentView.getAdapter().getItemCount()>2) {
-                    commentView.smoothScrollToPosition(commentView.getAdapter().getItemCount() - 1);
-                }
             }
 
             @Override
@@ -189,54 +181,26 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
     @Override
     public void OnButtonClick(int position) {
         Message message=messageArrayList.get(position);
-        editComment.setText(message.getUserName()+",");
-        isAnswer=true;
-        addressee=message.getUid();
+        String userName=message.getUserName()+",";
+        String uidComment=message.getUid();
+        Boolean isAnswer=true;
+        mDataPasser.onDataPass(userName, uidComment, isAnswer);
     }
 
-    public void spendComments(){
-        Message message=new Message();
-
-        spendMessage.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                long date=new Date().getTime();
-
-                if (isAnswer){
-                    comments = FirebaseDatabase.getInstance().getReference()
-                            .child("meeting").child(meetUid).child("comments")
-                            .child(addressee).child("answers");
-                }
-                else {
-                    comments = FirebaseDatabase.getInstance().getReference()
-                            .child("meeting").child(meetUid).child("comments");
-                }
-
-                if(!editComment.getFreezesText()) {
-                    Toast.makeText(getContext(), "Введите комментарий", Toast.LENGTH_SHORT).show();
-                    return;
-                }
-
-                message.setUser(FirebaseAuth.getInstance()
-                        .getCurrentUser()
-                        .getUid());
-                message.setTime(date);
-                message.setMessage(editComment.getText().toString());
-                comments.push().setValue(message);
-
-                int numberComments=messageArrayList.size()+1;
-                FirebaseDatabase.getInstance()
-                        .getReference()
-                        .child("meeting")
-                        .child(meetUid)
-                        .child("numberComments")
-                        .setValue(numberComments);
-                editComment.setText(null);
-                if (commentView.getAdapter().getItemCount()>2) {
-                    commentView.smoothScrollToPosition(commentView.getAdapter().getItemCount() - 1);
-                }
-            }
-        });
-
+    public interface OnDataPass {
+        void onDataPass(String name, String uidComment, Boolean isAnswer);
     }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        if (context instanceof OnDataPass) {
+            mDataPasser = (OnDataPass) context;
+        } else {
+            throw new RuntimeException(context.toString()
+                    + " must implement OnFragment1DataListener");
+        }
+    }
+
+
 }

@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.cardview.widget.CardView;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -42,21 +41,20 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.util.Date;
 
-public class MeetingActivity extends AppCompatActivity{
-    private TextView meetDate, meetAddress;
+public class MeetingActivity extends AppCompatActivity implements CommentsFragment.OnDataPass {
+    private TextView meetDate, meetAddress, nameAnswer;
     private ImageView meetImageView;
     private Toolbar toolbar;
-    private String creatorUid, uid, meetUid, database;
+    private String creatorUid, uid, meetUid, database, uidComment;
     private DatabaseReference myMeet, comments;
     private Meeting meeting;
     private TabLayout tabLayout;
     int numberComments;
-    private Boolean isComment;
-    private ImageButton spendMessage;
+    private Boolean isComment, isAnswer=false;
+    private ImageButton spendMessage, closeBtn;
     private EditText editComment;
     AppBarLayout appBarLayout;
-    CardView spendComments;
-
+    CardView spendComments, answerName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -129,12 +127,15 @@ public class MeetingActivity extends AppCompatActivity{
                         ReviewFragment reviewFragment=ReviewFragment.newInstance(meetUid, creatorUid, database);
                         replaceFragment(reviewFragment);
                         spendComments.animate().translationY(0);
+                        answerName.animate().translationY(0);
+                        answerName.setVisibility(View.INVISIBLE);
                         break;
 
                     case 1:
-                        CommentsFragment сommentsFragment=CommentsFragment.newInstance(meetUid, database);
+                        CommentsFragment сommentsFragment= CommentsFragment.newInstance(meetUid, database);
                         replaceFragment(сommentsFragment);
                         spendComments.animate().translationY(-getResources().getDimension(R.dimen.standard_50));
+                        answerName.animate().translationY(-getResources().getDimension(R.dimen.standard_50));
                         spendComments();
                         break;
                 }
@@ -151,10 +152,20 @@ public class MeetingActivity extends AppCompatActivity{
             }
         });
 
-
         editComment =findViewById(R.id.editMessage);
         spendMessage=findViewById(R.id.imageButton);
         spendComments=findViewById(R.id.setMessage);
+        answerName=findViewById(R.id.answer);
+        closeBtn=findViewById(R.id.closeAnswer);
+        nameAnswer=findViewById(R.id.answerName);
+
+        closeBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                isAnswer=false;
+                answerName.setVisibility(View.INVISIBLE);
+            }
+        });
     }
 
     private void getIntentMain(){
@@ -233,12 +244,20 @@ public class MeetingActivity extends AppCompatActivity{
             public void onClick(View view) {
                 long date=new Date().getTime();
 
-                comments = FirebaseDatabase.getInstance().getReference()
-                        .child("meeting").child(meetUid).child("comments");
-
                 if(!editComment.getFreezesText()) {
                     Toast.makeText(MeetingActivity.this, "Введите комментарий", Toast.LENGTH_SHORT).show();
                     return;
+                }
+
+                if (isAnswer){
+                    comments = FirebaseDatabase.getInstance().getReference()
+                            .child("meeting").child(meetUid).child("comments")
+                            .child(uidComment).child("answers");
+                }
+                else {
+
+                    comments = FirebaseDatabase.getInstance().getReference()
+                            .child("meeting").child(meetUid).child("comments");
                 }
 
                 message.setUser(FirebaseAuth.getInstance()
@@ -260,4 +279,17 @@ public class MeetingActivity extends AppCompatActivity{
         });
 
     }
+
+    @Override
+    public void onDataPass(String name, String uidComment, Boolean isAnswer) {
+        editComment.setText(name+",");
+        this.uidComment=uidComment;
+        this.isAnswer=isAnswer;
+        if (isAnswer){
+            answerName.setVisibility(View.VISIBLE);
+            nameAnswer.setText(name);
+        }
+    }
+
+
 }

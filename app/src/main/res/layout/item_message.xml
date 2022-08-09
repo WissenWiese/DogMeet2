@@ -31,15 +31,14 @@
 
     <TextView
         android:id="@+id/lastMessage"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="20dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginBottom="5dp"
+        android:layout_marginTop="10dp"
         android:text="TextView"
         android:textColor="@color/text"
         android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@+id/answer"
         app:layout_constraintStart_toEndOf="@+id/chatAvatar"
         app:layout_constraintTop_toBottomOf="@+id/chatUser" />
 
@@ -58,9 +57,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
-        android:layout_marginBottom="5dp"
         android:text="Ответить"
         android:textColor="@color/primary_dark"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lastMessage" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/answersView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="5dp"
+        android:visibility="invisible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/answer" />
 </androidx.constraintlayout.widget.ConstraintLayout>
