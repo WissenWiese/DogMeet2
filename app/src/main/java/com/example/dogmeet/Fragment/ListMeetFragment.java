@@ -45,6 +45,9 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -65,7 +68,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
     private ImageButton calendar;
     private TextView dateFilter;
     int click;
-    long dateMin=0, dateMax=0;
+    LocalDate dateMin, dateMax, dtMeet;
 
     public ListMeetFragment() {
 
@@ -221,6 +224,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
 
             }
 
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void afterTextChanged(Editable editable) {
                 if (!TextUtils.isEmpty(dateFilter.getText().toString())) {
@@ -237,6 +241,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
 
     private void getDataFromDB(){
         ValueEventListener meetListener = new ValueEventListener()  {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
@@ -317,11 +322,20 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
         startActivity(i);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private boolean UpdateListMeeting(Meeting meeting){
-        long date=new Date().getTime();
-        long dateMeet = meeting.getDate();
+        LocalDate localDate=LocalDate.now();
+        localDate.plusMonths(1);
+        String date = DateFormat.format("dd.MM.yyyy", meeting.getDate()).toString();
+        SimpleDateFormat f = new SimpleDateFormat("dd.MM.yyyy");
+        try {
+            Date d = f.parse(date);
+            dtMeet = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
-        if (dateMeet>=date){
+        if (dtMeet.isAfter(localDate)){
             return false;
         }
         else {
@@ -431,6 +445,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
                 else{
                     date=dayOfMonth + "." + monthOfYear;
                 }
+
                 long dateLong=0;
 
                 SimpleDateFormat f = new SimpleDateFormat("dd.MM.yyyy");
@@ -440,15 +455,16 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
+
                 if (click==1){
+                    dateMin=LocalDate.of(year, monthOfYear, dayOfMonth);
                     datePickerDialog.getDatePicker().setMinDate(dateLong);
                     dateForFilter=date;
-                    dateMin=dateLong;
-                    dateMax=0;
+                    dateMax=LocalDate.of(year, monthOfYear, dayOfMonth);;
                 }
                 else if (click==2){
-                    dateMax=dateLong;
-                    if (dateMin!=dateMax){
+                    dateMax=LocalDate.of(year, monthOfYear, dayOfMonth);
+                    if (!dateMin.isEqual(dateMax)){
                         datePickerDialog.getDatePicker().setMaxDate(dateLong);
                         dateForFilter=dateForFilter+'-'+date;
                     }
@@ -460,15 +476,23 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
         datePickerDialog.show();
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void getDateMeet(){
         ArrayList<Meeting> meetings1 = new ArrayList<>();
         for (Meeting meeting : meetings) {
             String date = DateFormat.format("dd.MM.yyyy", meeting.getDate()).toString();
-            String date_min = DateFormat.format("dd.MM.yyyy", dateMin).toString();
-            if (dateMax==0 && date.equals(date_min)) {
+            SimpleDateFormat f = new SimpleDateFormat("dd.MM.yyyy");
+            try {
+                Date d = f.parse(date);
+                dtMeet = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            if (dtMeet.isEqual(dateMin)) {
                 meetings1.add(meeting);
             }
-            else if (dateMax!=0 && meeting.getDate()>=dateMin && meeting.getDate()<=dateMax){
+            else if (dtMeet.isAfter(dateMin)
+                    && (dtMeet.isEqual(dateMax) || dtMeet.isBefore(dateMin))){
                 meetings1.add(meeting);
             }
         }
