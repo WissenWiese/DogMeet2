@@ -1,17 +1,27 @@
 package com.example.dogmeet.Fragment;
 
-import static android.app.Activity.RESULT_OK;
 
+import static android.app.Activity.RESULT_OK;
+import static com.example.dogmeet.R.drawable.doghanter_marker;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
+import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconSize;
+
+import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Icon;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.format.DateFormat;
@@ -27,23 +37,27 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.example.dogmeet.Activity.EditMeetingActivity;
+import com.example.dogmeet.Activity.MeetingActivity;
+import com.example.dogmeet.Activity.ProfileUsersActivity;
+import com.example.dogmeet.Constant;
 import com.example.dogmeet.R;
+import com.example.dogmeet.RecyclerViewInterface;
+import com.example.dogmeet.adapter.MeetingMarkerAdapter;
 import com.example.dogmeet.entity.Doghanter;
+import com.example.dogmeet.entity.MarkerMeet;
 import com.example.dogmeet.entity.Meeting;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
-import com.google.android.gms.maps.model.MarkerOptions;
+import com.example.dogmeet.entity.User;
+import com.example.dogmeet.entity.Walker;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -60,123 +74,67 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
+import com.mapbox.android.core.permissions.PermissionsListener;
+import com.mapbox.android.core.permissions.PermissionsManager;
+import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.Marker;
+import com.mapbox.mapboxsdk.annotations.MarkerOptions;
+import com.mapbox.mapboxsdk.geometry.LatLng;
+import com.mapbox.mapboxsdk.location.LocationComponent;
+import com.mapbox.mapboxsdk.location.modes.CameraMode;
+import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
+import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
+import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
+import com.mapbox.mapboxsdk.maps.MapView;
+import com.mapbox.mapboxsdk.maps.MapboxMap;
 
 import java.io.ByteArrayOutputStream;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 
-public class MapFragment extends Fragment {
-    private FirebaseDatabase database;
-    private DatabaseReference myMeet, mDoghanter;
-    private GoogleMap mMap;
+public class MapFragment extends Fragment  implements OnMapReadyCallback, PermissionsListener, MapboxMap.OnMapClickListener, MapboxMap.OnMarkerClickListener, RecyclerViewInterface {
+
+
+    private MapView mapView;
+    private MapboxMap mapboxMap;
     private View view;
+    private PermissionsManager permissionsManager;
+    private LocationComponent locationComponent;
+    private DatabaseReference myMeet, mDoghanter, walkers, users;
+    private ArrayList<MarkerMeet> pointMeet, doghanterPoint, usersPoint, allPoint;
+    Boolean isNewAddress, onClickMap, isFABOpen=false;
     private FloatingActionButton fab, fab1, fab2;
-    private boolean isFABOpen;
-    private CardView cardView, wolk;
+    private CardView cardView, walk;
     private ImageButton closeBtn,closeBtn2, addPhoto;
-    private Button savePoint;
+    private Button savePoint, walkAction;
     private EditText messagePoint;
-    Marker dMarker;
     private Doghanter doghanter;
     private static final int REQUEST_TAKE_PHOTO = 16;
     private ImageView imageView;
     private byte[] fileByte;
-    private FirebaseAuth auth;
     private String urlImage, uidCreator;
     Bundle extras;
     FirebaseStorage storage;
     StorageReference storageReference;
-    Boolean onClickMap;
+    LatLng point;
+    Marker addingMarker, userMarker;
+    ArrayList<Meeting> meetingArrayList;
+    Walker walker;
 
-
-    private OnMapReadyCallback callback = new OnMapReadyCallback() {
-
-
-        @Override
-        public void onMapReady(GoogleMap googleMap) {
-            mMap = googleMap;
-
-            LatLng ekb = new LatLng(56.839104, 60.60825);
-            mMap.moveCamera(CameraUpdateFactory.zoomTo(12.0f));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(ekb));
-
-            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener()
-            {
-
-                @Override
-                public boolean onMarkerClick(Marker arg0) {
-                    if (arg0.getTitle().equals("doghanter")){
-                        AlertDialog.Builder doghanter_dialog=new AlertDialog.Builder(getActivity());
-                        LayoutInflater inflator= LayoutInflater.from(getActivity());
-                        View doghanter_window=inflator.inflate(R.layout.window_doghanter, null);
-                        doghanter_dialog.setView(doghanter_window);
-
-                        ImageView photo=doghanter_window.findViewById(R.id.photoDoghanter);
-                        TextView message=doghanter_window.findViewById(R.id.messegeDoghanter);
-                        TextView date=doghanter_window.findViewById(R.id.dateCreate);
-
-
-                        mDoghanter=FirebaseDatabase.getInstance().getReference("doghanter").child(arg0.getSnippet());
-
-                        ValueEventListener dListener = new ValueEventListener() {
-                            @Override
-                            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                                {
-                                    Doghanter doghanter=snapshot.getValue(Doghanter.class);
-                                    if (doghanter!=null){
-                                        Glide.with(photo.getContext()).load(doghanter.getImage()).into(photo);
-                                        message.setText(doghanter.getMessage());
-                                        date.setText(DateFormat.format("dd-MM-yyyy (HH:mm:ss)", doghanter.getTime()));
-                                        uidCreator=doghanter.getUser();
-                                    }
-
-                                }
-                            }
-
-                            @Override
-                            public void onCancelled(@NonNull DatabaseError error) {
-
-                            }
-                        };
-                        doghanter_dialog.setNegativeButton("Удалить", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialogInterface, int i) {
-                                if (uidCreator.equals(FirebaseAuth.getInstance()
-                                        .getCurrentUser()
-                                        .getUid())){
-                                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("doghanter").child(arg0.getSnippet());
-                                    ref.addListenerForSingleValueEvent(new ValueEventListener() {
-                                        @Override
-                                        public void onDataChange(DataSnapshot dataSnapshot) {
-                                            dataSnapshot.getRef().removeValue();
-                                        }
-                                        @Override
-                                        public void onCancelled(DatabaseError databaseError) {
-                                        }
-                                    });
-                                    arg0.remove();
-                                }
-                            }
-                        });
-                        mDoghanter.addValueEventListener(dListener);
-
-                        doghanter_dialog.show();
-                    }
-                    return true;
-                }
-            });
-            
-        }
-    };
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        Mapbox.getInstance(getContext(), getString(R.string.mapbox_access_token));
+        getData();
         view=inflater.inflate(R.layout.fragment_map, container, false);
+
+        mapView = view.findViewById(R.id.mapView);
+        mapView.getMapAsync(this);
 
         fab=view.findViewById(R.id.floatingActionButton);
         fab1=view.findViewById(R.id.floatingActionButton2);
@@ -186,7 +144,8 @@ public class MapFragment extends Fragment {
         addPhoto=view.findViewById(R.id.cameraBtn);
         savePoint=view.findViewById(R.id.saveBtn);
 
-        wolk=view.findViewById(R.id.wolk);
+        walk =view.findViewById(R.id.wolk);
+        walkAction=view.findViewById(R.id.actionWalk);
 
         closeBtn=view.findViewById(R.id.closeBtn);
         closeBtn2=view.findViewById(R.id.closeBtn2);
@@ -226,8 +185,8 @@ public class MapFragment extends Fragment {
             public void onClick(View view) {
                 closeFABMenu();
                 liveFABMenu();
-
-                wolk.animate().translationY(-getResources().getDimension(R.dimen.standard_150));
+                walk.animate().translationY(-getResources().getDimension(R.dimen.standard_150));
+                onClickMap=true;
             }
         });
 
@@ -245,27 +204,167 @@ public class MapFragment extends Fragment {
         closeBtn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                wolk.animate().translationY(0);
+                walk.animate().translationY(0);
                 closeFABMenu();
+                addingMarker.remove();
+                onClickMap=false;
             }
         });
+
+        startWalk();
 
         return view;
     }
 
+
     @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        SupportMapFragment mapFragment =
-                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-        if (mapFragment != null) {
-            mapFragment.getMapAsync(callback);
+    public void onMapReady(@NonNull MapboxMap mapboxMap) {
+        onClickMap=false;
+        this.mapboxMap=mapboxMap;
+        mapboxMap.setStyle(getString(com.mapbox.services.android.navigation.ui.v5.R.string.navigation_guidance_day), style -> {
+            enableLocationComponent(style);
+            addDestinationIconSymbolLayer(style);
+            mapboxMap.addOnMapClickListener(this);
+            mapboxMap.setOnMarkerClickListener(this);
+
+        });
+        for (MarkerMeet markerMeet: pointMeet){
+            mapboxMap.addMarker(new MarkerOptions()
+                    .setPosition(markerMeet.getPoint())
+                    .setTitle(markerMeet.getTipe())
+                    .setSnippet(markerMeet.getMeetsUid()));
+        }
+        loadingDoghanter(mapboxMap);
+        getWalkers(mapboxMap);
+    }
+
+    @Override
+    public boolean onMapClick(@NonNull LatLng point) {
+        if (onClickMap) {
+            this.point = point;
+
+            if (addingMarker !=null){
+                addingMarker.remove();
+            }
+
+            addingMarker =mapboxMap.addMarker(new MarkerOptions()
+                    .setPosition(point));
+
+        }
+            return onClickMap;
+    }
+
+    private void addDestinationIconSymbolLayer(com.mapbox.mapboxsdk.maps.Style loadedMapStyle) {
+        loadedMapStyle.addImage("destination-icon-id", BitmapFactory.decodeResource(this.getResources(),
+                com.mapbox.mapboxsdk.R.drawable.mapbox_marker_icon_default));
+        GeoJsonSource geoJsonSource = new GeoJsonSource("destination-source-id");
+        loadedMapStyle.addSource(geoJsonSource);
+
+        SymbolLayer destinationSymbolLayer = new SymbolLayer("destination-symbol-layer-id", "destination-source-id");
+        destinationSymbolLayer.withProperties(iconImage("destination-icon-id"),
+                iconAllowOverlap(true),
+                iconIgnorePlacement(true));
+        loadedMapStyle.addLayer(destinationSymbolLayer);
+    }
+
+    @SuppressLint("MissingPermission")
+    private void enableLocationComponent(com.mapbox.mapboxsdk.maps.Style loadedMapStyle) {
+        if (PermissionsManager.areLocationPermissionsGranted(getContext())) {
+            // Activate the MapboxMap LocationComponent to show user location
+            // Adding in LocationComponentOptions is also an optional parameter
+            locationComponent = mapboxMap.getLocationComponent();
+            locationComponent.activateLocationComponent(getContext(), loadedMapStyle);
+            locationComponent.setLocationComponentEnabled(true);
+
+            //Set the component's camera mode
+            locationComponent.setCameraMode(CameraMode.TRACKING);
+        } else {
+            permissionsManager = new PermissionsManager(this);
+            permissionsManager.requestLocationPermissions(getActivity());
+        }
+    }
+
+    @Override
+    public void onExplanationNeeded(List<String> permissionsToExplain) {
+        //Toast.makeText(this, R.string.user_location_permission_explanation, Toast.LENGTH_SHORT).show();
+    }
+
+    @Override
+    public void onPermissionResult(boolean granted) {
+        if (granted) {
+            enableLocationComponent(mapboxMap.getStyle());
+        } else {
+            //Toast.makeText(this, R.string.user_location_permission_not_granted, Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void getData(){
+        myMeet = FirebaseDatabase.getInstance().getReference("meeting");
+        pointMeet =new ArrayList<>();
+
+        ValueEventListener meetListener = new ValueEventListener()  {
+            @RequiresApi(api = Build.VERSION_CODES.O)
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                if (pointMeet.size()>0) pointMeet.clear();
+                for(DataSnapshot dataSnapshot : snapshot.getChildren()) {
+                    isNewAddress=true;
+                    Meeting meeting = dataSnapshot.getValue(Meeting.class);
+                    LatLng point = getLocationFromAddress(getContext(), meeting.address);
+                    MarkerMeet markerMeet = new MarkerMeet();
+                    markerMeet.setAddress(meeting.address);
+                    markerMeet.setMeetsUid(dataSnapshot.getKey());
+                    markerMeet.setTipe("meeting");
+                    markerMeet.setPoint(point);
+                    if (pointMeet.size() > 0) {
+                        for (MarkerMeet address1 : pointMeet) {
+                            if (address1.getAddress().equals(meeting.address)) {
+                                String newAddress = address1.getMeetsUid() + ";" + dataSnapshot.getKey();
+                                address1.setMeetsUid(newAddress);
+                                isNewAddress=false;
+                            }
+                        }
+                    }
+
+                    if (isNewAddress) pointMeet.add(markerMeet);
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+            }
+        };
+        myMeet.addValueEventListener(meetListener);
+
+    }
+
+    public LatLng getLocationFromAddress(Context context, String strAddress) {
+
+        Geocoder coder = new Geocoder(context);
+        List<Address> address;
+        //Point p1 = null;
+        LatLng p1 = null;
+
+        try {
+            address = coder.getFromLocationName(strAddress, 5);
+            if (address == null) {
+                return null;
+            }
+            Address location = address.get(0);
+            location.getLatitude();
+            location.getLongitude();
+
+            //p1 = Point.fromLngLat(location.getLatitude(), location.getLongitude() );
+            p1 = new LatLng(location.getLatitude(), location.getLongitude() );
+
+        } catch (Exception ex) {
+
+            ex.printStackTrace();
         }
 
-        database = FirebaseDatabase.getInstance();
-        myMeet = database.getReference("meeting");
-
-        //loadingDoghanter();
+        return p1;
     }
 
     private void showFABMenu(){
@@ -287,49 +386,9 @@ public class MapFragment extends Fragment {
         fab2.animate().translationY(getResources().getDimension(R.dimen.standard_100));
     }
 
-    public LatLng getLocationFromAddress(Context context, String strAddress) {
-
-        Geocoder coder = new Geocoder(context);
-        List<Address> address;
-        LatLng p1 = null;
-
-        try {
-            address = coder.getFromLocationName(strAddress, 5);
-            if (address == null) {
-                return null;
-            }
-            Address location = address.get(0);
-            location.getLatitude();
-            location.getLongitude();
-
-            p1 = new LatLng(location.getLatitude(), location.getLongitude() );
-
-        } catch (Exception ex) {
-
-            ex.printStackTrace();
-        }
-
-        return p1;
-    }
-    
     public void AddDogHanter (){
         doghanter=new Doghanter();
         onClickMap =true;
-
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(@NonNull LatLng latLng) {
-                if (onClickMap){
-                    if (dMarker !=null){
-                        dMarker.remove();
-                    }
-
-                    dMarker =mMap.addMarker(new MarkerOptions()
-                        .position(latLng)
-                        .draggable(true));
-                }
-            }
-        });
 
         addPhoto.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -348,7 +407,7 @@ public class MapFragment extends Fragment {
             public void onClick(View view) {
                 long date=new Date().getTime();
 
-                if (dMarker==null){
+                if (point==null){
                     Toast.makeText(getContext(), "Укажите местоположение", Toast.LENGTH_SHORT).show();
                     return;
                 }
@@ -366,12 +425,79 @@ public class MapFragment extends Fragment {
                 doghanter.setUser(FirebaseAuth.getInstance()
                         .getCurrentUser()
                         .getUid());
-                doghanter.setLatitude(String.valueOf(dMarker.getPosition().latitude));
-                doghanter.setLongitude(String.valueOf(dMarker.getPosition().longitude));
+                doghanter.setLatitude(String.valueOf(point.getLatitude()));
+                doghanter.setLongitude(String.valueOf(point.getLongitude()));
                 doghanter.setMessage(messagePoint.getText().toString());
                 doghanter.setTime(date);
 
                 setmDoghanter(doghanter);
+            }
+        });
+    }
+
+    public void startWalk(){
+
+        walkAction.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (walkAction.getText().equals("Начать прогулку")){
+                    walker=new Walker();
+                    if (point == null) {
+                        Toast.makeText(getContext(), "Укажите местоположение", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    walker.setLatitude(String.valueOf(point.getLatitude()));
+                    walker.setLongitude(String.valueOf(point.getLongitude()));
+
+                    users = FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance()
+                            .getCurrentUser()
+                            .getUid());
+
+                    users.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            User user = dataSnapshot.getValue(User.class);
+                            assert user!=null;
+                            walker.setUserName(user.getName());
+                            walker.setUserUri(user.getAvatarUri());
+                            FirebaseDatabase.getInstance()
+                                    .getReference()
+                                    .child("walker")
+                                    .child(dataSnapshot.getKey())
+                                    .setValue(walker).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()){
+                                                onClickMap=false;
+                                                addingMarker.remove();
+                                                walkAction.setText("Завершить прогулку");
+                                            }
+                                        }
+                                    });
+                        }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+
+                        }
+                    });
+                }
+                else if (walkAction.getText().equals("Завершить прогулку")){
+                    FirebaseDatabase.getInstance()
+                            .getReference()
+                            .child("walker")
+                            .child(FirebaseAuth.getInstance()
+                                    .getCurrentUser()
+                                    .getUid()).removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (task.isSuccessful()){
+                                        userMarker.remove();
+                                        walkAction.setText("Начать прогулку");
+                                        onClickMap=true;
+                                    }
+                                }
+                            });
+                }
             }
         });
     }
@@ -453,20 +579,24 @@ public class MapFragment extends Fragment {
     }
 
     public void Clean(){
-        if (dMarker!=null){
-            dMarker.remove();
+        if (addingMarker!=null){
+            addingMarker.remove();
         }
+
         messagePoint.setText(null);
         imageView.setImageResource(0);
 
     }
 
-    public void loadingDoghanter(){
+    public void loadingDoghanter(MapboxMap mapboxMap){
         mDoghanter=FirebaseDatabase.getInstance().getReference("doghanter");
+        doghanterPoint=new ArrayList<>();
 
         ValueEventListener dListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                if (doghanterPoint.size()>0) doghanterPoint.clear();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren())
                 {
                     Doghanter doghanter=dataSnapshot.getValue(Doghanter.class);
@@ -474,15 +604,10 @@ public class MapFragment extends Fragment {
                         double latitude = Double.parseDouble(doghanter.getLatitude());
                         double longitude = Double.parseDouble(doghanter.getLongitude());
                         LatLng latLng = new LatLng(latitude, longitude);
-                        if (mMap!=null){
-                            mMap.addMarker(new MarkerOptions()
-                                    .position(latLng)
-                                    .draggable(true)
-                                    .title("doghanter")
-                                    .snippet(dataSnapshot.getKey())
-                                    /*.icon(BitmapDescriptorFactory.fromResource(R.drawable.doghanter_marker))
-                                    .flat(true)*/);
-                        }
+                        mapboxMap.addMarker(new MarkerOptions()
+                                .setPosition(latLng)
+                                .setTitle("doghanter")
+                                .setSnippet(dataSnapshot.getKey()));
                     }
                 }
             }
@@ -493,5 +618,228 @@ public class MapFragment extends Fragment {
             }
         };
         mDoghanter.addValueEventListener(dListener);
+    }
+
+    @Override
+    public boolean onMarkerClick(@NonNull Marker marker) {
+        if (marker.getTitle().equals("doghanter")){
+            doghanterMarker(marker);
+        }
+        else if (marker.getTitle().equals("meeting")){
+            meetingMarker(marker);
+        }
+        else if (marker.getTitle().equals("walker")){
+            wolkersMarker(marker);
+        }
+        return true;
+    }
+
+    public void doghanterMarker(Marker marker){
+        AlertDialog.Builder doghanter_dialog=new AlertDialog.Builder(getActivity());
+        LayoutInflater inflator= LayoutInflater.from(getActivity());
+        View doghanter_window=inflator.inflate(R.layout.window_doghanter, null);
+        doghanter_dialog.setView(doghanter_window);
+
+        ImageView photo=doghanter_window.findViewById(R.id.photoWalker);
+        TextView message=doghanter_window.findViewById(R.id.nameWalker);
+        TextView date=doghanter_window.findViewById(R.id.dateCreate);
+
+
+        mDoghanter=FirebaseDatabase.getInstance().getReference("doghanter").child(marker.getSnippet());
+
+        ValueEventListener dListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                {
+                    Doghanter doghanter=snapshot.getValue(Doghanter.class);
+                    if (doghanter!=null){
+                        Glide.with(photo.getContext()).load(doghanter.getImage()).into(photo);
+                        message.setText(doghanter.getMessage());
+                        date.setText(DateFormat.format("dd-MM-yyyy (HH:mm:ss)", doghanter.getTime()));
+                        uidCreator=doghanter.getUser();
+                    }
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        doghanter_dialog.setNegativeButton("Удалить", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (uidCreator.equals(FirebaseAuth.getInstance()
+                        .getCurrentUser()
+                        .getUid())){
+                    DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("doghanter").child(marker.getSnippet());
+                    ref.addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            dataSnapshot.getRef().removeValue();
+                        }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                        }
+                    });
+                    marker.remove();
+                }
+            }
+        });
+        mDoghanter.addValueEventListener(dListener);
+
+        doghanter_dialog.show();
+    }
+
+    public void meetingMarker(Marker marker){
+        AlertDialog.Builder meeting_dialog =new AlertDialog.Builder(getActivity());
+        LayoutInflater inflator= LayoutInflater.from(getActivity());
+        View meet_window =inflator.inflate(R.layout.meet_window, null);
+        meeting_dialog.setView(meet_window);
+
+        RecyclerView recyclerView = meet_window.findViewById(R.id.markerMeetingRV);
+        meetingArrayList=new ArrayList<>();
+        MeetingMarkerAdapter meetingMarkerAdapter= new MeetingMarkerAdapter(meetingArrayList, this);
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setHasFixedSize(true);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+        recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
+        recyclerView.setAdapter(meetingMarkerAdapter);
+
+        String[] meetigsUid=marker.getSnippet().split(";");
+
+        for (String meetinUid :meetigsUid) {
+
+            myMeet = FirebaseDatabase.getInstance().getReference("meeting").child(meetinUid);
+
+            ValueEventListener meetListener = new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    {
+                        Meeting meeting = snapshot.getValue(Meeting.class);
+                        if (meeting != null) {
+                            meeting.setUid(snapshot.getKey());
+                            meetingArrayList.add(meeting);
+                        }
+
+                    }
+                    meetingMarkerAdapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            };
+
+            myMeet.addValueEventListener(meetListener);
+        }
+
+        meeting_dialog.show();
+    }
+
+    public void wolkersMarker(Marker marker){
+        AlertDialog.Builder user_dialog =new AlertDialog.Builder(getActivity());
+        LayoutInflater inflator= LayoutInflater.from(getActivity());
+        View user_window =inflator.inflate(R.layout.window_doghanter, null);
+        user_dialog.setView(user_window);
+
+        ImageView photo= user_window.findViewById(R.id.photoWalker);
+        TextView name= user_window.findViewById(R.id.nameWalker);
+        Button chat=user_window.findViewById(R.id.buttonMessage);
+
+
+        walkers=FirebaseDatabase.getInstance().getReference("walker").child(marker.getSnippet());
+
+        ValueEventListener dListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                {
+                    Walker walker=snapshot.getValue(Walker.class);
+                    if (walker!=null){
+                        Glide.with(photo.getContext()).load(walker.getUserUri()).into(photo);
+                        name.setText(walker.getUserName());
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+
+        walkers.addValueEventListener(dListener);
+
+        chat.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(getContext(), ProfileUsersActivity.class);
+                i.putExtra(Constant.USER_UID, marker.getSnippet());
+                startActivity(i);
+            }
+        });
+
+        user_dialog.show();
+    }
+
+    @Override
+    public void OnItemClick(int position) {
+        Meeting meeting=meetingArrayList.get(position);
+        Intent i = new Intent(getContext(), MeetingActivity.class);
+        i.putExtra(Constant.MEETING_UID, meeting.getUid());
+        i.putExtra(Constant.MEETING_CREATOR_UID, meeting.getCreatorUid());
+        i.putExtra(Constant.IS_COMMENT, false);
+        i.putExtra(Constant.DATABASE, "meeting");
+        startActivity(i);
+    }
+
+    @Override
+    public void OnButtonClick(int position) {
+
+    }
+
+    public void getWalkers(MapboxMap mapboxMap){
+        walkers=FirebaseDatabase.getInstance().getReference("walker");
+        usersPoint=new ArrayList<>();
+
+        ValueEventListener walkerListener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+
+                if (usersPoint.size()>0) usersPoint.clear();
+                for(DataSnapshot dataSnapshot : snapshot.getChildren())
+                {
+                    Walker walker=dataSnapshot.getValue(Walker.class);
+                    if (walker!=null) {
+                        double latitude = Double.parseDouble(walker.getLatitude());
+                        double longitude = Double.parseDouble(walker.getLongitude());
+                        LatLng latLng = new LatLng(latitude, longitude);
+                        if (dataSnapshot.getKey().equals(FirebaseAuth.getInstance()
+                                .getCurrentUser()
+                                .getUid())){
+                            userMarker=mapboxMap.addMarker(new MarkerOptions()
+                                    .setPosition(latLng));
+                            walkAction.setText("Завершить прогулку");
+                            walk.animate().translationY(-getResources().getDimension(R.dimen.standard_150));
+                        }
+                        else {
+                            mapboxMap.addMarker(new MarkerOptions()
+                                    .setPosition(latLng)
+                                    .setTitle("walker")
+                                    .setSnippet(dataSnapshot.getKey()));
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        };
+        walkers.addValueEventListener(walkerListener);
     }
 }

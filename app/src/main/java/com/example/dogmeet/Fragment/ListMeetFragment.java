@@ -1,6 +1,8 @@
 package com.example.dogmeet.Fragment;
 
 import android.app.DatePickerDialog;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -8,7 +10,11 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -16,12 +22,15 @@ import android.widget.ArrayAdapter;
 import android.widget.CheckedTextView;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
+import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.cardview.widget.CardView;
+import androidx.core.view.MenuItemCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -54,7 +63,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
-public class ListMeetFragment extends Fragment implements RecyclerViewInterface {
+public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
     private DatabaseReference myMeet, users, archive;
     private ArrayList<Meeting> meetings;
     private String uidMeet, uid, database, date, dateForFilter;
@@ -65,7 +74,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
     private CardView filters;
     private Spinner spinner;
     private CheckedTextView checkedMy, checkedArchive;
-    private ImageButton calendar;
+    private ImageButton calendar, dateOff;
     private TextView dateFilter;
     int click;
     LocalDate dateMin, dateMax, dtMeet;
@@ -82,7 +91,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
         view = inflater.inflate(R.layout.fragment_list_meet, container, false);
 
         uid= FirebaseAuth.getInstance().getCurrentUser().getUid();
-        users= FirebaseDatabase.getInstance().getReference("Users").child(uid).child("myMeetings");
+        users= FirebaseDatabase.getInstance().getReference("Users");
         archive= FirebaseDatabase.getInstance().getReference("archive").child("meeting");
 
         myMeet = FirebaseDatabase.getInstance().getReference("meeting");
@@ -204,6 +213,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
 
         calendar=view.findViewById(R.id.calendar);
         dateFilter=view.findViewById(R.id.date);
+        dateOff=view.findViewById(R.id.imageView4);
 
         calendar.setOnClickListener(new View.OnClickListener() {
             @RequiresApi(api = Build.VERSION_CODES.O)
@@ -229,10 +239,20 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
             public void afterTextChanged(Editable editable) {
                 if (!TextUtils.isEmpty(dateFilter.getText().toString())) {
                     getDateMeet();
+                    dateOff.setVisibility(View.VISIBLE);
                 }
                 else {
-                    update();
+                    getDataFromDB();
                 }
+            }
+        });
+
+        dateOff.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                getDataFromDB();
+                dateOff.setVisibility(View.INVISIBLE);
+                dateFilter.setText(null);
             }
         });
 
@@ -263,6 +283,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
                     else {
                         uidMeet = dataSnapshot.getKey();
                         meeting.setUid(uidMeet);
+
                         meetings.add(meeting);
                     }
                 }
@@ -375,18 +396,18 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
         ValueEventListener myMeetListener = new ValueEventListener()  {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                ArrayList<Meeting> meetings1 = new ArrayList<>();
+                ArrayList<Meeting> filteredlist = new ArrayList<>();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren())
                 {
                     String myMeetUid=dataSnapshot.getKey();
                     for (Meeting meeting : meetings){
                         if (meeting.getUid().equals(myMeetUid)){
-                            meetings1.add(meeting);
+                            filteredlist.add(meeting);
                         }
                     }
                 }
                 meetings.clear();
-                meetings.addAll(meetings1);
+                meetings.addAll(filteredlist);
                 meetingAdapter.notifyDataSetChanged();
             }
 
@@ -394,7 +415,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
             public void onCancelled(@NonNull DatabaseError error) {
             }
         };
-        users.addValueEventListener(myMeetListener);
+        users.child(uid).child("myMeetings").addValueEventListener(myMeetListener);
     }
 
     private void update(){
@@ -417,16 +438,22 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
     @RequiresApi(api = Build.VERSION_CODES.O)
     protected void showDatePickDlg() {
         dateFilter.setText(null);
+        dateForFilter=null;
         click=0;
         Calendar calendar = Calendar.getInstance();
         DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                monthOfYear=monthOfYear+1;
-                if (monthOfYear<10) {
-                    dateFilter.setText(dateForFilter);
+                if (dateForFilter.isEmpty()){
+                    monthOfYear=monthOfYear+1;
+                    if (monthOfYear<10) {
+                        dateFilter.setText(dayOfMonth + ".0" + monthOfYear + "." + year);
+                    }
+                    else{
+                        dateFilter.setText(dayOfMonth + "." + monthOfYear + "." + year);
+                    }
                 }
-                else{
+                else {
                     dateFilter.setText(dateForFilter);
                 }
 
@@ -460,7 +487,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
                     dateMin=LocalDate.of(year, monthOfYear, dayOfMonth);
                     datePickerDialog.getDatePicker().setMinDate(dateLong);
                     dateForFilter=date;
-                    dateMax=LocalDate.of(year, monthOfYear, dayOfMonth);;
+                    dateMax=LocalDate.of(year, monthOfYear, dayOfMonth);
                 }
                 else if (click==2){
                     dateMax=LocalDate.of(year, monthOfYear, dayOfMonth);
@@ -478,7 +505,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void getDateMeet(){
-        ArrayList<Meeting> meetings1 = new ArrayList<>();
+        ArrayList<Meeting> filteredlist = new ArrayList<>();
         for (Meeting meeting : meetings) {
             String date = DateFormat.format("dd.MM.yyyy", meeting.getDate()).toString();
             SimpleDateFormat f = new SimpleDateFormat("dd.MM.yyyy");
@@ -489,16 +516,39 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface 
                 e.printStackTrace();
             }
             if (dtMeet.isEqual(dateMin)) {
-                meetings1.add(meeting);
+                filteredlist.add(meeting);
             }
-            else if (dtMeet.isAfter(dateMin)
-                    && (dtMeet.isEqual(dateMax) || dtMeet.isBefore(dateMin))){
-                meetings1.add(meeting);
+            else if ((dtMeet.isBefore(dateMax) || dtMeet.isEqual(dateMax))
+                    && dtMeet.isAfter(dateMin)){
+                filteredlist.add(meeting);
             }
         }
+        meetingAdapter.filterList(filteredlist);
+    }
 
-        meetings.clear();
-        meetings.addAll(meetings1);
-        meetingAdapter.notifyDataSetChanged();
+    private void filter(String text) {
+        // creating a new array list to filter our data.
+        final ArrayList<Meeting> filteredlist = new ArrayList<>();
+
+        // running a for loop to compare elements.
+        for (Meeting item : meetings) {
+            // checking if the entered string matched with any item of our recycler view.
+            if (item.getTitle().toLowerCase().contains(text.toLowerCase()) ||
+                    item.getAddress().toLowerCase().contains(text.toLowerCase()) ||
+                    item.getDescription().toLowerCase().contains(text.toLowerCase())) {
+                // if the item is matched we are
+                // adding it to our filtered list.
+                filteredlist.add(item);
+            }
+        }
+            if (filteredlist.isEmpty()) {
+                // if no item is added in filtered list we are
+                // displaying a toast message as no data found.
+                Toast.makeText(getContext(), "No Data Found..", Toast.LENGTH_SHORT).show();
+            } else {
+                // at last we are passing that filtered
+                // list to our adapter class.
+                meetingAdapter.filterList(filteredlist);
+            }
     }
 }
