@@ -263,7 +263,7 @@ public class AddActivity extends AppCompatActivity {
         }
     }
 
-    private void uploadImage(Meeting meet) {
+    private void uploadImage(Meeting meet, String meetUid) {
         if(filePath != null)
         {
             final ProgressDialog progressDialog = new ProgressDialog(this);
@@ -398,7 +398,7 @@ public class AddActivity extends AppCompatActivity {
         meet.setDescription(descriptionText);
         meet.setNumberMember(member_number);
         if (filePath!=null) {
-            uploadImage(meet);
+            uploadImage(meet, meetUid);
 
         }
         else {

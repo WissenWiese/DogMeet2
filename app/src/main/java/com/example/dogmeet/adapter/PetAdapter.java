@@ -31,13 +31,11 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder>{
     public static class PetViewHolder extends RecyclerView.ViewHolder {
         public TextView name;
         public ImageView imageView;
-        public ImageButton deleteBtn;
 
         public PetViewHolder(View itemView, RecyclerViewInterface recyclerViewInterface) {
             super(itemView);
             name =itemView.findViewById(R.id.name);
             imageView=itemView.findViewById(R.id.avatar);
-            deleteBtn=itemView.findViewById(R.id.delete_pet);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -52,18 +50,7 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder>{
                 }
             });
 
-            deleteBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (recyclerViewInterface!=null){
-                        int pos=getAdapterPosition();
 
-                        if (pos!=RecyclerView.NO_POSITION){
-                            recyclerViewInterface.OnItemClick(pos);
-                        }
-                    }
-                }
-            });
         }
     }
 
@@ -95,12 +82,7 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder>{
             Glide.with(context).load(URI).into(holder.imageView);
         }
 
-        if (editPet){
-            holder.deleteBtn.setVisibility(View.VISIBLE);
-        }
-        else{
-            holder.deleteBtn.setVisibility(View.INVISIBLE);
-        }
+
     }
 
     @Override

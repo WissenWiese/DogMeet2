@@ -18,8 +18,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
-import com.example.dogmeet.adapter.MessageAdapter;
-import com.example.dogmeet.entity.Answer;
+import com.example.dogmeet.adapter.CommentAdapter;
 import com.example.dogmeet.entity.Message;
 import com.example.dogmeet.entity.User;
 import com.google.firebase.auth.FirebaseAuth;
@@ -38,7 +37,7 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
     private String meetUid, uid, database;
     private ArrayList<Message> messageArrayList;
     private RecyclerView commentView;
-    private MessageAdapter messageAdapter;
+    private CommentAdapter messageAdapter;
     private View view;
     Map<String, User>  usersDictionary;
     private OnDataPass mDataPasser;
@@ -79,8 +78,8 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
 
         uid= FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        messageArrayList=new ArrayList<>();
-        messageAdapter= new MessageAdapter(messageArrayList, this);
+        messageArrayList =new ArrayList<>();
+        messageAdapter= new CommentAdapter(messageArrayList, this);
 
         commentView.setLayoutManager(new LinearLayoutManager(getContext()));
         commentView.setHasFixedSize(true);
@@ -161,15 +160,21 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
 
     @Override
     public void OnItemClick(int position) {
-        Message message=messageArrayList.get(position);
+        Message message = messageArrayList.get(position);
         if (message.getUser().equals(uid)){
             new AlertDialog.Builder(getContext())
                     .setNegativeButton("Удалить", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
-                            DatabaseReference ref= myMeet.child(meetUid).child("comments").child(message.getUid());
-                            ref.removeValue();
-                            DatabaseReference comments= myMeet.child(meetUid).child("numberComments");
-                            comments.setValue(messageArrayList.size()-1);
+                            if (message.getMainUid()!=null) {
+                                DatabaseReference ref = myMeet.child(meetUid).child("comments").child(message.getMainUid()).
+                                        child("answers").child(message.getUid());
+                                ref.removeValue();
+                            } else {
+                                DatabaseReference ref = myMeet.child(meetUid).child("comments").child(message.getUid());
+                                ref.removeValue();
+                            }
+                            DatabaseReference comments = myMeet.child(meetUid).child("numberComments");
+                            comments.setValue(messageArrayList.size() - 1);
                             dialog.dismiss();
                         }
                     })
@@ -179,14 +184,14 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
 
     @Override
     public void OnButtonClick(int position) {
-        Message message=messageArrayList.get(position);
-        String userName=message.getUserName();
+        Message message = messageArrayList.get(position);
+        String userName= message.getUserName();
         String uidComment;
         if (message.getMainUid()!=null){
-            uidComment=message.getMainUid();
+            uidComment= message.getMainUid();
         }
         else{
-            uidComment=message.getUid();
+            uidComment= message.getUid();
         }
         Boolean isAnswer=true;
         mDataPasser.onDataPass(userName, uidComment, isAnswer);

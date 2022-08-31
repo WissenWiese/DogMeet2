@@ -70,14 +70,13 @@ public class ChatsAdapter extends RecyclerView.Adapter<ChatsAdapter.ChatsViewHol
         Chat chat= chats.get(i);
 
         chatsViewHolder.userChat.setText(chat.getName());
-        Message message=chat.getLastMessage();
-        if (uid.equals(message.getUser())) {
-            chatsViewHolder.lastMessage.setText("Вы:"+message.getMessage());
+        if (uid.equals(chat.getLastUid())) {
+            chatsViewHolder.lastMessage.setText("Вы:"+ chat.getLastMessage());
         }
         else{
-            chatsViewHolder.lastMessage.setText(chat.getName()+":"+message.getMessage());
+            chatsViewHolder.lastMessage.setText(chat.getName()+":"+ chat.getLastMessage());
         }
-        chatsViewHolder.date.setText(DateFormat.format("dd-MM-yyyy (HH:mm:ss)", message.getTime()));
+        chatsViewHolder.date.setText(DateFormat.format("dd.MM в HH:mm", chat.getTime()));
 
         if (chat.getUrl()!=null){
             String url=chat.getUrl();

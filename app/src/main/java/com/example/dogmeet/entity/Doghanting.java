@@ -2,11 +2,11 @@ package com.example.dogmeet.entity;
 
 import java.util.Date;
 
-public class Doghanter {
+public class Doghanting {
     private String user, message, latitude, longitude, image;
     private long time;
 
-    public Doghanter(String user, String message, String latitude, String longitude, String image) {
+    public Doghanting(String user, String message, String latitude, String longitude, String image) {
         this.user = user;
         this.message = message;
         this.latitude = latitude;
@@ -17,7 +17,7 @@ public class Doghanter {
         time = new Date().getTime();
     }
 
-    public Doghanter(){
+    public Doghanting(){
 
     }
 

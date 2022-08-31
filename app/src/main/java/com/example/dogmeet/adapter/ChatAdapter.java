@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.dogmeet.R;
-import com.example.dogmeet.RecyclerViewInterface;
 import com.example.dogmeet.entity.Message;
 
 import java.util.ArrayList;
@@ -57,7 +56,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
 
     @Override
     public void onBindViewHolder(@NonNull ChatAdapter.ChatViewHolder chatViewHolder, int i) {
-        Message message=messageList.get(i);
+        Message message = messageList.get(i);
         if (!uid.equals(messageList.get(i).getUser())){
             chatViewHolder.incomingUser.setVisibility(View.VISIBLE);
             chatViewHolder.incomingMessage.setVisibility(View.VISIBLE);
@@ -66,7 +65,7 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
             chatViewHolder.outgoidMessage.setVisibility(View.GONE);
             chatViewHolder.incomingUser.setText(message.getUserName());
             if (message.getUserImage()!=null){
-                String url=message.getUserImage();
+                String url= message.getUserImage();
                 Glide.with(chatViewHolder.avatar.getContext()).load(url).into(chatViewHolder.avatar);
             }
             else {
@@ -87,14 +86,13 @@ public class ChatAdapter extends RecyclerView.Adapter<ChatAdapter.ChatViewHolder
         }
         String thisdate=DateFormat.format("dd-MM", message.getTime()).toString();
 
-
-        if (lastdate!=null && lastdate.equals(thisdate)){
-            chatViewHolder.date.setVisibility(View.GONE);
-        }
-        else {
+        if (i==0 || !lastdate.equals(thisdate)){
             chatViewHolder.date.setVisibility(View.VISIBLE);
             chatViewHolder.date.setText(thisdate);
             lastdate=thisdate;
+        }
+        else  {
+            chatViewHolder.date.setVisibility(View.GONE);
         }
     }
 

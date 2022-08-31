@@ -1,9 +1,11 @@
 package com.example.dogmeet.Fragment;
 
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -31,6 +33,8 @@ import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -134,15 +138,19 @@ public class MessagerFragment extends Fragment implements RecyclerViewInterface 
 
         Query lastQuery = chatsList.child(chat.getUid()).orderByKey().limitToLast(1);
         ValueEventListener chatListener = new ValueEventListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
                 //if(chats.size() > 0) chats.clear();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren()){
-                    Message message=dataSnapshot.getValue(Message.class);
-                    chat.setLastMessage(message);
+                    Message message =dataSnapshot.getValue(Message.class);
+                    chat.setLastMessage(message.getMessage());
+                    chat.setLastUid(message.getUser());
+                    chat.setTime(message.getTime());
                     chats.add(chat);
                 }
+                Collections.sort(chats, Comparator.comparing(Chat::getTime));
                 chatsAdapter.notifyDataSetChanged();
             }
 

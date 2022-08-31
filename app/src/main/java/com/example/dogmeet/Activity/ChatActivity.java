@@ -92,7 +92,7 @@ public class ChatActivity extends AppCompatActivity {
         editMessage =findViewById(R.id.editMessage);
         spendMessage=findViewById(R.id.imageButton);
 
-        Message message=new Message();
+        Message message =new Message();
 
         spendMessage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -156,7 +156,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     public void loadingChat(String uidChat){
-        messages=new ArrayList<>();
+        messages =new ArrayList<>();
         chatAdapter= new ChatAdapter(messages, uid);
 
         recyclerView=findViewById(R.id.chat);
@@ -172,7 +172,7 @@ public class ChatActivity extends AppCompatActivity {
 
                 if(messages.size() > 0) messages.clear();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    Message message=dataSnapshot.getValue(Message.class);
+                    Message message =dataSnapshot.getValue(Message.class);
                     User user=usersDictionary.get(message.getUser());
                     if (user!=null) {
                         message.setUserName(user.getName());
@@ -181,7 +181,7 @@ public class ChatActivity extends AppCompatActivity {
                     messages.add(message);
                 }
                 chatAdapter.notifyDataSetChanged();
-                if (recyclerView.getAdapter().getItemCount()>2) {
+                if (messages.size()>3) {
                     recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount() - 1);
                 }
             }

@@ -2,7 +2,6 @@ package com.example.dogmeet.Fragment;
 
 
 import static android.app.Activity.RESULT_OK;
-import static com.example.dogmeet.R.drawable.doghanter_marker;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconAllowOverlap;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacement;
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
@@ -17,7 +16,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Icon;
 import android.location.Address;
 import android.location.Geocoder;
 import android.net.Uri;
@@ -53,7 +51,7 @@ import com.example.dogmeet.Constant;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
 import com.example.dogmeet.adapter.MeetingMarkerAdapter;
-import com.example.dogmeet.entity.Doghanter;
+import com.example.dogmeet.entity.Doghanting;
 import com.example.dogmeet.entity.MarkerMeet;
 import com.example.dogmeet.entity.Meeting;
 import com.example.dogmeet.entity.User;
@@ -77,6 +75,7 @@ import com.google.firebase.storage.UploadTask;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.mapboxsdk.Mapbox;
+import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.Marker;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.geometry.LatLng;
@@ -89,6 +88,7 @@ import com.mapbox.mapboxsdk.maps.MapView;
 import com.mapbox.mapboxsdk.maps.MapboxMap;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -104,14 +104,15 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
     private LocationComponent locationComponent;
     private DatabaseReference myMeet, mDoghanter, walkers, users;
     private ArrayList<MarkerMeet> pointMeet, doghanterPoint, usersPoint, allPoint;
-    Boolean isNewAddress, onClickMap, isFABOpen=false;
+    Boolean isNewAddress, onClickMap, isFABOpen=false, isWalk=false;
     private FloatingActionButton fab, fab1, fab2;
     private CardView cardView, walk;
-    private ImageButton closeBtn,closeBtn2, addPhoto;
+    private ImageButton closeBtn,closeBtn2, addPhoto, addPhotoFromGalerea;
     private Button savePoint, walkAction;
     private EditText messagePoint;
-    private Doghanter doghanter;
+    private Doghanting doghanting;
     private static final int REQUEST_TAKE_PHOTO = 16;
+    private final int PICK_IMAGE_REQUEST = 71;
     private ImageView imageView;
     private byte[] fileByte;
     private String urlImage, uidCreator;
@@ -122,6 +123,7 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
     Marker addingMarker, userMarker;
     ArrayList<Meeting> meetingArrayList;
     Walker walker;
+    private Uri filePath;
 
 
     @Nullable
@@ -142,6 +144,8 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
 
         cardView=view.findViewById(R.id.createPoint);
         addPhoto=view.findViewById(R.id.cameraBtn);
+        addPhotoFromGalerea=view.findViewById(R.id.galerea);
+
         savePoint=view.findViewById(R.id.saveBtn);
 
         walk =view.findViewById(R.id.wolk);
@@ -185,7 +189,7 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
             public void onClick(View view) {
                 closeFABMenu();
                 liveFABMenu();
-                walk.animate().translationY(-getResources().getDimension(R.dimen.standard_150));
+                walk.animate().translationY(-getResources().getDimension(R.dimen.standard_100));
                 onClickMap=true;
             }
         });
@@ -206,7 +210,9 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
             public void onClick(View view) {
                 walk.animate().translationY(0);
                 closeFABMenu();
-                addingMarker.remove();
+                if (addingMarker!=null) {
+                    addingMarker.remove();
+                }
                 onClickMap=false;
             }
         });
@@ -228,11 +234,16 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
             mapboxMap.setOnMarkerClickListener(this);
 
         });
+
+
+
         for (MarkerMeet markerMeet: pointMeet){
             mapboxMap.addMarker(new MarkerOptions()
                     .setPosition(markerMeet.getPoint())
                     .setTitle(markerMeet.getTipe())
-                    .setSnippet(markerMeet.getMeetsUid()));
+                    .setSnippet(markerMeet.getMeetsUid())
+                    .setIcon(IconFactory.recreate("meeting_ic",
+                            BitmapFactory.decodeResource( this.getResources(), com.mapbox.mapboxsdk.R.drawable.mapbox_logo_helmet))));
         }
         loadingDoghanter(mapboxMap);
         getWalkers(mapboxMap);
@@ -387,7 +398,7 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
     }
 
     public void AddDogHanter (){
-        doghanter=new Doghanter();
+        doghanting =new Doghanting();
         onClickMap =true;
 
         addPhoto.setOnClickListener(new View.OnClickListener() {
@@ -399,6 +410,16 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
                 }catch (ActivityNotFoundException e){
                     e.printStackTrace();
                 }
+            }
+        });
+
+        addPhotoFromGalerea.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.setType("image/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
             }
         });
 
@@ -422,15 +443,15 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
                     return;
                 }
 
-                doghanter.setUser(FirebaseAuth.getInstance()
+                doghanting.setUser(FirebaseAuth.getInstance()
                         .getCurrentUser()
                         .getUid());
-                doghanter.setLatitude(String.valueOf(point.getLatitude()));
-                doghanter.setLongitude(String.valueOf(point.getLongitude()));
-                doghanter.setMessage(messagePoint.getText().toString());
-                doghanter.setTime(date);
+                doghanting.setLatitude(String.valueOf(point.getLatitude()));
+                doghanting.setLongitude(String.valueOf(point.getLongitude()));
+                doghanting.setMessage(messagePoint.getText().toString());
+                doghanting.setTime(date);
 
-                setmDoghanter(doghanter);
+                setmDoghanter(doghanting);
             }
         });
     }
@@ -442,12 +463,19 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
             public void onClick(View view) {
                 if (walkAction.getText().equals("Начать прогулку")){
                     walker=new Walker();
-                    if (point == null) {
+
+                    /*if (point == null) {
                         Toast.makeText(getContext(), "Укажите местоположение", Toast.LENGTH_SHORT).show();
                         return;
-                    }
-                    walker.setLatitude(String.valueOf(point.getLatitude()));
-                    walker.setLongitude(String.valueOf(point.getLongitude()));
+                    }*/
+                    walker.setLatitude(String.valueOf(mapboxMap
+                                    .getLocationComponent()
+                                    .getLastKnownLocation()
+                                    .getLatitude()));
+                    walker.setLongitude(String.valueOf(mapboxMap
+                            .getLocationComponent()
+                            .getLastKnownLocation()
+                            .getLongitude()));
 
                     users = FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance()
                             .getCurrentUser()
@@ -469,7 +497,6 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()){
                                                 onClickMap=false;
-                                                addingMarker.remove();
                                                 walkAction.setText("Завершить прогулку");
                                             }
                                         }
@@ -491,7 +518,6 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
                                     if (task.isSuccessful()){
-                                        userMarker.remove();
                                         walkAction.setText("Начать прогулку");
                                         onClickMap=true;
                                     }
@@ -510,21 +536,41 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
             Bitmap thumbnailBitmap = (Bitmap) extras.get("data");
             imageView.setImageBitmap(thumbnailBitmap);
         }
+        else  if(requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK
+                && data != null && data.getData() != null )
+        {
+            filePath = data.getData();
+            try {
+                Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), filePath);
+                imageView.setImageBitmap(bitmap);
+            }
+            catch (IOException e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
 
-    public void setmDoghanter(Doghanter doghanter){
+    public void setmDoghanter(Doghanting doghanting){
         final ProgressDialog progressDialog = new ProgressDialog(getContext());
         progressDialog.setTitle("Uploading...");
         progressDialog.show();
-
-        Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
-        fileByte=baos.toByteArray();
+        UploadTask upload_image;
 
         StorageReference ref1 = storageReference.child("doghanter/"+ UUID.randomUUID().toString());
 
-        UploadTask upload_image= ref1.putBytes(fileByte);
+        if (filePath==null) {
+            Bitmap bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos);
+            fileByte = baos.toByteArray();
+            upload_image= ref1.putBytes(fileByte);
+        }
+        else {
+            upload_image=ref1.putFile(filePath);
+        }
+
+
         upload_image
                 .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                     @Override
@@ -563,12 +609,12 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
                 if (task.isSuccessful()) {
                     Uri downloadUri = task.getResult();
                     urlImage=downloadUri.toString();
-                    doghanter.setImage(urlImage);
+                    doghanting.setImage(urlImage);
                     FirebaseDatabase.getInstance()
                             .getReference()
                             .child("doghanter")
                             .push()
-                            .setValue(doghanter);
+                            .setValue(doghanting);
                     Clean();
 
                 } else {
@@ -599,15 +645,17 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
                 if (doghanterPoint.size()>0) doghanterPoint.clear();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren())
                 {
-                    Doghanter doghanter=dataSnapshot.getValue(Doghanter.class);
-                    if (doghanter!=null) {
-                        double latitude = Double.parseDouble(doghanter.getLatitude());
-                        double longitude = Double.parseDouble(doghanter.getLongitude());
+                    Doghanting doghanting =dataSnapshot.getValue(Doghanting.class);
+                    if (doghanting !=null) {
+                        double latitude = Double.parseDouble(doghanting.getLatitude());
+                        double longitude = Double.parseDouble(doghanting.getLongitude());
                         LatLng latLng = new LatLng(latitude, longitude);
                         mapboxMap.addMarker(new MarkerOptions()
                                 .setPosition(latLng)
                                 .setTitle("doghanter")
-                                .setSnippet(dataSnapshot.getKey()));
+                                .setSnippet(dataSnapshot.getKey())
+                                .setIcon(IconFactory.recreate("doghanter_ic",
+                                        BitmapFactory.decodeResource( getResources(), com.mapbox.services.android.navigation.ui.v5.R.drawable.map_marker_dark))));
                     }
                 }
             }
@@ -651,12 +699,12 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 {
-                    Doghanter doghanter=snapshot.getValue(Doghanter.class);
-                    if (doghanter!=null){
-                        Glide.with(photo.getContext()).load(doghanter.getImage()).into(photo);
-                        message.setText(doghanter.getMessage());
-                        date.setText(DateFormat.format("dd-MM-yyyy (HH:mm:ss)", doghanter.getTime()));
-                        uidCreator=doghanter.getUser();
+                    Doghanting doghanting =snapshot.getValue(Doghanting.class);
+                    if (doghanting !=null){
+                        Glide.with(photo.getContext()).load(doghanting.getImage()).into(photo);
+                        message.setText(doghanting.getMessage());
+                        date.setText(DateFormat.format("dd-MM-yyyy (HH:mm:ss)", doghanting.getTime()));
+                        uidCreator= doghanting.getUser();
                     }
 
                 }
@@ -743,7 +791,7 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
     public void wolkersMarker(Marker marker){
         AlertDialog.Builder user_dialog =new AlertDialog.Builder(getActivity());
         LayoutInflater inflator= LayoutInflater.from(getActivity());
-        View user_window =inflator.inflate(R.layout.window_doghanter, null);
+        View user_window =inflator.inflate(R.layout.window_walker, null);
         user_dialog.setView(user_window);
 
         ImageView photo= user_window.findViewById(R.id.photoWalker);
@@ -781,7 +829,7 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
                 startActivity(i);
             }
         });
-
+ 
         user_dialog.show();
     }
 
@@ -820,10 +868,10 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
                         if (dataSnapshot.getKey().equals(FirebaseAuth.getInstance()
                                 .getCurrentUser()
                                 .getUid())){
-                            userMarker=mapboxMap.addMarker(new MarkerOptions()
-                                    .setPosition(latLng));
+
                             walkAction.setText("Завершить прогулку");
-                            walk.animate().translationY(-getResources().getDimension(R.dimen.standard_150));
+                            liveFABMenu();
+                            walk.animate().translationY(-getResources().getDimension(R.dimen.standard_100));
                         }
                         else {
                             mapboxMap.addMarker(new MarkerOptions()
@@ -842,4 +890,5 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
         };
         walkers.addValueEventListener(walkerListener);
     }
+
 }

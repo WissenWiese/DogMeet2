@@ -77,6 +77,7 @@
                 android:id="@+id/titleEdit"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/ubuntu"
                 android:text="@string/name_meets"
                 android:textSize="18sp" />
 

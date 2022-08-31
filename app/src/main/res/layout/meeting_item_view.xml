@@ -25,7 +25,9 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginTop="10dp"
+            android:fontFamily="@font/montserrat"
             android:text="TextView"
+            android:textColor="@color/text"
             android:textSize="18sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imageView2" />
@@ -36,7 +38,9 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginTop="5dp"
+            android:fontFamily="@font/ubuntu_medium"
             android:text="TextView"
+            android:textColor="@color/primary_dark"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/AddressTextView" />
@@ -47,7 +51,9 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginTop="5dp"
+            android:fontFamily="@font/ubuntu_medium"
             android:text="TextView"
+            android:textColor="@color/primary_dark"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/TitleTextView" />
@@ -58,7 +64,9 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="24dp"
             android:layout_marginBottom="10dp"
+            android:fontFamily="@font/ubuntu"
             android:text="TextView"
+            android:textColor="@color/text"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" />
@@ -79,7 +87,9 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="10dp"
             android:layout_marginBottom="10dp"
+            android:fontFamily="@font/ubuntu"
             android:text="TextView"
+            android:textColor="@color/text"
             android:textSize="16sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/imageView3" />
@@ -93,7 +103,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/nubComments"
             app:layout_constraintTop_toBottomOf="@+id/DateTextView"
-            app:srcCompat="@drawable/comment" />
+            app:srcCompat="@drawable/message" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

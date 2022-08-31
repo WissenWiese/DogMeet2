@@ -20,6 +20,7 @@
         android:id="@+id/nameWalker"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
         android:text="TextView"
         android:textSize="18sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -31,11 +32,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="10dp"
+        android:background="@color/primary"
+        android:paddingHorizontal="10dp"
+        android:paddingVertical="10dp"
         android:text="Написать"
+        android:textColor="@color/white"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/nameWalker"
-        android:background="@drawable/btn"
-        android:textColor="@color/white"/>
+        app:layout_constraintTop_toBottomOf="@+id/nameWalker" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

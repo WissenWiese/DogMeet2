@@ -43,6 +43,7 @@ import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
 import com.example.dogmeet.adapter.MeetingAdapter;
 import com.example.dogmeet.entity.Meeting;
+import com.example.dogmeet.entity.User;
 import com.example.dogmeet.mainActivity.AddActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
@@ -102,6 +103,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
 
         filters=view.findViewById(R.id.filter);
 
+
         fabAddMeet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -109,6 +111,8 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
                 startActivity(i);
             }
         });
+
+
 
         fabFilter.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -270,7 +274,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
                 {
                     Meeting meeting =dataSnapshot.getValue(Meeting.class);
                     assert meeting != null;
-                    if (UpdateListMeeting(meeting)){
+                    /*if (UpdateListMeeting(meeting)){
                         FirebaseDatabase.getInstance()
                                 .getReference()
                                 .child("archive")
@@ -280,12 +284,12 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
 
                         dataSnapshot.getRef().removeValue();
                     }
-                    else {
+                    else {*/
                         uidMeet = dataSnapshot.getKey();
                         meeting.setUid(uidMeet);
 
                         meetings.add(meeting);
-                    }
+                    //}
                 }
                 meetingAdapter.notifyDataSetChanged();
                 if (recyclerView.getAdapter().getItemCount()>2) {
@@ -346,7 +350,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
     @RequiresApi(api = Build.VERSION_CODES.O)
     private boolean UpdateListMeeting(Meeting meeting){
         LocalDate localDate=LocalDate.now();
-        localDate.plusMonths(1);
+        localDate=localDate.plusMonths(1);
         String date = DateFormat.format("dd.MM.yyyy", meeting.getDate()).toString();
         SimpleDateFormat f = new SimpleDateFormat("dd.MM.yyyy");
         try {
@@ -444,7 +448,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
         DatePickerDialog datePickerDialog = new DatePickerDialog(getContext(), new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
-                if (dateForFilter.isEmpty()){
+                if (dateForFilter==null){
                     monthOfYear=monthOfYear+1;
                     if (monthOfYear<10) {
                         dateFilter.setText(dayOfMonth + ".0" + monthOfYear + "." + year);

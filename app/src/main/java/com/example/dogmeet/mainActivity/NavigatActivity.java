@@ -1,22 +1,28 @@
 package com.example.dogmeet.mainActivity;
 
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import androidx.appcompat.widget.SearchView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.dogmeet.Constant;
 import com.example.dogmeet.R;
+import com.example.dogmeet.RecyclerViewInterface;
 import com.example.dogmeet.databinding.ActivityNavigatBinding;
 import com.example.dogmeet.entity.User;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
 
+import androidx.core.view.MenuItemCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;

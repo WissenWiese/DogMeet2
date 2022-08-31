@@ -36,7 +36,7 @@ import com.google.firebase.database.ValueEventListener;
 
 public class SettingsFragment extends Fragment {
     private View view;
-    private EditText nameEdit, ageEdit, emailEdit,
+    private EditText nameEdit, emailEdit,
             passwordOldEdit, passwordNewEdit;
     private ImageButton bioSave, emailSave, passwordSave;
     private DatabaseReference users;
@@ -59,7 +59,6 @@ public class SettingsFragment extends Fragment {
         view=inflater.inflate(R.layout.fragment_settings, container, false);
 
         nameEdit=view.findViewById(R.id.editNameSettings);
-        ageEdit=view.findViewById(R.id.editAgeSettings);
         emailEdit=view.findViewById(R.id.editEmailSettings);
         passwordOldEdit=view.findViewById(R.id.editOldPassword);
         passwordNewEdit=view.findViewById(R.id.editNewPassword);
@@ -86,7 +85,6 @@ public class SettingsFragment extends Fragment {
                 name=user.getName();
                 nameEdit.setText(name);
                 age=user.getAge();
-                ageEdit.setText(age);
                 bioSave.setVisibility(View.GONE);
             }
             @Override
@@ -135,25 +133,6 @@ public class SettingsFragment extends Fragment {
             }
         });
 
-        ageEdit.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                bioSave.setVisibility(View.VISIBLE);
-                if (ageEdit.getText().toString().equals(age)){
-                    bioSave.setVisibility(View.GONE);
-                }
-            }
-        });
 
         passwordOldEdit.addTextChangedListener(new TextWatcher() {
             @Override
@@ -193,17 +172,6 @@ public class SettingsFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 users.child("name").setValue(nameEdit.getText().toString()).addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        if(!task.isSuccessful()){
-                            Toast.makeText(getContext(), "Что-то пошло не так. Попробуйте позже", Toast.LENGTH_LONG).show();
-                        }else {
-                            Toast.makeText(getContext(), "Данные изменены", Toast.LENGTH_LONG).show();
-                            bioSave.setVisibility(View.GONE);
-                        }
-                    }
-                });
-                users.child("age").setValue(ageEdit.getText().toString()).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if(!task.isSuccessful()){

@@ -45,7 +45,9 @@
                 android:id="@+id/titleAdd"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat"
                 android:text="@string/name_meets"
+                android:textColor="@color/text"
                 android:textSize="18sp" />
 
             <EditText
@@ -55,6 +57,7 @@
                 android:layout_marginBottom="10dp"
                 android:background="@drawable/edit_text"
                 android:ems="10"
+                android:fontFamily="@font/ubuntu"
                 android:inputType="text|textCapSentences"
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
@@ -65,7 +68,9 @@
                 android:id="@+id/addressAdd"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat"
                 android:text="@string/address"
+                android:textColor="@color/text"
                 android:textSize="18sp" />
 
             <EditText
@@ -75,6 +80,7 @@
                 android:layout_marginBottom="10dp"
                 android:background="@drawable/edit_text"
                 android:ems="10"
+                android:fontFamily="@font/ubuntu"
                 android:inputType="textCapSentences|textPostalAddress"
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
@@ -85,7 +91,9 @@
                 android:id="@+id/dateAdd"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat"
                 android:text="@string/date"
+                android:textColor="@color/text"
                 android:textSize="18sp" />
 
             <EditText
@@ -95,6 +103,7 @@
                 android:layout_marginBottom="10dp"
                 android:background="@drawable/edit_text"
                 android:ems="10"
+                android:fontFamily="@font/ubuntu"
                 android:inputType="date"
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
@@ -105,7 +114,9 @@
                 android:id="@+id/timeAdd"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat"
                 android:text="@string/time"
+                android:textColor="@color/text"
                 android:textSize="18sp" />
 
             <EditText
@@ -115,6 +126,7 @@
                 android:layout_marginBottom="10dp"
                 android:background="@drawable/edit_text"
                 android:ems="10"
+                android:fontFamily="@font/ubuntu"
                 android:inputType="time"
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
@@ -126,7 +138,9 @@
                 android:id="@+id/descriptionAdd"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat"
                 android:text="@string/description"
+                android:textColor="@color/text"
                 android:textSize="18sp" />
 
 
@@ -134,14 +148,15 @@
                 android:id="@+id/editMessage"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:minHeight="50dp"
                 android:layout_marginBottom="10dp"
                 android:background="@drawable/edit_text"
                 android:ems="10"
+                android:fontFamily="@font/ubuntu"
                 android:inputType="textMultiLine|textCapSentences"
+                android:minHeight="50dp"
+                android:paddingVertical="5dp"
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
-                android:paddingVertical="5dp"
                 android:textColor="@color/primary_dark"
                 android:textSize="20sp" />
 

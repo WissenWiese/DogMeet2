@@ -109,4 +109,9 @@ public class MeetingAdapter extends RecyclerView.Adapter<MeetingAdapter.MeetingV
     public int getItemCount() {
         return mMeetings.size();
     }
+
+    public void filterList(ArrayList<Meeting> filterlist) {
+        mMeetings = filterlist;
+        notifyDataSetChanged();
+    }
 }

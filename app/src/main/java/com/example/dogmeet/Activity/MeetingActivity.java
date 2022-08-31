@@ -28,8 +28,8 @@ import com.example.dogmeet.Constant;
 import com.example.dogmeet.Fragment.CommentsFragment;
 import com.example.dogmeet.Fragment.ReviewFragment;
 import com.example.dogmeet.R;
-import com.example.dogmeet.entity.Meeting;
 import com.example.dogmeet.entity.Message;
+import com.example.dogmeet.entity.Meeting;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -238,7 +238,7 @@ public class MeetingActivity extends AppCompatActivity implements CommentsFragme
     }
 
     public void spendComments(){
-        Message message=new Message();
+        Message message =new Message();
 
         spendMessage.setOnClickListener(new View.OnClickListener() {
             @Override

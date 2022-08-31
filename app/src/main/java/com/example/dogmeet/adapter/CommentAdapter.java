@@ -19,7 +19,7 @@ import com.example.dogmeet.entity.Message;
 
 import java.util.ArrayList;
 
-public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageViewHolder> {
+public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.MessageViewHolder> {
     private final RecyclerViewInterface recyclerViewInterface;
 
     public ArrayList<Message> messageList;
@@ -73,7 +73,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
         }
     }
 
-    public MessageAdapter(ArrayList<Message> messageArrayList, RecyclerViewInterface recyclerViewInterface) {
+    public CommentAdapter(ArrayList<Message> messageArrayList, RecyclerViewInterface recyclerViewInterface) {
         messageList = messageArrayList;
         this.recyclerViewInterface=recyclerViewInterface;
     }
@@ -81,13 +81,13 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
     @NonNull
     @Override
     public MessageViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_message, viewGroup, false);
+        View view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.item_comment, viewGroup, false);
         return new MessageViewHolder(view, recyclerViewInterface);
     }
 
     @Override
     public void onBindViewHolder(@NonNull MessageViewHolder messageViewHolder, int i) {
-        Message message=messageList.get(i);
+        Message message = messageList.get(i);
 
         messageViewHolder.dateTextView.setText(DateFormat.format("dd.MM в HH:mm", message.getTime()));
 
@@ -104,7 +104,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
 
 
             if (message.getUserImage()!=null){
-                String url=message.getUserImage();
+                String url= message.getUserImage();
                 Glide.with(messageViewHolder.avatarAnswer.getContext()).load(url).into(messageViewHolder.avatarAnswer);
             }
             else {
@@ -123,7 +123,7 @@ public class MessageAdapter extends RecyclerView.Adapter<MessageAdapter.MessageV
             messageViewHolder.messageTextView.setText(message.getMessage());
 
             if (message.getUserImage()!=null){
-                String url=message.getUserImage();
+                String url= message.getUserImage();
                 Glide.with(messageViewHolder.avatar.getContext()).load(url).into(messageViewHolder.avatar);
             }
             else {

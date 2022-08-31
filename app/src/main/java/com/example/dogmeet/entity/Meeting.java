@@ -6,14 +6,14 @@ import java.util.Objects;
 
 @Entity
 public class Meeting {
-    public String uid, title, address, creatorUid, description, urlImage;
+    public String uid, title, address, creatorUid, description, urlImage, creatorName;
     public int numberMember, numberComments;
     public long date;
     public Meeting() {}
 
     public Meeting(String uid, String title, String address, long date,
                    String creatorUid, int numberMember, int numberComments,
-                   String description, String urlImage){
+                   String description, String urlImage, String creatorName){
         this.uid=uid;
         this.title=title;
         this.address=address;
@@ -23,6 +23,7 @@ public class Meeting {
         this.numberComments=numberComments;
         this.description=description;
         this.urlImage= urlImage;
+        this.creatorName=creatorName;
 
     }
 
@@ -98,6 +99,14 @@ public class Meeting {
         this.numberComments = numberComments;
     }
 
+    public String getCreatorName() {
+        return creatorName;
+    }
+
+    public void setCreatorName(String creatorName) {
+        this.creatorName = creatorName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -105,11 +114,12 @@ public class Meeting {
         Meeting meeting = (Meeting) o;
         return title.equals(meeting.title) && address.equals(meeting.address)
                 && creatorUid.equals(meeting.creatorUid)
-                && description.equals(meeting.description);
+                && description.equals(meeting.description)
+                && creatorName.equals(meeting.creatorName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, address, date, creatorUid, numberMember, description);
+        return Objects.hash(title, address, date, creatorUid, numberMember, description, creatorName);
     }
 }

@@ -15,27 +15,29 @@
             app:layout_constraintStart_toEndOf="@+id/textViewMember"
             app:layout_constraintTop_toBottomOf="@+id/meetDescription" />
 
-        <TextView
-            android:id="@+id/textViewInformationAbout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="10dp"
-            android:text="Информация о встрече:"
-            android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cardView" />
+    <TextView
+        android:id="@+id/textViewInformationAbout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/montserrat"
+        android:text="Информация о встрече:"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardView" />
 
-        <TextView
-            android:id="@+id/meetDescription"
-            android:layout_width="300dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="10dp"
-            android:clickable="true"
-            android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textViewInformationAbout" />
+    <TextView
+        android:id="@+id/meetDescription"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="10dp"
+        android:clickable="true"
+        android:fontFamily="@font/ubuntu_medium"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewInformationAbout" />
 
         <androidx.cardview.widget.CardView
             android:id="@+id/cardView"
@@ -79,21 +81,23 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="25dp"
         android:layout_marginTop="10dp"
+        android:fontFamily="@font/montserrat"
         android:text="Создатель:"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/textViewMember"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="10dp"
-            android:text="Участники:"
-            android:textSize="16sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/meetDescription" />
+    <TextView
+        android:id="@+id/textViewMember"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="10dp"
+        android:fontFamily="@font/montserrat"
+        android:text="Участники:"
+        android:textSize="16sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/meetDescription" />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view_user"
@@ -105,18 +109,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textViewMember" />
 
-        <Button
-            android:id="@+id/button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="25dp"
-            android:background="@drawable/btn"
-            android:text="Button"
-            android:textColor="@color/white"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/recycler_view_user" />
+    <Button
+        android:id="@+id/button"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/btn"
+        android:fontFamily="@font/ubuntu"
+        android:text="Button"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/recycler_view_user" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -32,10 +32,8 @@ import com.bumptech.glide.Glide;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
 import com.example.dogmeet.adapter.PetAdapter;
-import com.example.dogmeet.entity.Meeting;
 import com.example.dogmeet.entity.Pet;
 import com.example.dogmeet.entity.User;
-import com.example.dogmeet.mainActivity.AddActivity;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -57,7 +55,7 @@ import java.util.ArrayList;
 import java.util.UUID;
 
 public class ProfileFragment extends Fragment implements RecyclerViewInterface{
-    ImageButton buttonEdit, buttonSave, buttonAdd, imageView;
+    ImageButton buttonEdit, buttonSave, buttonAdd, imageView, avatarPet;
     EditText about;
     DatabaseReference users, pets;
     private final int PICK_IMAGE_REQUEST = 71;
@@ -139,6 +137,7 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
                 {
                     Pet pet =dataSnapshot.getValue(Pet.class);
                     assert pet != null;
+                    pet.setPetUid(dataSnapshot.getKey());
                     mPets.add(pet);
                 }
                 petAdapter.notifyDataSetChanged();
@@ -186,7 +185,9 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showImageWindow();
+
+                isPetAvatar=false;
+                showImageWindow(false, null);
             }
         });
 
@@ -203,7 +204,15 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
             if(filePath != null)
             {
                 if (!isPetAvatar){
-                    uploadImage(isPetAvatar);
+                    uploadImage(false, null);
+                }
+                else {
+                    try {
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), filePath);
+                        avatarPet.setImageBitmap(bitmap);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         }
@@ -211,7 +220,8 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
 
     @Override
     public void OnItemClick(int position) {
-
+        Pet pet=mPets.get(position);
+        showEditPetWindow(pet);
     }
 
     @Override
@@ -219,10 +229,22 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
 
     }
 
-    private void showImageWindow(){
+    private void showImageWindow(boolean isPetAvatar, String petUid){
         androidx.appcompat.app.AlertDialog.Builder dialog=new androidx.appcompat.app.AlertDialog.Builder(getContext());
 
         final String[] editPhoto={"Загрузить", "Удалить"};
+
+        StorageReference ref;
+        DatabaseReference databaseReference;
+
+        if (isPetAvatar){
+            ref = storageReference.child(auth.getUid()).child(petUid);
+            databaseReference=pets.child(petUid).child("avatar_pet");
+        }
+        else{
+            ref = storageReference.child(auth.getUid()).child("avatar");
+            databaseReference=users.child("avatarUri");
+        }
 
         dialog.setItems(editPhoto, new DialogInterface.OnClickListener() {
             @Override
@@ -232,12 +254,11 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
                         Intent intent = new Intent();
                         intent.setType("image/*");
                         intent.setAction(Intent.ACTION_GET_CONTENT);
-                        isPetAvatar=false;
                         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
                         break;
                     case "Удалить":
-                        users.child("avatarUri").removeValue();
-                        storageReference.child(auth.getUid()).child("avatar").delete();
+                        databaseReference.removeValue();
+                        ref.delete();
                         break;
                 }
                 dialogInterface.dismiss();
@@ -251,11 +272,11 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
         AlertDialog.Builder dialog=new AlertDialog.Builder(getContext());
 
         LayoutInflater inflator= LayoutInflater.from(getContext());
-        View register_window= inflator.inflate(R.layout.item_edit_pet, null);
-        dialog.setView(register_window);
+        View add_pet_window = inflator.inflate(R.layout.item_edit_pet, null);
+        dialog.setView(add_pet_window);
 
-        final EditText namePet=register_window.findViewById(R.id.name);
-        final ImageButton avatarPet=register_window.findViewById(R.id.avatar);
+        final EditText namePet= add_pet_window.findViewById(R.id.name);
+        avatarPet= add_pet_window.findViewById(R.id.avatar);
 
         dialog.setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
             @Override
@@ -272,15 +293,9 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
                     return;
                 }
                 petUid=UUID.randomUUID().toString();
-                pets.child(petUid).child("name").setValue(namePet);
+                pets.child(petUid).child("name").setValue(namePet.getText().toString());
                 if (filePath!=null) {
-                    try {
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), filePath);
-                        avatarPet.setImageBitmap(bitmap);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    uploadImage(isPetAvatar);
+                    uploadImage(true, petUid);
                 }
                 dialogInterface.dismiss();
             }
@@ -300,7 +315,66 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
         dialog.show();
     }
 
-    private void uploadImage(Boolean isPetAvatar) {
+    private void showEditPetWindow(Pet pet){
+        AlertDialog.Builder dialog=new AlertDialog.Builder(getContext());
+
+        LayoutInflater inflator= LayoutInflater.from(getContext());
+        View register_window= inflator.inflate(R.layout.item_edit_pet, null);
+        dialog.setView(register_window);
+
+        final EditText namePet=register_window.findViewById(R.id.name);
+        avatarPet=register_window.findViewById(R.id.avatar);
+
+        if (pet.getAvatar_pet()!=null){
+            String url=pet.getAvatar_pet();
+            Glide.with(getContext()).load(url).into(avatarPet);
+        }
+        else {
+            Glide.with(getContext()).load(URI).into(avatarPet);
+        }
+
+        namePet.setText(pet.getName());
+
+        dialog.setNegativeButton("Удалить", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+                pets.child(pet.getPetUid()).removeValue();
+                dialogInterface.dismiss();
+            }
+        });
+
+        dialog.setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+                if(TextUtils.isEmpty(namePet.getText().toString())) {
+                    Toast.makeText(getContext(), "Введите имя питомца", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                pets.child(pet.getPetUid()).child("name").setValue(namePet.getText().toString());
+                if (filePath!=null) {
+                    try {
+                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), filePath);
+                        avatarPet.setImageBitmap(bitmap);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                    uploadImage(true, pet.getPetUid());
+                }
+                dialogInterface.dismiss();
+            }
+        });
+
+        avatarPet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showImageWindow(true, pet.getPetUid());
+            }
+        });
+
+        dialog.show();
+    }
+
+    private void uploadImage(Boolean isPetAvatar, String petUid) {
         if(filePath != null)
         {
             final ProgressDialog progressDialog = new ProgressDialog(getContext());
