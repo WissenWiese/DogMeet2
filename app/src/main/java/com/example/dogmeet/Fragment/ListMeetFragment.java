@@ -146,6 +146,17 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
         recyclerView.setAdapter(meetingAdapter);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                if (dy > 0) {
+                    fabAddMeet.animate().translationY(getResources().getDimension(R.dimen.standard_100));
+                } else if (dy < 0) {
+                    fabAddMeet.animate().translationY(0);
+                }
+            }
+        });
+
 
         getDataFromDB();
 

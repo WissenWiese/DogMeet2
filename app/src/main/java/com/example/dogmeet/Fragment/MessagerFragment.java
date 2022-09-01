@@ -78,6 +78,19 @@ public class MessagerFragment extends Fragment implements RecyclerViewInterface 
         users= FirebaseDatabase.getInstance().getReference("Users");
         chatsList = FirebaseDatabase.getInstance().getReference("chats");
 
+        chatsView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+
+                if (!chatsView.canScrollVertically(-1)){
+                    for (Chat chat:chats){
+                        getLastMessage(chat);
+                    }
+                }
+            }
+        });
+
         getUser();
 
         return view;
@@ -112,7 +125,6 @@ public class MessagerFragment extends Fragment implements RecyclerViewInterface 
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                //if(chats.size() > 0) chats.clear();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     String userUid=dataSnapshot.getValue(String.class);
                     assert userUid!=null;
@@ -142,7 +154,6 @@ public class MessagerFragment extends Fragment implements RecyclerViewInterface 
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
-                //if(chats.size() > 0) chats.clear();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren()){
                     Message message =dataSnapshot.getValue(Message.class);
                     chat.setLastMessage(message.getMessage());
