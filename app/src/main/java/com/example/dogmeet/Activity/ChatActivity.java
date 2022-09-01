@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -99,7 +100,7 @@ public class ChatActivity extends AppCompatActivity {
             public void onClick(View view) {
                 long date=new Date().getTime();
 
-                if(!editMessage.getFreezesText()) {
+                if(TextUtils.isEmpty(editMessage.getText().toString())) {
                     Toast.makeText(ChatActivity.this, "Введите сообщение", Toast.LENGTH_SHORT).show();
                     return;
                 }

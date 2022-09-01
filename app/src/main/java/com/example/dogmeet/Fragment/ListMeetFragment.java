@@ -204,6 +204,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
                         break;
                     case "По дате":
                         Collections.sort(meetings, Comparator.comparing(Meeting::getDate));
+                        Collections.reverse(meetings);
                         meetingAdapter.notifyDataSetChanged();
                         break;
                 }

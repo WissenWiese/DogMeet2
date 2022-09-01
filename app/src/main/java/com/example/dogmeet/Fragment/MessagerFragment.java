@@ -150,7 +150,7 @@ public class MessagerFragment extends Fragment implements RecyclerViewInterface 
                     chat.setTime(message.getTime());
                     chats.add(chat);
                 }
-                Collections.sort(chats, Comparator.comparing(Chat::getTime));
+                Collections.sort(chats, Collections.reverseOrder(Comparator.comparing(Chat::getTime)));
                 chatsAdapter.notifyDataSetChanged();
             }
 

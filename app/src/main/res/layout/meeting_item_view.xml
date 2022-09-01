@@ -103,7 +103,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/nubComments"
             app:layout_constraintTop_toBottomOf="@+id/DateTextView"
-            app:srcCompat="@drawable/message" />
+            app:srcCompat="@drawable/comment" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
