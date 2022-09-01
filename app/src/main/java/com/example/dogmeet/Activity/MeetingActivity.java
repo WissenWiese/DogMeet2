@@ -132,7 +132,7 @@ public class MeetingActivity extends AppCompatActivity implements CommentsFragme
                         break;
 
                     case 1:
-                        CommentsFragment сommentsFragment= CommentsFragment.newInstance(meetUid, database);
+                        CommentsFragment сommentsFragment= CommentsFragment.newInstance(meetUid, creatorUid, database);
                         replaceFragment(сommentsFragment);
                         spendComments.animate().translationY(-getResources().getDimension(R.dimen.standard_50));
                         answerName.animate().translationY(-getResources().getDimension(R.dimen.standard_50));

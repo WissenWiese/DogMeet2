@@ -34,7 +34,7 @@ import java.util.Map;
 
 public class CommentsFragment extends Fragment implements RecyclerViewInterface {
     private DatabaseReference myMeet;
-    private String meetUid, uid, database;
+    private String meetUid, uid, database, creatorUid;
     private ArrayList<Message> messageArrayList;
     private RecyclerView commentView;
     private CommentAdapter messageAdapter;
@@ -42,10 +42,11 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
     Map<String, User>  usersDictionary;
     private OnDataPass mDataPasser;
 
-    public static CommentsFragment newInstance(String meetUid, String database) {
+    public static CommentsFragment newInstance(String meetUid, String creatorUid, String database) {
         CommentsFragment сommentsFragment = new CommentsFragment();
         Bundle args = new Bundle();
         args.putString("MeetUid", meetUid);
+        args.putString("CreatorUid", creatorUid);
         args.putString("Database", database);
         сommentsFragment.setArguments(args);
         return сommentsFragment;
@@ -59,7 +60,9 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         meetUid = getArguments().getString("MeetUid", "");
+        creatorUid = getArguments().getString("CreatorUid", "");
         database = getArguments().getString("Database", "");
+
         usersDictionary = new HashMap<String, User>();
     }
 
@@ -161,7 +164,7 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
     @Override
     public void OnItemClick(int position) {
         Message message = messageArrayList.get(position);
-        if (message.getUser().equals(uid)){
+        if (message.getUser().equals(uid) || creatorUid.equals(uid)){
             new AlertDialog.Builder(getContext())
                     .setNegativeButton("Удалить", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {

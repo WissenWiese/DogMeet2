@@ -47,6 +47,7 @@ public class MessagerFragment extends Fragment implements RecyclerViewInterface 
     Map<String, User> usersDictionary;
     private View view;
     DatabaseReference users, chatsList;
+    boolean isNew;
 
     public MessagerFragment() {
 
@@ -77,19 +78,6 @@ public class MessagerFragment extends Fragment implements RecyclerViewInterface 
 
         users= FirebaseDatabase.getInstance().getReference("Users");
         chatsList = FirebaseDatabase.getInstance().getReference("chats");
-
-        chatsView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-
-                if (!chatsView.canScrollVertically(-1)){
-                    for (Chat chat:chats){
-                        getLastMessage(chat);
-                    }
-                }
-            }
-        });
 
         getUser();
 
@@ -122,9 +110,11 @@ public class MessagerFragment extends Fragment implements RecyclerViewInterface 
 
     public void getUidChats(){
         ValueEventListener chatsListener = new ValueEventListener() {
+            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
+                if (chats.size()>0) chats.clear();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren()) {
                     String userUid=dataSnapshot.getValue(String.class);
                     assert userUid!=null;
@@ -146,11 +136,11 @@ public class MessagerFragment extends Fragment implements RecyclerViewInterface 
         users.child(uid).child("chats").addValueEventListener(chatsListener);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void getLastMessage(Chat chat){
 
         Query lastQuery = chatsList.child(chat.getUid()).orderByKey().limitToLast(1);
         ValueEventListener chatListener = new ValueEventListener() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
@@ -159,17 +149,38 @@ public class MessagerFragment extends Fragment implements RecyclerViewInterface 
                     chat.setLastMessage(message.getMessage());
                     chat.setLastUid(message.getUser());
                     chat.setTime(message.getTime());
-                    chats.add(chat);
+                    if (chats.size()>0) {
+                        for (Chat chat1 : chats) {
+                            if (chat1.getUid().equals(chat.getUid())) {
+                                isNew = false;
+                                break;
+                            }
+                            else {
+                                isNew=true;
+                            }
+                        }
+                    }
+                    else {
+                        isNew = true;
+                    }
+
+                    if (isNew) {
+                        chats.add(chat);
+                    Collections.sort(chats, Collections.reverseOrder(Comparator.comparing(Chat::getTime)));
+                    chatsAdapter.notifyDataSetChanged();}
                 }
-                Collections.sort(chats, Collections.reverseOrder(Comparator.comparing(Chat::getTime)));
-                chatsAdapter.notifyDataSetChanged();
+
             }
+
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
             }
         };
-        lastQuery.addListenerForSingleValueEvent(chatListener);
+        lastQuery.addValueEventListener(chatListener);
+
+
+
     }
 
     @Override
