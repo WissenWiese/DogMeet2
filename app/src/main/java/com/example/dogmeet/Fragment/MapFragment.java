@@ -115,7 +115,7 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
     private final int PICK_IMAGE_REQUEST = 71;
     private ImageView imageView;
     private byte[] fileByte;
-    private String urlImage, uidCreator;
+    private String urlImage, uidCreator="";
     Bundle extras;
     FirebaseStorage storage;
     StorageReference storageReference;
@@ -703,7 +703,7 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
                     if (doghanting !=null){
                         Glide.with(photo.getContext()).load(doghanting.getImage()).into(photo);
                         message.setText(doghanting.getMessage());
-                        date.setText(DateFormat.format("dd-MM-yyyy (HH:mm:ss)", doghanting.getTime()));
+                        date.setText(DateFormat.format("dd-MM (HH:mm:ss)", doghanting.getTime()));
                         uidCreator= doghanting.getUser();
                     }
 
@@ -715,27 +715,22 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
 
             }
         };
-        doghanter_dialog.setNegativeButton("Удалить", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                if (uidCreator.equals(FirebaseAuth.getInstance()
-                        .getCurrentUser()
-                        .getUid())){
+        if (uidCreator.equals(FirebaseAuth.getInstance()
+                .getCurrentUser()
+                .getUid())) {
+            doghanter_dialog.setNegativeButton("Удалить", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+
                     DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("doghanter").child(marker.getSnippet());
-                    ref.addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            dataSnapshot.getRef().removeValue();
-                        }
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                        }
-                    });
+                    ref.removeValue();
                     marker.remove();
                 }
-            }
-        });
+            });
+        }
+
         mDoghanter.addValueEventListener(dListener);
+
 
         doghanter_dialog.show();
     }
