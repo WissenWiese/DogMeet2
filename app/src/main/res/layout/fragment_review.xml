@@ -4,16 +4,16 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-        <TextView
-            android:id="@+id/meetNumber"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginTop="10dp"
-            android:clickable="true"
-            android:textSize="16sp"
-            app:layout_constraintStart_toEndOf="@+id/textViewMember"
-            app:layout_constraintTop_toBottomOf="@+id/meetDescription" />
+    <TextView
+        android:id="@+id/meetNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="10dp"
+        android:clickable="true"
+        android:textSize="16sp"
+        app:layout_constraintStart_toEndOf="@+id/textViewMember"
+        app:layout_constraintTop_toBottomOf="@+id/meetDescription" />
 
     <TextView
         android:id="@+id/textViewInformationAbout"
@@ -31,49 +31,49 @@
         android:id="@+id/meetDescription"
         android:layout_width="300dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="25dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="5dp"
         android:clickable="true"
         android:fontFamily="@font/ubuntu_medium"
         android:textSize="16sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textViewInformationAbout" />
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="25dp"
-            android:layout_marginTop="5dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textViewCreator">
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cardView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="5dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewCreator">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-                <ImageView
-                    android:id="@+id/imageCreat"
-                    android:layout_width="50dp"
-                    android:layout_height="50dp"
-                    android:scaleType="centerCrop"
-                    app:layout_collapseMode="parallax"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintHorizontal_bias="0.466"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/imageCreat"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:scaleType="centerCrop"
+                app:layout_collapseMode="parallax"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.466"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:id="@+id/meetCreator"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="5dp"
-                    android:textSize="16sp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/imageCreat" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
+            <TextView
+                android:id="@+id/meetCreator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:textSize="16sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/imageCreat" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
 
     <TextView
         android:id="@+id/textViewCreator"
@@ -91,7 +91,7 @@
         android:id="@+id/textViewMember"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="25dp"
+        android:layout_marginStart="24dp"
         android:layout_marginTop="10dp"
         android:fontFamily="@font/montserrat"
         android:text="Участники:"
@@ -99,15 +99,15 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/meetDescription" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recycler_view_user"
-            android:layout_width="300dp"
-            android:layout_height="80dp"
-            android:layout_marginStart="24dp"
-            android:layout_marginTop="5dp"
-            android:orientation="horizontal"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textViewMember" />
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler_view_user"
+        android:layout_width="300dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="5dp"
+        android:orientation="horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewMember" />
 
     <Button
         android:id="@+id/button"

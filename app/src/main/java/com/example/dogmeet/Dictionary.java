@@ -1,19 +1,16 @@
 package com.example.dogmeet;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
-import com.example.dogmeet.entity.User;
+import com.example.dogmeet.model.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class Dictionary{
     Map<String, User>  usersDictionary;

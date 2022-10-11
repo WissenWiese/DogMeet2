@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.example.dogmeet">
+    package="com.example.dogmeet" >
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
@@ -16,9 +16,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.DogMeet"
-        tools:targetApi="31">
+        tools:targetApi="31" >
         <activity
-            android:name=".Activity.ChatActivity"
+            android:name=".Chat.ChatActivity"
             android:exported="false"
             android:theme="@style/Theme.DogMeet.NoActionBar" />
         <!--
@@ -40,24 +40,29 @@
             android:resource="@array/preloaded_fonts" />
 
         <activity
-            android:name=".mainActivity.NavigatActivity"
+            android:name=".mainActivity.MainActivity"
             android:exported="false"
             android:theme="@style/Theme.DogMeet.NoActionBar" />
         <activity
-            android:name=".Activity.EditMeetingActivity"
+            android:name=".mainActivity.MainActivity_creator"
+            android:exported="false"
+            android:theme="@style/Theme.DogMeet.NoActionBar" />
+        <activity
+            android:name=".Meeting.EditMeetingActivity"
             android:exported="false" />
         <activity
             android:name=".Activity.ProfileUsersActivity"
             android:exported="false" />
+
         <activity
-            android:name=".Activity.MeetingActivity"
+            android:name=".Meeting.MeetingActivity"
             android:exported="false" />
         <activity
             android:name=".mainActivity.AddActivity"
             android:exported="false" />
         <activity
             android:name=".mainActivity.LoginActivity"
-            android:exported="true">
+            android:exported="true" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

@@ -7,19 +7,19 @@
 
     <fragment
         android:id="@+id/nav_list_meet"
-        android:name="com.example.dogmeet.Fragment.ListMeetFragment"
+        android:name="com.example.dogmeet.Fragment.ListMeet.ListMeetFragment"
         android:label="Мероприятия"
         tools:layout="@layout/fragment_list_meet" />
 
     <fragment
         android:id="@+id/nav_map"
-        android:name="com.example.dogmeet.Fragment.MapFragment"
+        android:name="com.example.dogmeet.Fragment.Map.MapFragment"
         android:label="Карта"
         tools:layout="@layout/fragment_map" />
 
     <fragment
         android:id="@+id/nav_profile"
-        android:name="com.example.dogmeet.Fragment.ProfileFragment"
+        android:name="com.example.dogmeet.Fragment.Profile.ProfileFragment"
         android:label="Профиль"
         tools:layout="@layout/fragment_profile" />
 
@@ -31,7 +31,7 @@
 
     <fragment
         android:id="@+id/nav_messager"
-        android:name="com.example.dogmeet.Fragment.MessagerFragment"
+        android:name="com.example.dogmeet.Fragment.Chats.ChatsFragment"
         android:label="Чаты"
         tools:layout="@layout/fragment_messager" />
 

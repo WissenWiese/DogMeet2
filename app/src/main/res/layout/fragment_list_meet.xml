@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Fragment.ListMeetFragment">
+    tools:context=".Fragment.ListMeet.ListMeetFragment">
 
 
     <androidx.recyclerview.widget.RecyclerView
@@ -14,20 +14,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fabAddMeet"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
-        android:background="@color/primary_dark"
-        android:clickable="true"
-        android:src="@drawable/plus"
-        android:visibility="visible"
-        app:backgroundTint="@color/primary"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fabFilter"
@@ -71,7 +57,8 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:layout_marginTop="10dp"
-                android:src="@android:drawable/ic_menu_today"
+                android:background="@color/white"
+                android:src="@drawable/ic_calendar"
                 app:layout_constraintStart_toStartOf="@+id/sortSpinner"
                 app:layout_constraintTop_toBottomOf="@+id/sortSpinner" />
 

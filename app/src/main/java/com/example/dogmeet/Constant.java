@@ -1,10 +1,5 @@
 package com.example.dogmeet;
 
-import com.example.dogmeet.entity.User;
-
-import java.util.HashMap;
-import java.util.Map;
-
 public class Constant {
     public final static String MEETING_UID = "meeting_uid";
     public final static String CHAT_UID = "chat_uid";

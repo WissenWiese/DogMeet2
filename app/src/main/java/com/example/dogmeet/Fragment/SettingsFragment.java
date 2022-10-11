@@ -7,7 +7,6 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,8 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.dogmeet.R;
-import com.example.dogmeet.entity.User;
-import com.example.dogmeet.mainActivity.AddActivity;
+import com.example.dogmeet.model.User;
 import com.example.dogmeet.mainActivity.LoginActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;

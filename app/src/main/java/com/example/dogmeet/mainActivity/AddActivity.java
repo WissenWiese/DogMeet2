@@ -1,8 +1,6 @@
 package com.example.dogmeet.mainActivity;
 
 
-import static com.example.dogmeet.Constant.URI;
-
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
@@ -13,16 +11,15 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Button;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -30,10 +27,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import com.bumptech.glide.Glide;
 import com.example.dogmeet.R;
-import com.example.dogmeet.entity.Meeting;
-import com.example.dogmeet.entity.User;
+import com.example.dogmeet.model.Meeting;
+import com.example.dogmeet.model.User;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -54,12 +50,14 @@ import com.google.firebase.storage.UploadTask;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 public class AddActivity extends AppCompatActivity {
-    private EditText titleEditText, addressEditText, dateEditText, timeEditText, descriptionEditText;
+    private EditText titleEditText, dateEditText, timeEditText, descriptionEditText;
     private DatabaseReference myMeet, users;
     private FirebaseAuth auth;
     private String uid, meetUid;
@@ -71,6 +69,7 @@ public class AddActivity extends AppCompatActivity {
     StorageReference storageReference;
     User creator;
     Toolbar toolbar;
+    AutoCompleteTextView addressEditText;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -89,11 +88,9 @@ public class AddActivity extends AppCompatActivity {
                 onBackPressed();// возврат на предыдущий activity
             }
         });
-
         creator=new User();
 
         titleEditText = findViewById(R.id.editTitle);
-        addressEditText = findViewById(R.id.editPostalAddress);
         dateEditText = findViewById(R.id.editDate);
         timeEditText =findViewById(R.id.editTime);
         descriptionEditText=findViewById(R.id.editMessage);
@@ -172,6 +169,16 @@ public class AddActivity extends AppCompatActivity {
                 startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
             }
         });
+
+        addressEditText = findViewById(R.id.editPostalAddress);
+
+        String[] address = getResources().getStringArray(R.array.address);
+        List<String> addressList = Arrays.asList(address);
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                this, android.R.layout.simple_dropdown_item_1line, addressList);
+        addressEditText.setAdapter(adapter);
+
+
     }
 
     protected void showDatePickDlg(EditText date) {
@@ -311,6 +318,7 @@ public class AddActivity extends AppCompatActivity {
                         Uri downloadUri = task.getResult();
                         meet.setUrlImage(downloadUri.toString());
                         myMeet.child(meetUid).setValue(meet);
+                        users.child("Meeting").push().setValue(meetUid);
                         AddActivity.this.finish();
 
                     } else {

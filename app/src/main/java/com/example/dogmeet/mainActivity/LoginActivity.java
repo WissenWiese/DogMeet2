@@ -1,5 +1,7 @@
 package com.example.dogmeet.mainActivity;
 
+import static com.example.dogmeet.Constant.URI;
+
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,8 +18,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.bumptech.glide.Glide;
 import com.example.dogmeet.R;
-import com.example.dogmeet.entity.User;
+import com.example.dogmeet.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
@@ -25,17 +28,21 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 public class LoginActivity extends AppCompatActivity {
 
     Button btnSingIn, btnLinkToRegisterScreen;
     FirebaseAuth auth;
     FirebaseDatabase db;
-    DatabaseReference users_db;
+    DatabaseReference users_db, creator;
     EditText inputEmail;
     EditText inputPassword;
+    Boolean IsCreator=false;
 
     ConstraintLayout root;
 
@@ -77,7 +84,7 @@ public class LoginActivity extends AppCompatActivity {
                                @Override
                                public void onSuccess(AuthResult authResult) {
                                    Toast.makeText(getApplicationContext(), "С возвращением!", Toast.LENGTH_LONG).show();
-                                   startActivity(new Intent(LoginActivity.this, NavigatActivity.class));
+                                   startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                    finish();
                                }
                            }).addOnFailureListener(new OnFailureListener() {
@@ -104,7 +111,7 @@ public class LoginActivity extends AppCompatActivity {
         dialog.setMessage("Введите данные для регистрации");
 
         LayoutInflater inflator= LayoutInflater.from(this);
-        View register_window= inflator.inflate(R.layout.regisrter_window, null);
+        View register_window= inflator.inflate(R.layout.window_regisrter, null);
         dialog.setView(register_window);
 
         final EditText name=register_window.findViewById(R.id.name);
@@ -154,7 +161,7 @@ public class LoginActivity extends AppCompatActivity {
                                 users_db.child(auth.getUid()).setValue(user);
 
                                 Toast.makeText(getApplicationContext(), name.getText().toString()+", добро пожаловать!", Toast.LENGTH_LONG).show();
-                                    startActivity(new Intent(LoginActivity.this, NavigatActivity.class));
+                                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
                                 }
                             }
 
@@ -165,4 +172,38 @@ public class LoginActivity extends AppCompatActivity {
 
         dialog.show();
     }
+
+    private void loginIn(){
+
+        creator = FirebaseDatabase.getInstance().getReference("creator");
+
+        creator.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot snapshot) {
+                for(DataSnapshot dataSnapshot : snapshot.getChildren())
+                {
+                    if (dataSnapshot.getKey()==auth.getUid()){
+                        IsCreator=true;
+                        startActivity(new Intent(LoginActivity.this, MainActivity_creator.class));
+                        finish();
+                        break;
+                    }
+                }
+                Toast.makeText(getApplicationContext(), "С возвращением!", Toast.LENGTH_LONG).show();
+                if (!IsCreator){
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                    finish();
+                }
+
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+
+    }
+
 }
