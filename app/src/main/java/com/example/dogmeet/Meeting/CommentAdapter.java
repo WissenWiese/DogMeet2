@@ -116,11 +116,14 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentAdapter.MessageV
             messageViewHolder.messageAnswerTextView.setVisibility(View.INVISIBLE);
             messageViewHolder.avatarAnswer.setVisibility(View.INVISIBLE);
             messageViewHolder.nameTextView.setVisibility(View.VISIBLE);
-            messageViewHolder.messageTextView.setVisibility(View.VISIBLE);
+
             messageViewHolder.avatar.setVisibility(View.VISIBLE);
 
             messageViewHolder.nameTextView.setText(message.getUserName());
-            messageViewHolder.messageTextView.setText(message.getMessage());
+            if (message.getUserName()!="Комментарий удален"){
+                messageViewHolder.messageTextView.setVisibility(View.VISIBLE);
+                messageViewHolder.messageTextView.setText(message.getMessage());
+            }
 
             if (message.getUserImage()!=null){
                 String url= message.getUserImage();

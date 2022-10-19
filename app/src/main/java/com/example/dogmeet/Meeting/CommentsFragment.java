@@ -130,11 +130,15 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
                 {
                     Message message1 =dataSnapshot.getValue(Message.class);
                     assert message1 !=null;
-                    User user=usersDictionary.get(message1.getUser());
-                    if (user!=null) {
-                        message1.setUserName(user.getName());
-                        message1.setUserImage(user.getAvatarUri());
+                    if (message1.getUser()=="Комментарий удален") {
+                        message1.setUserName("Комментарий удален");
                     }
+                    else {
+                        User user=usersDictionary.get(message1.getUser());
+                        if (user!=null) {
+                            message1.setUserName(user.getName());
+                            message1.setUserImage(user.getAvatarUri());
+                    }}
                     message1.setUid(dataSnapshot.getKey());
                     messageArrayList.add(message1);
                     for (DataSnapshot answersSnapshot: dataSnapshot.child("answers").getChildren()){
@@ -171,7 +175,21 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
                                 DatabaseReference ref = myMeet.child(meetUid).child("comments").child(message.getMainUid()).
                                         child("answers").child(message.getUid());
                                 ref.removeValue();
-                            } else {
+                                int numberAnswers=message.getNumberAnswer()-1;
+                                FirebaseDatabase.getInstance()
+                                        .getReference()
+                                        .child("meeting")
+                                        .child(meetUid)
+                                        .child("comments")
+                                        .child("numberAnswers")
+                                        .setValue(numberAnswers);
+                            }
+                            else if (message.getNumberAnswer()>0){
+                                DatabaseReference ref = myMeet.child(meetUid).child("comments").child(message.getUid());
+                                ref.child("user").setValue("Комментарий удален");
+                                ref.child("message").removeValue();
+                            }
+                            else {
                                 DatabaseReference ref = myMeet.child(meetUid).child("comments").child(message.getUid());
                                 ref.removeValue();
                             }
@@ -189,18 +207,20 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
         Message message = messageArrayList.get(position);
         String userName= message.getUserName();
         String uidComment;
-        if (message.getMainUid()!=null){
-            uidComment= message.getMainUid();
+        int numberAnswer = message.getNumberAnswer();
+        if (message.getMainUid() != null) {
+            uidComment = message.getMainUid();
+        } else {
+            uidComment = message.getUid();
         }
-        else{
-            uidComment= message.getUid();
+        Boolean isAnswer = true;
+        if (userName!="Комментарий удален") {
+            mDataPasser.onDataPass(userName, uidComment, isAnswer, numberAnswer);
         }
-        Boolean isAnswer=true;
-        mDataPasser.onDataPass(userName, uidComment, isAnswer);
     }
 
     public interface OnDataPass {
-        void onDataPass(String name, String uidComment, Boolean isAnswer);
+        void onDataPass(String name, String uidComment, Boolean isAnswer, int numberAnswer);
     }
 
     @Override
