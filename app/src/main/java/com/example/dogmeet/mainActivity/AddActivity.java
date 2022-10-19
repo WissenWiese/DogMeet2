@@ -15,11 +15,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.Spinner;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -59,6 +61,8 @@ import java.util.UUID;
 public class AddActivity extends AppCompatActivity {
     private EditText titleEditText, dateEditText, timeEditText, descriptionEditText;
     private DatabaseReference myMeet, users;
+    private Spinner typeOfDogsSpinner;
+    private String typeOfDogs;
     private FirebaseAuth auth;
     private String uid, meetUid;
     private int member_number, comments_number;
@@ -90,7 +94,7 @@ public class AddActivity extends AppCompatActivity {
         });
         creator=new User();
 
-        titleEditText = findViewById(R.id.editTitle);
+        titleEditText = findViewById(R.id.editName);
         dateEditText = findViewById(R.id.editDate);
         timeEditText =findViewById(R.id.editTime);
         descriptionEditText=findViewById(R.id.editMessage);
@@ -170,13 +174,45 @@ public class AddActivity extends AppCompatActivity {
             }
         });
 
-        addressEditText = findViewById(R.id.editPostalAddress);
+        addressEditText = findViewById(R.id.editBreed);
 
         String[] address = getResources().getStringArray(R.array.address);
         List<String> addressList = Arrays.asList(address);
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
                 this, android.R.layout.simple_dropdown_item_1line, addressList);
         addressEditText.setAdapter(adapter);
+
+        ArrayAdapter<?> adapterType =
+                ArrayAdapter.createFromResource(this, R.array.typeOgDogs,
+                        android.R.layout.simple_spinner_item);
+        adapterType.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        typeOfDogsSpinner = findViewById(R.id.editTypeOfDogs);
+        typeOfDogsSpinner.setAdapter(adapterType);
+
+        typeOfDogsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                switch (adapterView.getItemAtPosition(i).toString()){
+                    case "Любые":
+                        typeOfDogs="Любые";
+                        break;
+                    case "Крупные":
+                        typeOfDogs="Крупные";
+                        break;
+                    case "Средние":
+                        typeOfDogs="Средние";
+                        break;
+                    case "Мелкие":
+                        typeOfDogs="Мелкие";
+                        break;
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
 
 
     }
@@ -403,6 +439,7 @@ public class AddActivity extends AppCompatActivity {
         meet.setAddress(addressText);
         meet.setDate(dateMeet);
         meet.setCreatorUid(uid);
+        meet.setTypeOfDogs(typeOfDogs);
         meet.setDescription(descriptionText);
         meet.setNumberMember(member_number);
         if (filePath!=null) {

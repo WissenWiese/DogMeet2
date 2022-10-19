@@ -31,7 +31,7 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/filter"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
+        android:layout_height="150dp"
         android:visibility="visible"
         app:layout_constraintBottom_toTopOf="parent">
 
@@ -47,6 +47,7 @@
                 android:layout_marginTop="10dp"
                 android:checkMark="@drawable/checkbox"
                 android:checked="false"
+                android:fontFamily="@font/ubuntu"
                 android:text="Мои мероприятия"
                 android:textSize="18sp"
                 app:layout_constraintStart_toStartOf="parent"
@@ -71,6 +72,7 @@
                 android:checkMark="@drawable/checkbox"
                 android:checked="false"
                 android:clickable="true"
+                android:fontFamily="@font/ubuntu"
                 android:text="Архив"
                 android:textSize="18sp"
                 app:layout_constraintStart_toStartOf="parent"
@@ -105,6 +107,83 @@
                 android:visibility="invisible"
                 app:layout_constraintStart_toEndOf="@+id/date"
                 app:layout_constraintTop_toTopOf="@+id/calendar" />
+
+            <Button
+                android:id="@+id/anyBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/btn"
+                android:fontFamily="@font/ubuntu"
+                android:paddingLeft="5dp"
+                android:paddingEnd="5dp"
+                android:tag="false"
+                android:text="Любой"
+                android:textColor="@color/white"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+            <Button
+                android:id="@+id/bigBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/btn"
+                android:fontFamily="@font/ubuntu"
+                android:paddingLeft="5dp"
+                android:paddingEnd="5dp"
+                android:tag="false"
+                android:text="Большой"
+                android:textColor="@color/white"
+                app:layout_constraintStart_toEndOf="@+id/anyBtn"
+                app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+            <Button
+                android:id="@+id/middleBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/btn"
+                android:fontFamily="@font/ubuntu"
+                android:paddingLeft="5dp"
+                android:paddingEnd="5dp"
+                android:tag="false"
+                android:text="Средний"
+                android:textColor="@color/white"
+                app:layout_constraintStart_toEndOf="@+id/bigBtn"
+                app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+            <Button
+                android:id="@+id/smallBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_marginStart="5dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/btn"
+                android:fontFamily="@font/ubuntu"
+                android:paddingLeft="5dp"
+                android:paddingEnd="5dp"
+                android:tag="false"
+                android:text="Маленький"
+                android:textColor="@color/white"
+                app:layout_constraintStart_toEndOf="@+id/middleBtn"
+                app:layout_constraintTop_toBottomOf="@+id/textView2" />
+
+            <TextView
+                android:id="@+id/textView2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginTop="10dp"
+                android:fontFamily="@font/ubuntu"
+                android:text="Размер собак"
+                android:textColor="@color/text"
+                android:textSize="18sp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/checkedArchive" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

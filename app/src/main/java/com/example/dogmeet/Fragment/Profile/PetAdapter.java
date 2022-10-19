@@ -6,6 +6,7 @@ import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -28,21 +29,27 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder>{
 
     public static class PetViewHolder extends RecyclerView.ViewHolder {
         public TextView name;
+        public TextView breed;
+        public TextView gender;
         public ImageView imageView;
+        public ImageButton editButton;
 
         public PetViewHolder(View itemView, RecyclerViewInterface recyclerViewInterface) {
             super(itemView);
             name =itemView.findViewById(R.id.name);
             imageView=itemView.findViewById(R.id.avatar);
+            editButton=itemView.findViewById(R.id.editButton);
+            breed=itemView.findViewById(R.id.breedTextView);
+            gender=itemView.findViewById(R.id.genderTextView);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
+            editButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (recyclerViewInterface!=null){
                         int pos=getAdapterPosition();
 
                         if (pos!=RecyclerView.NO_POSITION){
-                            recyclerViewInterface.OnItemClick(pos);
+                            recyclerViewInterface.OnButtonClick(pos);
                         }
                     }
                 }
@@ -71,6 +78,16 @@ public class PetAdapter extends RecyclerView.Adapter<PetAdapter.PetViewHolder>{
         Pet pet = mPets.get(position);
 
         holder.name.setText(pet.getName());
+        holder.breed.setText(pet.getBreed());
+        holder.gender.setText(pet.getGender());
+
+        if (editPet){
+            holder.editButton.setVisibility(View.VISIBLE);
+        }
+        else{
+            holder.editButton.setVisibility(View.INVISIBLE);
+        }
+
 
         if (pet.getAvatar_pet()!=null){
             String url=pet.getAvatar_pet();

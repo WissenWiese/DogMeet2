@@ -40,7 +40,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ReviewFragment extends Fragment implements RecyclerViewInterface {
-    private TextView meetDescription, meetNumber, meetCreator;
+    private TextView meetDescription, meetNumber, meetCreator, typeOfDogs;
     private Button button;
     private CardView cardView;
     ImageView meetCreat;
@@ -97,6 +97,7 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
         meetCreator = view.findViewById(R.id.meetCreator);
         meetDescription=view.findViewById(R.id.meetDescription);
         meetNumber=view.findViewById(R.id.meetNumber);
+        typeOfDogs=view.findViewById(R.id.meetTypeOfDogs);
         cardView=view.findViewById(R.id.cardView);
         meetCreat=view.findViewById(R.id.imageCreat);
 
@@ -161,6 +162,21 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
                 }
                 else {
                     Glide.with(meetCreat.getContext()).load(URI).into(meetCreat);
+                }
+
+                switch (meeting.typeOfDogs){
+                    case "Любой":
+                        typeOfDogs.setText("Любых пород");
+                        break;
+                    case "Большой":
+                        typeOfDogs.setText("Больших пород");
+                        break;
+                    case "Средний":
+                        typeOfDogs.setText("Средних пород");
+                        break;
+                    case "Маленький":
+                        typeOfDogs.setText("Маленьких пород");
+                        break;
                 }
                 meetDescription.setText(meeting.description);
                 member_number=meeting.numberMember;

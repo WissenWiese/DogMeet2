@@ -43,7 +43,7 @@
                 app:srcCompat="@drawable/ic_image" />
 
             <TextView
-                android:id="@+id/titleAdd"
+                android:id="@+id/namePet"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/montserrat"
@@ -52,7 +52,7 @@
                 android:textSize="18sp" />
 
             <EditText
-                android:id="@+id/editTitle"
+                android:id="@+id/editName"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginBottom="10dp"
@@ -66,7 +66,7 @@
                 android:textSize="20sp" />
 
             <TextView
-                android:id="@+id/addressAdd"
+                android:id="@+id/breed"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/montserrat"
@@ -76,7 +76,7 @@
 
 
             <AutoCompleteTextView
-                android:id="@+id/editPostalAddress"
+                android:id="@+id/editBreed"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginBottom="10dp"
@@ -135,6 +135,28 @@
                 android:textColor="@color/primary_dark"
                 android:textSize="20sp"
                 tools:ignore="MissingClass" />
+
+            <TextView
+                android:id="@+id/typeOfDogs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat"
+                android:text="Размер собак"
+                android:textColor="@color/text"
+                android:textSize="18sp" />
+
+
+            <Spinner
+                android:id="@+id/editTypeOfDogs"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/edit_text"
+                android:fontFamily="@font/ubuntu"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:textColor="@color/primary_dark"
+                android:textSize="20sp"/>
 
             <TextView
                 android:id="@+id/descriptionAdd"

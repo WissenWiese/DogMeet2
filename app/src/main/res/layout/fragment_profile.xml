@@ -101,7 +101,7 @@
         app:srcCompat="@drawable/save" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/r_v_pet"
+        android:id="@+id/r_v_meetings"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"

@@ -1,14 +1,16 @@
 package com.example.dogmeet.model;
 
 public class Pet {
-    private String name, avatar_pet, petUid;
+    private String name, avatar_pet, petUid, gender, breed;
 
     public Pet() {}
 
-    public Pet (String name, String avatar_pet, String petUid) {
+    public Pet (String name, String avatar_pet, String petUid, String gender, String breed) {
         this.name=name;
         this.avatar_pet=avatar_pet;
         this.petUid=petUid;
+        this.gender=gender;
+        this.breed=breed;
 
     }
 
@@ -34,5 +36,21 @@ public class Pet {
 
     public void setPetUid(String petUid) {
         this.petUid = petUid;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public void setGender(String gender) {
+        this.gender = gender;
+    }
+
+    public String getBreed() {
+        return breed;
+    }
+
+    public void setBreed(String breed) {
+        this.breed = breed;
     }
 }

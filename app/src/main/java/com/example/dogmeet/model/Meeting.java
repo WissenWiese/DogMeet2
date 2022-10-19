@@ -6,14 +6,14 @@ import java.util.Objects;
 
 @Entity
 public class Meeting {
-    public String uid, title, address, creatorUid, description, urlImage, creatorName;
+    public String uid, title, address, creatorUid, description, urlImage, creatorName, typeOfDogs;
     public int numberMember, numberComments;
     public long date;
     public Meeting() {}
 
     public Meeting(String uid, String title, String address, long date,
                    String creatorUid, int numberMember, int numberComments,
-                   String description, String urlImage, String creatorName){
+                   String description, String urlImage, String creatorName, String typeOfDogs){
         this.uid=uid;
         this.title=title;
         this.address=address;
@@ -24,6 +24,7 @@ public class Meeting {
         this.description=description;
         this.urlImage= urlImage;
         this.creatorName=creatorName;
+        this.typeOfDogs=creatorName;
 
     }
 
@@ -107,6 +108,14 @@ public class Meeting {
         this.creatorName = creatorName;
     }
 
+    public String getTypeOfDogs() {
+        return typeOfDogs;
+    }
+
+    public void setTypeOfDogs(String typeOfDogs) {
+        this.typeOfDogs = typeOfDogs;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -115,11 +124,12 @@ public class Meeting {
         return title.equals(meeting.title) && address.equals(meeting.address)
                 && creatorUid.equals(meeting.creatorUid)
                 && description.equals(meeting.description)
-                && creatorName.equals(meeting.creatorName);
+                && creatorName.equals(meeting.creatorName)
+                && typeOfDogs.equals(meeting.typeOfDogs);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, address, date, creatorUid, numberMember, description, creatorName);
+        return Objects.hash(title, address, date, creatorUid, numberMember, description, creatorName, typeOfDogs);
     }
 }

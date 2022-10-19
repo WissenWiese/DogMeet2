@@ -47,7 +47,7 @@ public class MeetingActivity extends AppCompatActivity implements CommentsFragme
     private DatabaseReference myMeet, comments;
     private Meeting meeting;
     private TabLayout tabLayout;
-    int numberComments;
+    int numberComments, numberAnswers;
     private Boolean isComment, isAnswer=false;
     private ImageButton spendMessage, closeBtn;
     private EditText editComment;
@@ -252,11 +252,13 @@ public class MeetingActivity extends AppCompatActivity implements CommentsFragme
                     comments = FirebaseDatabase.getInstance().getReference()
                             .child("meeting").child(meetUid).child("comments")
                             .child(uidComment).child("answers");
+                    numberAnswers=numberAnswers+1;
                 }
                 else {
 
                     comments = FirebaseDatabase.getInstance().getReference()
                             .child("meeting").child(meetUid).child("comments");
+                    numberAnswers=0;
                 }
 
                 message.setUser(FirebaseAuth.getInstance()
@@ -273,6 +275,14 @@ public class MeetingActivity extends AppCompatActivity implements CommentsFragme
                         .child(meetUid)
                         .child("numberComments")
                         .setValue(numberComments1);
+
+                FirebaseDatabase.getInstance()
+                        .getReference()
+                        .child("meeting")
+                        .child(meetUid)
+                        .child("comments")
+                        .child("numberAnswers")
+                        .setValue(numberAnswers);
                 editComment.setText(null);
                 isAnswer=false;
                 answerName.setVisibility(View.INVISIBLE);
@@ -282,10 +292,11 @@ public class MeetingActivity extends AppCompatActivity implements CommentsFragme
     }
 
     @Override
-    public void onDataPass(String name, String uidComment, Boolean isAnswer) {
+    public void onDataPass(String name, String uidComment, Boolean isAnswer, int numberAnswers) {
         editComment.setText(name+",");
         this.uidComment=uidComment;
         this.isAnswer=isAnswer;
+        this.numberAnswers=numberAnswers;
         if (isAnswer){
             answerName.setVisibility(View.VISIBLE);
             nameAnswer.setText(name);

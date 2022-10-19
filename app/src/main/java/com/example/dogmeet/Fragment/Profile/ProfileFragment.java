@@ -16,8 +16,12 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,7 +36,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
-import com.example.dogmeet.Fragment.Profile.PetAdapter;
 import com.example.dogmeet.model.Pet;
 import com.example.dogmeet.model.User;
 import com.google.android.gms.tasks.Continuation;
@@ -53,6 +56,8 @@ import com.google.firebase.storage.UploadTask;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.UUID;
 
 public class ProfileFragment extends Fragment implements RecyclerViewInterface{
@@ -69,7 +74,8 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
     private PetAdapter petAdapter;
     private Boolean editPet, isPetAvatar;
     FirebaseAuth auth;
-    String petUid;
+    String petUid, genderPet;
+    AutoCompleteTextView breedEditText;
 
 
     public ProfileFragment(){
@@ -82,7 +88,7 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
 
         view = inflater.inflate(R.layout.fragment_profile, container, false);
         mPets = new ArrayList<>();
-        editPet=false;
+        editPet=true;
         isPetAvatar=false;
 
         auth = FirebaseAuth.getInstance();
@@ -95,13 +101,15 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
         about.setCursorVisible(false);
         about.setBackgroundColor(Color.TRANSPARENT);
 
+
+
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
 
         users = FirebaseDatabase.getInstance().getReference("Users").child(auth.getUid());
         pets=FirebaseDatabase.getInstance().getReference("Users").child(auth.getUid()).child("pets");
 
-        recyclerView=view.findViewById(R.id.r_v_pet);
+        recyclerView=view.findViewById(R.id.r_v_meetings);
         recyclerView.setHasFixedSize(true);
 
         petAdapter= new PetAdapter(mPets, this, editPet);
@@ -225,13 +233,13 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
 
     @Override
     public void OnItemClick(int position) {
-        Pet pet=mPets.get(position);
-        showEditPetWindow(pet);
+
     }
 
     @Override
     public void OnButtonClick(int position) {
-
+        Pet pet=mPets.get(position);
+        showEditPetWindow(pet);
     }
 
     private void showImageWindow(boolean isPetAvatar, String petUid){
@@ -280,14 +288,40 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
         View add_pet_window = inflator.inflate(R.layout.item_edit_pet, null);
         dialog.setView(add_pet_window);
 
-        final EditText namePet= add_pet_window.findViewById(R.id.name);
+        final EditText namePet= add_pet_window.findViewById(R.id.editName);
+        final RadioGroup radioGroup = add_pet_window.findViewById(R.id.radioGroup);
         avatarPet= add_pet_window.findViewById(R.id.avatar);
+        breedEditText = add_pet_window.findViewById(R.id.editBreed);
+
+        String[] breeds = getResources().getStringArray(R.array.breeds);
+        List<String> breedsList = Arrays.asList(breeds);
+        ArrayAdapter<String> adapterBreed = new ArrayAdapter<>(
+                getContext(), android.R.layout.simple_dropdown_item_1line, breedsList);
+        breedEditText.setAdapter(adapterBreed);
 
 
         dialog.setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int which) {
                 dialogInterface.dismiss();
+            }
+        });
+
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId) {
+                    case R.id.radioButtonGirl:
+                        genderPet="девочка";
+                        break;
+                    case R.id.radioButtonBoy:
+                        genderPet="мальчик";
+                        break;
+
+                    default:
+                        break;
+                }
             }
         });
 
@@ -298,8 +332,18 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
                     Toast.makeText(getContext(), "Введите имя питомца", Toast.LENGTH_LONG).show();
                     return;
                 }
+                if(TextUtils.isEmpty(breedEditText.getText().toString())) {
+                    Toast.makeText(getContext(), "Введите породу питомца", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if(TextUtils.isEmpty(genderPet)) {
+                    Toast.makeText(getContext(), "Выберите пол питомца", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 petUid=UUID.randomUUID().toString();
                 pets.child(petUid).child("name").setValue(namePet.getText().toString());
+                pets.child(petUid).child("breed").setValue(breedEditText.getText().toString());
+                pets.child(petUid).child("gender").setValue(genderPet);
                 if (filePath!=null) {
                     uploadImage(true, petUid);
                 }
@@ -328,8 +372,16 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
         View register_window= inflator.inflate(R.layout.item_edit_pet, null);
         dialog.setView(register_window);
 
-        final EditText namePet=register_window.findViewById(R.id.name);
-        avatarPet=register_window.findViewById(R.id.avatar);
+        final EditText namePet=register_window.findViewById(R.id.editName);
+        final RadioGroup radioGroup = register_window.findViewById(R.id.radioGroup);
+        avatarPet= register_window.findViewById(R.id.avatar);
+        breedEditText = register_window.findViewById(R.id.editBreed);
+
+        String[] breeds = getResources().getStringArray(R.array.breeds);
+        List<String> breedsList = Arrays.asList(breeds);
+        ArrayAdapter<String> adapterBreed = new ArrayAdapter<>(
+                getContext(), android.R.layout.simple_dropdown_item_1line, breedsList);
+        breedEditText.setAdapter(adapterBreed);
 
         if (pet.getAvatar_pet()!=null){
             String url=pet.getAvatar_pet();
@@ -339,7 +391,40 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
             Glide.with(getContext()).load(URI).into(avatarPet);
         }
 
+        radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                switch (checkedId) {
+                    case R.id.radioButtonGirl:
+                        genderPet="девочка";
+                        break;
+                    case R.id.radioButtonBoy:
+                        genderPet="мальчик";
+                        break;
+
+                    default:
+                        break;
+                }
+            }
+        });
+
+
         namePet.setText(pet.getName());
+        breedEditText.setText(pet.getBreed());
+        genderPet=pet.getGender();
+        RadioButton GirlBtn=register_window.findViewById(R.id.radioButtonGirl);
+        RadioButton BoyBtn=register_window.findViewById(R.id.radioButtonBoy);
+
+        if (pet.getGender()=="девочка"){
+            GirlBtn.setChecked(true);
+            BoyBtn.setChecked(false);
+        }
+        else {
+            GirlBtn.setChecked(false);
+            BoyBtn.setChecked(true);
+        }
+
 
         dialog.setNegativeButton("Удалить", new DialogInterface.OnClickListener() {
             @Override
@@ -356,7 +441,17 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
                     Toast.makeText(getContext(), "Введите имя питомца", Toast.LENGTH_LONG).show();
                     return;
                 }
+                if(TextUtils.isEmpty(breedEditText.getText().toString())) {
+                    Toast.makeText(getContext(), "Введите породу питомца", Toast.LENGTH_LONG).show();
+                    return;
+                }
+                if(TextUtils.isEmpty(genderPet)) {
+                    Toast.makeText(getContext(), "Выберите пол питомца", Toast.LENGTH_LONG).show();
+                    return;
+                }
                 pets.child(pet.getPetUid()).child("name").setValue(namePet.getText().toString());
+                pets.child(pet.getPetUid()).child("breed").setValue(breedEditText.getText().toString());
+                pets.child(pet.getPetUid()).child("gender").setValue(genderPet);
                 if (filePath!=null) {
                     try {
                         Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), filePath);

@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CheckedTextView;
 import android.widget.DatePicker;
 import android.widget.ImageButton;
@@ -35,6 +36,7 @@ import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
 import com.example.dogmeet.model.Meeting;
 import com.example.dogmeet.mainActivity.AddActivity;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -53,20 +55,21 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
-public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
-    private DatabaseReference myMeet, users, archive;
-    private ArrayList<Meeting> meetings;
-    private String uidMeet, uid, database, date, dateForFilter;
+public class ListMeetFragment extends Fragment implements RecyclerViewInterface, View.OnClickListener {
+    private DatabaseReference myMeet, users;
+    private ArrayList<Meeting> meetings, filterTypeList, updateList;
+    private String uidMeet, uid, database, date, dateForFilter, typeDog, add, lastType;
     private RecyclerView recyclerView;
     private MeetingAdapter meetingAdapter;
     private View view;
     private FloatingActionButton fabFilter;
     private CardView filters;
     private Spinner spinner;
-    private CheckedTextView checkedMy, checkedArchive;
+    private CheckedTextView checkedMy;
     private ImageButton calendar, dateOff;
+    private Button anyBtn, bigBtn, middleBtn, smallBtn;
     private TextView dateFilter;
-    int click;
+    int click, clickBtn;
     LocalDate dateMin, dateMax, dtMeet;
 
     public ListMeetFragment() {
@@ -82,10 +85,10 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
 
         uid= FirebaseAuth.getInstance().getCurrentUser().getUid();
         users= FirebaseDatabase.getInstance().getReference("Users");
-        archive= FirebaseDatabase.getInstance().getReference("archive").child("meeting");
 
         myMeet = FirebaseDatabase.getInstance().getReference("meeting");
         meetings = new ArrayList<>();
+        updateList =new ArrayList<>();
 
         fabFilter=view.findViewById(R.id.fabFilter);
 
@@ -97,8 +100,8 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
             public void onClick(View view) {
                 switch (fabFilter.getTag().toString()) {
                     case "close":
-                        filters.animate().translationY(getResources().getDimension(R.dimen.standard_100));
-                        fabFilter.animate().translationY(getResources().getDimension(R.dimen.standard_100));
+                        filters.animate().translationY(getResources().getDimension(R.dimen.standard_150));
+                        fabFilter.animate().translationY(getResources().getDimension(R.dimen.standard_150));
                         fabFilter.setTag("open");
                         fabFilter.setImageDrawable(getResources().getDrawable(R.drawable.up));
                         break;
@@ -134,33 +137,20 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
         checkedMy=view.findViewById(R.id.checkedMy);
 
         checkedMy.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View view) {
                 if (checkedMy.isChecked()){
                     checkedMy.setChecked(false);
-                    checkedMy.setCheckMarkDrawable(getResources().getDrawable(R.drawable.checkbox));
+                    checkedMy.setCheckMarkDrawable(getResources()
+                            .getDrawable(R.drawable.checkbox));
                 }
                 else {
                     checkedMy.setChecked(true);
-                    checkedMy.setCheckMarkDrawable(getResources().getDrawable(R.drawable.checked_checkbox));
+                    checkedMy.setCheckMarkDrawable(getResources()
+                            .getDrawable(R.drawable.checked_checkbox));
                 }
-                update();
-            }
-        });
-
-        checkedArchive=view.findViewById(R.id.checkedArchive);
-
-        checkedArchive.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (checkedArchive.isChecked()){
-                    checkedArchive.setChecked(false);
-                    checkedArchive.setCheckMarkDrawable(getResources().getDrawable(R.drawable.checkbox));
-                }
-                else {
-                    checkedArchive.setChecked(true);
-                    checkedArchive.setCheckMarkDrawable(getResources().getDrawable(R.drawable.checked_checkbox));
-                }
+                //getMyMeet();
                 update();
             }
         });
@@ -181,7 +171,8 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
                         meetingAdapter.notifyDataSetChanged();
                         break;
                     case "По популярности":
-                        Collections.sort(meetings, Comparator.comparing(Meeting::getNumberMember).thenComparing(Meeting::getNumberComments));
+                        Collections.sort(meetings, Comparator.comparing(Meeting::getNumberMember)
+                                .thenComparing(Meeting::getNumberComments));
                         meetingAdapter.notifyDataSetChanged();
                         break;
                     case "По дате":
@@ -225,23 +216,35 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
             @Override
             public void afterTextChanged(Editable editable) {
                 if (!TextUtils.isEmpty(dateFilter.getText().toString())) {
-                    getDateMeet();
                     dateOff.setVisibility(View.VISIBLE);
-                }
-                else {
-                    getDataFromDB();
+                    //getDateMeet();
+                    update();
                 }
             }
         });
 
         dateOff.setOnClickListener(new View.OnClickListener() {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onClick(View view) {
                 dateOff.setVisibility(View.INVISIBLE);
                 dateFilter.setText(null);
-                getDataFromDB();
+                //getDateMeet();
+                update();
             }
         });
+
+        anyBtn=view.findViewById(R.id.anyBtn);
+        anyBtn.setOnClickListener(this);
+        bigBtn=view.findViewById(R.id.bigBtn);
+        bigBtn.setOnClickListener(this);
+        middleBtn=view.findViewById(R.id.middleBtn);
+        middleBtn.setOnClickListener(this);
+        smallBtn=view.findViewById(R.id.smallBtn);
+        smallBtn.setOnClickListener(this);
+
+        filterTypeList=new ArrayList<>();
+        clickBtn=0;
 
         return view;
     }
@@ -257,22 +260,9 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
                 {
                     Meeting meeting =dataSnapshot.getValue(Meeting.class);
                     assert meeting != null;
-                    /*if (UpdateListMeeting(meeting)){
-                        FirebaseDatabase.getInstance()
-                                .getReference()
-                                .child("archive")
-                                .child("meeting")
-                                .child(dataSnapshot.getKey())
-                                .setValue(meeting);
-
-                        dataSnapshot.getRef().removeValue();
-                    }
-                    else {*/
                         uidMeet = dataSnapshot.getKey();
                         meeting.setUid(uidMeet);
-
                         meetings.add(meeting);
-                    //}
                 }
                 meetingAdapter.notifyDataSetChanged();
                 if (recyclerView.getAdapter().getItemCount()>2) {
@@ -330,72 +320,25 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
         startActivity(i);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
-    private boolean UpdateListMeeting(Meeting meeting){
-        LocalDate localDate=LocalDate.now();
-        localDate=localDate.plusMonths(1);
-        String date = DateFormat.format("dd.MM.yyyy", meeting.getDate()).toString();
-        SimpleDateFormat f = new SimpleDateFormat("dd.MM.yyyy");
-        try {
-            Date d = f.parse(date);
-            dtMeet = d.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        if (dtMeet.isAfter(localDate)){
-            return false;
-        }
-        else {
-            return true;
-        }
-    }
-
-    public void getArchive(){
-        ValueEventListener archiveListener = new ValueEventListener()  {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                if(meetings.size() > 0) meetings.clear();
-                for(DataSnapshot dataSnapshot : snapshot.getChildren())
-                {
-                    Meeting meeting =dataSnapshot.getValue(Meeting.class);
-                    assert meeting != null;
-                    uidMeet = dataSnapshot.getKey();
-                    meeting.setUid(uidMeet);
-                    meetings.add(meeting);
-                }
-                meetingAdapter.notifyDataSetChanged();
-                if (recyclerView.getAdapter().getItemCount()>2) {
-                    recyclerView.smoothScrollToPosition(recyclerView.getAdapter().getItemCount() - 1);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
-        };
-        archive.addValueEventListener(archiveListener);
-        database="archive";
-    }
-
-    public void getMyMeet(){
+    public void getMyMeet(Boolean record){
         ValueEventListener myMeetListener = new ValueEventListener()  {
+            @RequiresApi(api = Build.VERSION_CODES.O)
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 ArrayList<Meeting> filteredlist = new ArrayList<>();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren())
                 {
                     String myMeetUid=dataSnapshot.getKey();
-                    for (Meeting meeting : meetings){
+                    for (Meeting meeting : updateList){
                         if (meeting.getUid().equals(myMeetUid)){
                             filteredlist.add(meeting);
                         }
                     }
                 }
-                meetings.clear();
-                meetings.addAll(filteredlist);
-                meetingAdapter.notifyDataSetChanged();
+                updateList.clear();
+                updateList.addAll(filteredlist);
+                if (record) meetingAdapter.filterList(filteredlist);
+                else  getDateMeet(true);
             }
 
             @Override
@@ -405,22 +348,6 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
         users.child(uid).child("myMeetings").addValueEventListener(myMeetListener);
     }
 
-    private void update(){
-        if (!checkedMy.isChecked() && !checkedArchive.isChecked()){
-            getDataFromDB();
-        }
-        else if (!checkedMy.isChecked() && checkedArchive.isChecked()){
-            getArchive();
-        }
-        else if (checkedMy.isChecked() && !checkedArchive.isChecked()){
-            getDataFromDB();
-            getMyMeet();
-        }
-        else if (checkedMy.isChecked() && checkedArchive.isChecked()){
-            getArchive();
-            getMyMeet();
-        }
-    }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     protected void showDatePickDlg() {
@@ -491,9 +418,9 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
-    private void getDateMeet(){
+    private void getDateMeet(Boolean record){
         ArrayList<Meeting> filteredlist = new ArrayList<>();
-        for (Meeting meeting : meetings) {
+        for (Meeting meeting : updateList) {
             String date = DateFormat.format("dd.MM.yyyy", meeting.getDate()).toString();
             SimpleDateFormat f = new SimpleDateFormat("dd.MM.yyyy");
             try {
@@ -503,39 +430,140 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
                 e.printStackTrace();
             }
             if (dtMeet.isEqual(dateMin)) {
-                filteredlist.add(meeting);
+                    filteredlist.add(meeting);
             }
             else if ((dtMeet.isBefore(dateMax) || dtMeet.isEqual(dateMax))
                     && dtMeet.isAfter(dateMin)){
+                    filteredlist.add(meeting);
+            }
+        }
+        updateList.clear();
+        updateList.addAll(filteredlist);
+        if (record) meetingAdapter.filterList(filteredlist);
+        else getMyMeet(true);
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void getTypeDog(Boolean filter, String typeFilter){
+        ArrayList<Meeting> filteredlist = new ArrayList<>();
+        for (Meeting meeting : meetings) {
+            if (meeting.getTypeOfDogs().equals(typeDog)) {
                 filteredlist.add(meeting);
             }
         }
-        meetingAdapter.filterList(filteredlist);
-    }
-
-    private void filter(String text) {
-        // creating a new array list to filter our data.
-        final ArrayList<Meeting> filteredlist = new ArrayList<>();
-
-        // running a for loop to compare elements.
-        for (Meeting item : meetings) {
-            // checking if the entered string matched with any item of our recycler view.
-            if (item.getTitle().toLowerCase().contains(text.toLowerCase()) ||
-                    item.getAddress().toLowerCase().contains(text.toLowerCase()) ||
-                    item.getDescription().toLowerCase().contains(text.toLowerCase())) {
-                // if the item is matched we are
-                // adding it to our filtered list.
-                filteredlist.add(item);
+        if (add.equals("true")) {
+            if (TextUtils.isEmpty(lastType)
+                    || !lastType.equals(typeDog)) filterTypeList.addAll(filteredlist);
+        }
+        else filterTypeList.removeAll(filteredlist);
+        lastType=typeDog;
+        updateList.clear();
+        updateList.addAll(filterTypeList);
+        if (filter) {
+            switch (typeFilter){
+                case "typeDog":
+                    meetingAdapter.filterList(filterTypeList);
+                    break;
+                case "date":
+                    getDateMeet(true);
+                    break;
+                case "my":
+                    getMyMeet(true);
+                    break;
             }
         }
-            if (filteredlist.isEmpty()) {
-                // if no item is added in filtered list we are
-                // displaying a toast message as no data found.
-                Toast.makeText(getContext(), "No Data Found..", Toast.LENGTH_SHORT).show();
-            } else {
-                // at last we are passing that filtered
-                // list to our adapter class.
-                meetingAdapter.filterList(filteredlist);
-            }
+        else getDateMeet(false);
     }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    public void onClick(View view) {
+        if (clickBtn==0) filterTypeList.clear();
+        switch (view.getId()){
+            case R.id.anyBtn:
+                clickBtn(anyBtn);
+                break;
+            case R.id.bigBtn:
+                clickBtn(bigBtn);
+                break;
+            case R.id.middleBtn:
+                clickBtn(middleBtn);
+                break;
+            case R.id.smallBtn:
+                clickBtn(smallBtn);
+                break;
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void clickBtn (Button button){
+        if (button.getTag().equals("false")){
+            button.setBackground(getResources().getDrawable(R.drawable.incoming));
+            button.setTag("true");
+            clickBtn=clickBtn+1;
+
+        }
+        else {
+            button.setBackground(getResources().getDrawable(R.drawable.btn));
+            button.setTag("false");
+            clickBtn=clickBtn-1;
+        }
+        add=button.getTag().toString();
+        typeDog=button.getText().toString();
+        if (clickBtn==0 || clickBtn==4) {
+            filterTypeList.clear();
+            if (clickBtn==4){
+                clickBtn=0;
+                anyBtn.setBackground(getResources().getDrawable(R.drawable.btn));
+                anyBtn.setTag("false");
+                bigBtn.setBackground(getResources().getDrawable(R.drawable.btn));
+                bigBtn.setTag("false");
+                middleBtn.setBackground(getResources().getDrawable(R.drawable.btn));
+                middleBtn.setTag("false");
+                smallBtn.setBackground(getResources().getDrawable(R.drawable.btn));
+                smallBtn.setTag("false");
+            }
+        }
+        update();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void update(){
+        updateList.clear();
+        updateList.addAll(meetings);
+        if (!checkedMy.isChecked() && clickBtn==0 &&
+                TextUtils.isEmpty(dateFilter.getText().toString())){
+            meetingAdapter.filterList(meetings);
+        }
+        else if (checkedMy.isChecked() && clickBtn==0 &&
+                TextUtils.isEmpty(dateFilter.getText().toString())){
+            getMyMeet(true);
+        }
+        else if (!checkedMy.isChecked() && clickBtn==0 &&
+                !TextUtils.isEmpty(dateFilter.getText().toString())){
+            getDateMeet(true);
+        }
+        else if (!checkedMy.isChecked() && clickBtn!=0 &&
+                TextUtils.isEmpty(dateFilter.getText().toString())){
+            getTypeDog(true, "typeDog");
+        }
+        else if (checkedMy.isChecked() && clickBtn==0 &&
+                !TextUtils.isEmpty(dateFilter.getText().toString())){
+            getMyMeet(false);
+        }
+        else if (!checkedMy.isChecked() && clickBtn!=0 &&
+                !TextUtils.isEmpty(dateFilter.getText().toString())){
+            getTypeDog(true, "date");
+        }
+        else if (checkedMy.isChecked() && clickBtn!=0 &&
+                TextUtils.isEmpty(dateFilter.getText().toString())){
+            getTypeDog(true, "my");
+        }
+        else if (checkedMy.isChecked() && clickBtn!=0 &&
+                !TextUtils.isEmpty(dateFilter.getText().toString())){
+            getTypeDog(false, "date");
+        }
+
+    }
+
 }
