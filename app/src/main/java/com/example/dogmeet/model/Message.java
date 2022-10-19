@@ -5,14 +5,16 @@ import java.util.Date;
 public class Message {
     private String user, message, userName, userImage, uid, mainUid;
     private long time;
+    private int numberAnswer;
 
-    public Message(String user, String message, String userName, String userImage, String uid, String mainUid) {
+    public Message(String user, String message, String userName, String userImage, String uid, String mainUid, int numberAnswer) {
         this.user = user;
         this.message = message;
         this.userName = userName;
         this.userImage = userImage;
         this.uid=uid;
         this.mainUid=mainUid;
+        this.numberAnswer=numberAnswer;
 
         // Initialize to current time
         time = new Date().getTime();
@@ -76,5 +78,13 @@ public class Message {
 
     public void setMainUid(String mainUid) {
         this.mainUid = mainUid;
+    }
+
+    public int getNumberAnswer() {
+        return numberAnswer;
+    }
+
+    public void setNumberAnswer(int numberAnswer) {
+        this.numberAnswer = numberAnswer;
     }
 }
