@@ -6,14 +6,16 @@ import java.util.Objects;
 
 @Entity
 public class Meeting {
-    public String uid, title, address, creatorUid, description, urlImage, creatorName, typeOfDogs;
+    public String uid, title, address, creatorUid, description, urlImage, creatorName, typeOfDogs,
+            typeOfMeet, rank, rating;
     public int numberMember, numberComments;
     public long date;
     public Meeting() {}
 
     public Meeting(String uid, String title, String address, long date,
                    String creatorUid, int numberMember, int numberComments,
-                   String description, String urlImage, String creatorName, String typeOfDogs){
+                   String description, String urlImage, String creatorName,
+                   String typeOfDogs, String typeOfMeet, String rank, String rating){
         this.uid=uid;
         this.title=title;
         this.address=address;
@@ -24,8 +26,27 @@ public class Meeting {
         this.description=description;
         this.urlImage= urlImage;
         this.creatorName=creatorName;
-        this.typeOfDogs=creatorName;
+        this.typeOfDogs=typeOfDogs;
+        this.typeOfMeet=typeOfMeet;
+        this.rank=rank;
+        this.rating=rating;
 
+    }
+
+    public String getTypeOfMeet() {
+        return typeOfMeet;
+    }
+
+    public void setTypeOfMeet(String typeOfMeet) {
+        this.typeOfMeet = typeOfMeet;
+    }
+
+    public String getRank() {
+        return rank;
+    }
+
+    public void setRank(String rank) {
+        this.rank = rank;
     }
 
     public String getUid(){
@@ -116,6 +137,14 @@ public class Meeting {
         this.typeOfDogs = typeOfDogs;
     }
 
+    public String getRating() {
+        return rating;
+    }
+
+    public void setRating(String rating) {
+        this.rating = rating;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -125,11 +154,15 @@ public class Meeting {
                 && creatorUid.equals(meeting.creatorUid)
                 && description.equals(meeting.description)
                 && creatorName.equals(meeting.creatorName)
-                && typeOfDogs.equals(meeting.typeOfDogs);
+                && typeOfDogs.equals(meeting.typeOfDogs)
+                && typeOfMeet.equals(meeting.typeOfMeet)
+                && rank.equals(meeting.rank)
+                && rating.equals(meeting.rating);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(title, address, date, creatorUid, numberMember, description, creatorName, typeOfDogs);
+        return Objects.hash(title, address, date, creatorUid, numberMember,
+                description, creatorName, typeOfDogs, typeOfMeet, rank, rating);
     }
 }

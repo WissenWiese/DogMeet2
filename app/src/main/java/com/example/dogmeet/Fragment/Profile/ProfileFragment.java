@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -34,14 +35,18 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.dogmeet.Fragment.Map.MeetingMarkerAdapter;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
+import com.example.dogmeet.mainActivity.LoginActivity;
+import com.example.dogmeet.model.Meeting;
 import com.example.dogmeet.model.Pet;
 import com.example.dogmeet.model.User;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.SuccessContinuation;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -63,19 +68,23 @@ import java.util.UUID;
 public class ProfileFragment extends Fragment implements RecyclerViewInterface{
     ImageButton buttonEdit, buttonSave, buttonAdd, imageView, avatarPet;
     EditText about;
-    DatabaseReference users, pets;
+    DatabaseReference users, pets, myMeet;
     private final int PICK_IMAGE_REQUEST = 71;
     private View view;
     private Uri filePath;
     FirebaseStorage storage;
     StorageReference storageReference;
     private ArrayList<Pet> mPets;
-    private RecyclerView recyclerView;
+    private ArrayList<String> meetUidList;
+    private ArrayList<Meeting> meetingArrayList;
+    private RecyclerView recyclerView, recyclerView2;
     private PetAdapter petAdapter;
+    private MeetingMarkerAdapter meetingMarkerAdapter;
     private Boolean editPet, isPetAvatar;
     FirebaseAuth auth;
     String petUid, genderPet;
     AutoCompleteTextView breedEditText;
+    TextView meetingText;
 
 
     public ProfileFragment(){
@@ -88,6 +97,8 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
 
         view = inflater.inflate(R.layout.fragment_profile, container, false);
         mPets = new ArrayList<>();
+        meetingArrayList=new ArrayList<>();
+        meetUidList=new ArrayList<>();
         editPet=true;
         isPetAvatar=false;
 
@@ -100,8 +111,7 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
         about=view.findViewById(R.id.edit_about);
         about.setCursorVisible(false);
         about.setBackgroundColor(Color.TRANSPARENT);
-
-
+        meetingText=view.findViewById(R.id.textView3);
 
         storage = FirebaseStorage.getInstance();
         storageReference = storage.getReference();
@@ -109,15 +119,23 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
         users = FirebaseDatabase.getInstance().getReference("Users").child(auth.getUid());
         pets=FirebaseDatabase.getInstance().getReference("Users").child(auth.getUid()).child("pets");
 
-        recyclerView=view.findViewById(R.id.r_v_meetings);
+        recyclerView=view.findViewById(R.id.r_v_pets);
         recyclerView.setHasFixedSize(true);
 
         petAdapter= new PetAdapter(mPets, this, editPet);
 
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.HORIZONTAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL, false));
         recyclerView.setAdapter(petAdapter);
+
+        recyclerView2=view.findViewById(R.id.r_v_meetings);
+        recyclerView2.setHasFixedSize(true);
+
+        meetingMarkerAdapter= new MeetingMarkerAdapter(meetingArrayList, this);
+
+        recyclerView2.setItemAnimator(new DefaultItemAnimator());
+        recyclerView2.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL, false));
+        recyclerView2.setAdapter(meetingMarkerAdapter);
 
         users.addValueEventListener(new ValueEventListener() {
             @Override
@@ -133,6 +151,14 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
                 else {
                     Glide.with(imageView.getContext()).load(URI).into(imageView);
                 }
+                if(meetUidList.size() > 0)meetUidList.clear();
+                for (DataSnapshot snapshot: dataSnapshot.child("Meeting").getChildren()){
+                    String meetUid =snapshot.getValue(String.class);
+                    if (meetUid!=null){
+                        meetUidList.add(meetUid);
+                    }
+                }
+                getMeeting();
             }
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -306,6 +332,7 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
                 dialogInterface.dismiss();
             }
         });
+        genderPet="девочка";
 
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
 
@@ -341,13 +368,37 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
                     return;
                 }
                 petUid=UUID.randomUUID().toString();
-                pets.child(petUid).child("name").setValue(namePet.getText().toString());
-                pets.child(petUid).child("breed").setValue(breedEditText.getText().toString());
-                pets.child(petUid).child("gender").setValue(genderPet);
-                if (filePath!=null) {
-                    uploadImage(true, petUid);
-                }
-                dialogInterface.dismiss();
+                Pet pet=new Pet();
+                pet.setName(namePet.getText().toString());
+                pet.setBreed(breedEditText.getText().toString());
+                pet.setGender(genderPet);
+
+                FirebaseDatabase.getInstance().getReference("breeds")
+                        .child(breedEditText.getText().toString())
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        String size = snapshot.getValue(String.class);
+                        if (size != null) {
+                            pet.setSize(size);
+                            pets.child(petUid).setValue(pet);
+                            if (filePath!=null) {
+                                uploadImage(true, petUid);
+                            }
+                            dialogInterface.dismiss();
+                        }
+                        else {
+                            Toast.makeText(getContext(), "Введите породу питомца", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                        Toast.makeText(getContext(), "Введите породу питомца", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+                });
             }
         });
 
@@ -416,7 +467,7 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
         RadioButton GirlBtn=register_window.findViewById(R.id.radioButtonGirl);
         RadioButton BoyBtn=register_window.findViewById(R.id.radioButtonBoy);
 
-        if (pet.getGender()=="девочка"){
+        if (genderPet.equals("девочка")){
             GirlBtn.setChecked(true);
             BoyBtn.setChecked(false);
         }
@@ -450,7 +501,30 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
                     return;
                 }
                 pets.child(pet.getPetUid()).child("name").setValue(namePet.getText().toString());
-                pets.child(pet.getPetUid()).child("breed").setValue(breedEditText.getText().toString());
+
+                FirebaseDatabase.getInstance().getReference("breeds")
+                        .child(breedEditText.getText().toString())
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                String size = snapshot.getValue(String.class);
+                                if (size != null) {
+                                    pets.child(pet.getPetUid()).child("breed").setValue(breedEditText.getText().toString());
+                                    pets.child(pet.getPetUid()).child("size").setValue(size);
+                                }
+                                else {
+                                    Toast.makeText(getContext(), "Введите породу питомца", Toast.LENGTH_LONG).show();
+                                    return;
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(@NonNull DatabaseError error) {
+                                Toast.makeText(getContext(), "Введите породу питомца", Toast.LENGTH_LONG).show();
+                                return;
+                            }
+                        });
+
                 pets.child(pet.getPetUid()).child("gender").setValue(genderPet);
                 if (filePath!=null) {
                     try {
@@ -468,6 +542,8 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
         avatarPet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                isPetAvatar=true;
                 showImageWindow(true, pet.getPetUid());
             }
         });
@@ -537,6 +613,39 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
                     }
                 }
             });
+        }
+    }
+
+    public void getMeeting(){
+        if (meetUidList.size()>0){
+            for (String meetingUid: meetUidList){
+                myMeet = FirebaseDatabase.getInstance().getReference("meeting").child(meetingUid);
+
+                ValueEventListener meetListener = new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        {
+                            Meeting meeting = snapshot.getValue(Meeting.class);
+                            if (meeting != null) {
+                                meeting.setUid(snapshot.getKey());
+                                meetingArrayList.add(meeting);
+                            }
+
+                        }
+                        meetingMarkerAdapter.notifyDataSetChanged();
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                };
+
+                myMeet.addValueEventListener(meetListener);
+            }
+        }
+        else {
+            meetingText.setVisibility(View.GONE);
         }
     }
 }

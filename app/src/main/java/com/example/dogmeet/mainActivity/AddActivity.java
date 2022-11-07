@@ -6,6 +6,7 @@ import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
@@ -22,6 +23,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
@@ -31,6 +33,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.example.dogmeet.R;
 import com.example.dogmeet.model.Meeting;
+import com.example.dogmeet.model.Place;
 import com.example.dogmeet.model.User;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -49,7 +52,14 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
@@ -60,9 +70,10 @@ import java.util.UUID;
 
 public class AddActivity extends AppCompatActivity {
     private EditText titleEditText, dateEditText, timeEditText, descriptionEditText;
+    private TextView rankText;
     private DatabaseReference myMeet, users;
-    private Spinner typeOfDogsSpinner;
-    private String typeOfDogs;
+    private Spinner typeOfDogsSpinner, typeOfMeetSpinner, rankSpinner;
+    private String typeOfDogs, typeOfMeet, rank;
     private FirebaseAuth auth;
     private String uid, meetUid;
     private int member_number, comments_number;
@@ -97,7 +108,7 @@ public class AddActivity extends AppCompatActivity {
         titleEditText = findViewById(R.id.editName);
         dateEditText = findViewById(R.id.editDate);
         timeEditText =findViewById(R.id.editTime);
-        descriptionEditText=findViewById(R.id.editMessage);
+        descriptionEditText=findViewById(R.id.editDescription);
 
         uploadPhoto=findViewById(R.id.uploadPhoto);
 
@@ -174,7 +185,7 @@ public class AddActivity extends AppCompatActivity {
             }
         });
 
-        addressEditText = findViewById(R.id.editBreed);
+        addressEditText = findViewById(R.id.editAddress);
 
         String[] address = getResources().getStringArray(R.array.address);
         List<String> addressList = Arrays.asList(address);
@@ -192,19 +203,37 @@ public class AddActivity extends AppCompatActivity {
         typeOfDogsSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
-                switch (adapterView.getItemAtPosition(i).toString()){
-                    case "Любые":
-                        typeOfDogs="Любые";
-                        break;
-                    case "Крупные":
-                        typeOfDogs="Крупные";
-                        break;
-                    case "Средние":
-                        typeOfDogs="Средние";
-                        break;
-                    case "Мелкие":
-                        typeOfDogs="Мелкие";
-                        break;
+                typeOfDogs=adapterView.getItemAtPosition(i).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        rankSpinner=findViewById(R.id.editTypeExhibition);
+        rankText=findViewById(R.id.typeExhibition);
+
+
+        ArrayAdapter<?> adapterTypeMeet =
+                ArrayAdapter.createFromResource(this, R.array.typeOfMeet,
+                        android.R.layout.simple_spinner_item);
+        adapterTypeMeet.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        typeOfMeetSpinner = findViewById(R.id.editTypeMeet);
+        typeOfMeetSpinner.setAdapter(adapterTypeMeet);
+
+        typeOfMeetSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                typeOfMeet=adapterView.getItemAtPosition(i).toString();
+                if (typeOfMeet.equals("Выставка")){
+                    rankText.setVisibility(View.VISIBLE);
+                    rankSpinner.setVisibility(View.VISIBLE);
+                }
+                else {
+                    rankText.setVisibility(View.GONE);
+                    rankSpinner.setVisibility(View.GONE);
                 }
             }
 
@@ -214,7 +243,23 @@ public class AddActivity extends AppCompatActivity {
             }
         });
 
+        ArrayAdapter<?> adapterRank =
+                ArrayAdapter.createFromResource(this, R.array.rank,
+                        android.R.layout.simple_spinner_item);
+        adapterRank.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        rankSpinner.setAdapter(adapterRank);
 
+        rankSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                rank=adapterView.getItemAtPosition(i).toString();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 
     protected void showDatePickDlg(EditText date) {
@@ -355,6 +400,7 @@ public class AddActivity extends AppCompatActivity {
                         meet.setUrlImage(downloadUri.toString());
                         myMeet.child(meetUid).setValue(meet);
                         users.child("Meeting").push().setValue(meetUid);
+                        setMeetToPlace();
                         AddActivity.this.finish();
 
                     } else {
@@ -415,6 +461,22 @@ public class AddActivity extends AppCompatActivity {
             return;
         }
 
+        if(TextUtils.isEmpty(typeOfDogs)) {
+            Toast.makeText(AddActivity.this, "Выберите допустимый размер собак", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(TextUtils.isEmpty(typeOfMeet)) {
+            Toast.makeText(AddActivity.this, "Выберите тип мероприятия", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if (typeOfMeet.equals("Выставка") && TextUtils.isEmpty(rank)){
+            Toast.makeText(AddActivity.this, "Выберите ранг", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+
         meetUid=UUID.randomUUID().toString();
         String titleText = titleEditText.getText().toString();
         String addressText = addressEditText.getText().toString();
@@ -436,20 +498,46 @@ public class AddActivity extends AppCompatActivity {
 
         Meeting meet = new Meeting();
         meet.setTitle(titleText);
+        meet.setTypeOfMeet(typeOfMeet);
         meet.setAddress(addressText);
         meet.setDate(dateMeet);
         meet.setCreatorUid(uid);
         meet.setTypeOfDogs(typeOfDogs);
         meet.setDescription(descriptionText);
         meet.setNumberMember(member_number);
+        if (!TextUtils.isEmpty(rank)){
+            meet.setRank(rank);
+        }
         if (filePath!=null) {
             uploadImage(meet, meetUid);
 
         }
         else {
             myMeet.child(meetUid).setValue(meet);
+            setMeetToPlace();
             AddActivity.this.finish();
         }
 
+    }
+
+    public void setMeetToPlace(){
+        FirebaseDatabase.getInstance().getReference("places")
+                .child(addressEditText.getText().toString())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        Place place=snapshot.getValue(Place.class);
+                        if (place!=null){
+                            FirebaseDatabase.getInstance().getReference("places")
+                                    .child(addressEditText.getText().toString())
+                                    .child("meetings").push().setValue(meetUid);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
     }
 }

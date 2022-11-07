@@ -25,6 +25,7 @@ import com.bumptech.glide.Glide;
 import com.example.dogmeet.Constant;
 import com.example.dogmeet.R;
 import com.example.dogmeet.model.Meeting;
+import com.example.dogmeet.model.Place;
 import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
@@ -216,6 +217,7 @@ public class EditMeetingActivity extends AppCompatActivity {
         if (filePath!=null) {
             uploadImage();
         }
+        setMeetToPlace();
     }
 
     private void showImageWindow(){
@@ -309,5 +311,26 @@ public class EditMeetingActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    public void setMeetToPlace(){
+        FirebaseDatabase.getInstance().getReference("places")
+                .child(addressEditText.getText().toString())
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        Place place=snapshot.getValue(Place.class);
+                        if (place!=null){
+                            FirebaseDatabase.getInstance().getReference("places")
+                                    .child(addressEditText.getText().toString())
+                                    .child("meetings").push().setValue(meetUid);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+
+                    }
+                });
     }
 }

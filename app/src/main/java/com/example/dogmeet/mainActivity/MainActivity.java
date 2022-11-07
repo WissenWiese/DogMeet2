@@ -7,6 +7,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.dogmeet.Constant;
+import com.example.dogmeet.Fragment.Map.WalkFragment;
+import com.example.dogmeet.Meeting.CommentsFragment;
 import com.example.dogmeet.R;
 import com.example.dogmeet.databinding.ActivityMainBinding;
 import com.example.dogmeet.model.User;

@@ -13,6 +13,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -40,7 +41,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.Date;
 
 public class MeetingActivity extends AppCompatActivity implements CommentsFragment.OnDataPass {
-    private TextView meetDate, meetAddress, nameAnswer;
+    private TextView meetDate, meetAddress, nameAnswer, rating;
     private ImageView meetImageView;
     private Toolbar toolbar;
     private String creatorUid, uid, meetUid, database, uidComment;
@@ -114,6 +115,7 @@ public class MeetingActivity extends AppCompatActivity implements CommentsFragme
         meetDate = findViewById(R.id.meetDate);
         meetAddress = findViewById(R.id.meetAddress);
         meetImageView=findViewById(R.id.meetImageView);
+        rating=findViewById(R.id.textViewRating);
 
         tabLayout=findViewById(R.id.tabLayout);
 
@@ -150,12 +152,13 @@ public class MeetingActivity extends AppCompatActivity implements CommentsFragme
             }
         });
 
-        editComment =findViewById(R.id.editMessage);
+        editComment =findViewById(R.id.editDescription);
         spendMessage=findViewById(R.id.imageButton);
         spendComments=findViewById(R.id.setMessage);
         answerName=findViewById(R.id.answer);
         closeBtn=findViewById(R.id.closeAnswer);
         nameAnswer=findViewById(R.id.answerName);
+
 
         closeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -197,6 +200,10 @@ public class MeetingActivity extends AppCompatActivity implements CommentsFragme
                             }
                             else {
                                 Glide.with(meetImageView.getContext()).load(URI).into(meetImageView);
+                            }
+                            if (!TextUtils.isEmpty(meeting.getRating())){
+                                rating.setText(meeting.getRating());
+                                rating.setVisibility(View.VISIBLE);
                             }
                         }
                     }
@@ -266,6 +273,7 @@ public class MeetingActivity extends AppCompatActivity implements CommentsFragme
                         .getUid());
                 message.setTime(date);
                 message.setMessage(editComment.getText().toString());
+                message.setNumberAnswer(numberAnswers);
                 comments.push().setValue(message);
 
                 int numberComments1=numberComments+1;
@@ -276,19 +284,21 @@ public class MeetingActivity extends AppCompatActivity implements CommentsFragme
                         .child("numberComments")
                         .setValue(numberComments1);
 
-                FirebaseDatabase.getInstance()
-                        .getReference()
-                        .child("meeting")
-                        .child(meetUid)
-                        .child("comments")
-                        .child("numberAnswers")
-                        .setValue(numberAnswers);
+                if (isAnswer) {
+                    FirebaseDatabase.getInstance()
+                            .getReference()
+                            .child("meeting")
+                            .child(meetUid)
+                            .child("comments")
+                            .child(uidComment)
+                            .child("numberAnswer")
+                            .setValue(numberAnswers);
+                }
                 editComment.setText(null);
                 isAnswer=false;
                 answerName.setVisibility(View.INVISIBLE);
             }
         });
-
     }
 
     @Override

@@ -14,14 +14,17 @@
         android:orientation="vertical"
         tools:ignore="MissingConstraints">
 
+
         <ImageButton
             android:id="@+id/avatar"
-            android:layout_width="200dp"
+            android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@color/white"
             android:scaleType="centerCrop"
             app:layout_collapseMode="parallax"
-            tools:srcCompat="@tools:sample/avatars" />
+            app:srcCompat="@drawable/ic_image" />
 
         <TextView
             android:id="@+id/namePet"
@@ -47,14 +50,12 @@
             android:textSize="20sp" />
 
         <TextView
-            android:id="@+id/breed"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="@font/montserrat"
             android:text="Порода"
             android:textColor="@color/text"
             android:textSize="18sp" />
-
 
         <AutoCompleteTextView
             android:id="@+id/editBreed"
@@ -88,12 +89,17 @@
 
             <RadioButton
                 android:id="@+id/radioButtonGirl"
+                style="@style/Widget.AppCompat.CompoundButton.RadioButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="10dp"
+                android:buttonTint="@color/primary_dark"
+                android:checked="true"
                 android:fontFamily="@font/ubuntu"
                 android:text="девочка"
                 android:textColor="@color/text"
+                android:textColorHighlight="@color/primary_dark"
+                android:textColorLink="@color/primary_dark"
                 android:textSize="16sp" />
 
             <RadioButton
@@ -103,6 +109,7 @@
                 android:fontFamily="@font/ubuntu"
                 android:text="мальчик"
                 android:textColor="@color/text"
+                android:textColorHighlight="@color/primary_dark"
                 android:textSize="16sp" />
         </RadioGroup>
     </LinearLayout>

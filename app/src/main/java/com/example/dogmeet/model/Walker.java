@@ -1,18 +1,23 @@
 package com.example.dogmeet.model;
 
-public class Walker {
-    String userName, userUri, userUId, latitude, longitude;
+import java.util.ArrayList;
 
+public class Walker {
+    String userName, userUri, userUId, latitude, longitude, massage;
+    ArrayList<Pet> pets;
     public Walker(){
 
     }
 
-    public Walker(String userName, String userUri, String userUId, String latitude, String longitude) {
+    public Walker(String userName, String userUri, String userUId,
+                  String latitude, String longitude, String massage, ArrayList<Pet> pets) {
         this.userName=userName;
         this.userUId=userUId;
         this.userUri=userUri;
         this.latitude = latitude;
         this.longitude =longitude;
+        this.massage=massage;
+        this.pets=pets;
     }
 
     public String getUserName() {
@@ -53,5 +58,21 @@ public class Walker {
 
     public void setLongitude(String longitude) {
         this.longitude = longitude;
+    }
+
+    public String getMassage() {
+        return massage;
+    }
+
+    public void setMassage(String massage) {
+        this.massage = massage;
+    }
+
+    public ArrayList<Pet> getPets() {
+        return pets;
+    }
+
+    public void setPets(ArrayList<Pet> pets) {
+        this.pets = pets;
     }
 }

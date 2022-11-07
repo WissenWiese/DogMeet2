@@ -1,7 +1,5 @@
 package com.example.dogmeet.mainActivity;
 
-import static com.example.dogmeet.Constant.URI;
-
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -18,7 +16,6 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
-import com.bumptech.glide.Glide;
 import com.example.dogmeet.R;
 import com.example.dogmeet.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -184,7 +181,7 @@ public class LoginActivity extends AppCompatActivity {
                 {
                     if (dataSnapshot.getKey()==auth.getUid()){
                         IsCreator=true;
-                        startActivity(new Intent(LoginActivity.this, MainActivity_creator.class));
+                        startActivity(new Intent(LoginActivity.this, MainCreatorActivity.class));
                         finish();
                         break;
                     }

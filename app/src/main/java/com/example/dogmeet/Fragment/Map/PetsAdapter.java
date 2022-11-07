@@ -1,8 +1,9 @@
-package com.example.dogmeet.Meeting;
+package com.example.dogmeet.Fragment.Map;
 
 import static com.example.dogmeet.Constant.URI;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,24 +15,26 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
+import com.example.dogmeet.model.Pet;
 import com.example.dogmeet.model.User;
 
 import java.util.ArrayList;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder>{
+public class PetsAdapter extends RecyclerView.Adapter<PetsAdapter.PetsViewHolder>{
     private final RecyclerViewInterface recyclerViewInterface;
 
-    private ArrayList<User> mUsers;
+    private ArrayList<Pet> pets;
+    private ArrayList<Integer> selected = new ArrayList<>();
     private Context context;
 
-
-    public static class UserViewHolder extends RecyclerView.ViewHolder {
+    public static class PetsViewHolder extends RecyclerView.ViewHolder {
         public TextView name;
         public ImageView imageView;
 
-        public UserViewHolder(View itemView, RecyclerViewInterface recyclerViewInterface) {
+
+        public PetsViewHolder(View itemView, RecyclerViewInterface recyclerViewInterface) {
             super(itemView);
             name =itemView.findViewById(R.id.chatUser);
             imageView=itemView.findViewById(R.id.chatAvatar);
@@ -51,37 +54,42 @@ public class UserAdapter extends RecyclerView.Adapter<UserAdapter.UserViewHolder
         }
     }
 
-    public UserAdapter(ArrayList<User> users, RecyclerViewInterface recyclerViewInterface) {
-        mUsers =users;
+    public PetsAdapter(ArrayList<Pet> pets, RecyclerViewInterface recyclerViewInterface, ArrayList<Integer> selected) {
+        this.pets =pets;
         this.recyclerViewInterface=recyclerViewInterface;
+        this.selected=selected;
     }
 
     @Override
-    public UserViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public PetsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         context= parent.getContext();
-        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_user, parent, false);
-        UserViewHolder evh = new UserViewHolder(v, recyclerViewInterface);
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_pets, parent, false);
+        PetsViewHolder evh = new PetsViewHolder(v, recyclerViewInterface);
         return evh;
     }
 
     @Override
-    public void onBindViewHolder(UserViewHolder holder, int position) {
-        User user = mUsers.get(position);
+    public void onBindViewHolder(PetsViewHolder holder, int position) {
+        Pet pet = pets.get(position);
 
-        holder.name.setText(user.getName());
+        holder.name.setText(pet.getName());
 
-        if (user.getAvatarUri()!=null){
-            String url=user.getAvatarUri();
+        if (pet.getAvatar_pet()!=null){
+            String url=pet.getAvatar_pet();
             Glide.with(context).load(url).into(holder.imageView);
         }
         else {
             Glide.with(context).load(URI).into(holder.imageView);
         }
+
+        if (selected.contains(position)){
+            holder.itemView.setBackgroundColor(Color.GRAY);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return mUsers.size();
+        return pets.size();
     }
 }
 

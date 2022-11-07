@@ -89,7 +89,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     public void spendMessage(){
-        editMessage =findViewById(R.id.editMessage);
+        editMessage =findViewById(R.id.editDescription);
         spendMessage=findViewById(R.id.imageButton);
 
         Message message =new Message();

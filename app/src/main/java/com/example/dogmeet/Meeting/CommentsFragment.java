@@ -131,6 +131,7 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
                     Message message1 =dataSnapshot.getValue(Message.class);
                     assert message1 !=null;
                     if (message1.getUser()=="Комментарий удален") {
+
                         message1.setUserName("Комментарий удален");
                     }
                     else {
@@ -139,8 +140,13 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
                             message1.setUserName(user.getName());
                             message1.setUserImage(user.getAvatarUri());
                     }}
-                    message1.setUid(dataSnapshot.getKey());
-                    messageArrayList.add(message1);
+                    if (message1.getNumberAnswer()==0 && message1.getUser().equals("Комментарий удален")){
+                        DatabaseReference ref = myMeet.child(meetUid).child("comments").child(message1.getUid());
+                        ref.removeValue();
+                    } else {
+                        message1.setUid(dataSnapshot.getKey());
+                        messageArrayList.add(message1);
+                    }
                     for (DataSnapshot answersSnapshot: dataSnapshot.child("answers").getChildren()){
                         Message answer=answersSnapshot.getValue(Message.class);
                         User user1=usersDictionary.get(answer.getUser());
@@ -181,13 +187,14 @@ public class CommentsFragment extends Fragment implements RecyclerViewInterface 
                                         .child("meeting")
                                         .child(meetUid)
                                         .child("comments")
-                                        .child("numberAnswers")
+                                        .child(message.getMainUid())
+                                        .child("numberAnswer")
                                         .setValue(numberAnswers);
                             }
                             else if (message.getNumberAnswer()>0){
                                 DatabaseReference ref = myMeet.child(meetUid).child("comments").child(message.getUid());
                                 ref.child("user").setValue("Комментарий удален");
-                                ref.child("message").removeValue();
+                                ref.child("message").setValue("Комментарий удален");
                             }
                             else {
                                 DatabaseReference ref = myMeet.child(meetUid).child("comments").child(message.getUid());

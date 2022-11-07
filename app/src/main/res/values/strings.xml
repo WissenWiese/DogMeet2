@@ -23,6 +23,28 @@
         <item>Маленький</item>
     </string-array>
 
+    <string-array name="typeOfMeet">
+        <item>Прогулка</item>
+        <item>Выставка</item>
+        <item>Вечеринка</item>
+        <item>Фестиваль</item>
+    </string-array>
+
+    <string-array name="rank">
+        <item>ЧРКФ</item>
+        <item>ЧФ</item>
+        <item>САС I</item>
+        <item>САС II</item>
+        <item>САС III</item>
+        <item>САС IV</item>
+        <item>САС V</item>
+        <item>САС VI</item>
+        <item>САС VII</item>
+        <item>САС VIII</item>
+        <item>САС IX</item>
+        <item>САС X</item>
+    </string-array>
+
     <string-array name="editPhoto">
         <item>Загрузить</item>
         <item>Удалить</item>
@@ -39,7 +61,7 @@
 
     <string-array name="address">
         <item>Парк Зеленая роща</item>
-        <item>Парк им. Чкалова</item>
+        <item>Парк имени Чкалова</item>
         <item>Парк Маяковского</item>
         <item>Преображениский парк</item>
         <item>Берёзовая роща</item>
@@ -492,5 +514,7 @@
         <item>Японский терьер</item>
         <item>Японский хин</item>
     </string-array>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

@@ -1,7 +1,9 @@
 package com.example.dogmeet.Fragment.ListMeet;
 
+import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
@@ -19,7 +21,6 @@ import android.widget.DatePicker;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -36,7 +37,6 @@ import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
 import com.example.dogmeet.model.Meeting;
 import com.example.dogmeet.mainActivity.AddActivity;
-import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -45,6 +45,16 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -54,22 +64,25 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Objects;
 
 public class ListMeetFragment extends Fragment implements RecyclerViewInterface, View.OnClickListener {
     private DatabaseReference myMeet, users;
-    private ArrayList<Meeting> meetings, filterTypeList, updateList;
-    private String uidMeet, uid, database, date, dateForFilter, typeDog, add, lastType;
+    private ArrayList<Meeting> meetings, filterTypeList, updateList, filterTypeMeetList, updateListTupe;
+    private String uidMeet, uid, database, date, dateForFilter, typeDog, add,
+    addMeet, lastType, typeMeet, lastTypeMeet;
     private RecyclerView recyclerView;
     private MeetingAdapter meetingAdapter;
     private View view;
-    private FloatingActionButton fabFilter;
+    private FloatingActionButton fabFilter, fabAddMeet;
     private CardView filters;
     private Spinner spinner;
     private CheckedTextView checkedMy;
     private ImageButton calendar, dateOff;
-    private Button anyBtn, bigBtn, middleBtn, smallBtn;
+    private Button anyBtn, bigBtn, middleBtn, smallBtn,
+            walkBtn, dogShowBtn, partyBtn, festivalBtn;
     private TextView dateFilter;
-    int click, clickBtn;
+    int click, clickBtn, clickType;
     LocalDate dateMin, dateMax, dtMeet;
 
     public ListMeetFragment() {
@@ -89,10 +102,20 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface,
         myMeet = FirebaseDatabase.getInstance().getReference("meeting");
         meetings = new ArrayList<>();
         updateList =new ArrayList<>();
+        updateListTupe =new ArrayList<>();
 
         fabFilter=view.findViewById(R.id.fabFilter);
+        fabAddMeet=view.findViewById(R.id.fabAddMeet);
 
         filters=view.findViewById(R.id.filter);
+
+        fabAddMeet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i=new Intent(getActivity(), AddActivity.class);
+                startActivity(i);
+            }
+        });
 
 
         fabFilter.setOnClickListener(new View.OnClickListener() {
@@ -100,8 +123,8 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface,
             public void onClick(View view) {
                 switch (fabFilter.getTag().toString()) {
                     case "close":
-                        filters.animate().translationY(getResources().getDimension(R.dimen.standard_150));
-                        fabFilter.animate().translationY(getResources().getDimension(R.dimen.standard_150));
+                        filters.animate().translationY(getResources().getDimension(R.dimen.standard_210));
+                        fabFilter.animate().translationY(getResources().getDimension(R.dimen.standard_210));
                         fabFilter.setTag("open");
                         fabFilter.setImageDrawable(getResources().getDrawable(R.drawable.up));
                         break;
@@ -123,6 +146,16 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface,
         linearLayoutManager.setReverseLayout(true);
         recyclerView.setLayoutManager(linearLayoutManager);
         recyclerView.setHasFixedSize(true);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                if (dy > 0) {
+                    fabAddMeet.animate().translationY(getResources().getDimension(R.dimen.standard_100));
+                } else if (dy < 0) {
+                    fabAddMeet.animate().translationY(0);
+                }
+            }
+        });
 
         meetingAdapter= new MeetingAdapter(meetings, this);
 
@@ -243,8 +276,19 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface,
         smallBtn=view.findViewById(R.id.smallBtn);
         smallBtn.setOnClickListener(this);
 
+        walkBtn=view.findViewById(R.id.walkBtn);
+        walkBtn.setOnClickListener(this);
+        dogShowBtn=view.findViewById(R.id.dogShowBtn);
+        dogShowBtn.setOnClickListener(this);
+        partyBtn=view.findViewById(R.id.partyBtn);
+        partyBtn.setOnClickListener(this);
+        festivalBtn=view.findViewById(R.id.festivalBtn);
+        festivalBtn.setOnClickListener(this);
+
         filterTypeList=new ArrayList<>();
+        filterTypeMeetList=new ArrayList<>();
         clickBtn=0;
+        clickType=0;
 
         return view;
     }
@@ -300,7 +344,14 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface,
 
     @Override
     public void OnItemClick(int position) {
-        Meeting meeting=meetings.get(position);
+        Meeting meeting;
+        if (updateList.size()>0){
+            meeting=updateList.get(position);
+        }
+        else {
+            meeting=meetings.get(position);
+        }
+
         Intent i = new Intent(getContext(), MeetingActivity.class);
         i.putExtra(Constant.MEETING_UID, meeting.getUid());
         i.putExtra(Constant.MEETING_CREATOR_UID, meeting.getCreatorUid());
@@ -446,7 +497,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface,
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void getTypeDog(Boolean filter, String typeFilter){
         ArrayList<Meeting> filteredlist = new ArrayList<>();
-        for (Meeting meeting : meetings) {
+        for (Meeting meeting : updateListTupe) {
             if (meeting.getTypeOfDogs().equals(typeDog)) {
                 filteredlist.add(meeting);
             }
@@ -455,14 +506,14 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface,
             if (TextUtils.isEmpty(lastType)
                     || !lastType.equals(typeDog)) filterTypeList.addAll(filteredlist);
         }
-        else filterTypeList.removeAll(filteredlist);
+         else filterTypeList.removeAll(filteredlist);
         lastType=typeDog;
         updateList.clear();
         updateList.addAll(filterTypeList);
         if (filter) {
             switch (typeFilter){
                 case "typeDog":
-                    meetingAdapter.filterList(filterTypeList);
+                    meetingAdapter.filterList(updateList);
                     break;
                 case "date":
                     getDateMeet(true);
@@ -476,9 +527,69 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface,
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
+    public void getTypeMeet(Boolean filter, String typeFilter, String nextFilter){
+        ArrayList<Meeting> filteredlist = new ArrayList<>();
+        for (Meeting meeting : meetings) {
+            if (meeting.getTypeOfMeet().equals(typeMeet)) {
+                filteredlist.add(meeting);
+            }
+        }
+        if (addMeet.equals("true")) {
+            if (TextUtils.isEmpty(lastTypeMeet)
+                    || !lastTypeMeet.equals(typeMeet)) filterTypeMeetList.addAll(filteredlist);
+        }
+        else filterTypeMeetList.removeAll(filteredlist);
+        lastTypeMeet=typeMeet;
+        updateList.clear();
+        updateList.addAll(filterTypeMeetList);
+        if (filter) {
+            switch (typeFilter){
+                case "typeMeet":
+                    meetingAdapter.filterList(filterTypeMeetList);
+                    break;
+                case "typeDog":
+                    updateListTupe.clear();
+                    updateListTupe.addAll(filterTypeMeetList);
+                    getTypeDog(true, "typeDog");
+                    break;
+                case "date":
+                    getDateMeet(true);
+                    break;
+                case "my":
+                    getMyMeet(true);
+                    break;
+            }
+        }
+        else {
+            switch (nextFilter){
+                case "0":
+                    getDateMeet(false);
+                    break;
+                case "1":
+                    updateListTupe.clear();
+                    updateListTupe.addAll(filterTypeMeetList);
+                    getTypeDog(false, "date");
+                    break;
+                case "date":
+                    updateListTupe.clear();
+                    updateListTupe.addAll(filterTypeMeetList);
+                    getTypeDog(true, "date");
+                    break;
+                case "my":
+                    updateListTupe.clear();
+                    updateListTupe.addAll(filterTypeMeetList);
+                    getTypeDog(true, "my");
+                    break;
+            }
+            getDateMeet(false);
+        }
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onClick(View view) {
         if (clickBtn==0) filterTypeList.clear();
+        if (clickType==0) filterTypeMeetList.clear();
         switch (view.getId()){
             case R.id.anyBtn:
                 clickBtn(anyBtn);
@@ -492,38 +603,99 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface,
             case R.id.smallBtn:
                 clickBtn(smallBtn);
                 break;
+            case R.id.walkBtn:
+                clickType(walkBtn);
+                break;
+            case R.id.dogShowBtn:
+                clickType(dogShowBtn);
+                break;
+            case R.id.partyBtn:
+                clickType(partyBtn);
+                break;
+            case R.id.festivalBtn:
+                clickType(festivalBtn);
+                break;
         }
     }
 
+    @SuppressLint("ResourceAsColor")
     @RequiresApi(api = Build.VERSION_CODES.O)
     public void clickBtn (Button button){
         if (button.getTag().equals("false")){
             button.setBackground(getResources().getDrawable(R.drawable.incoming));
+            button.setTextColor(R.color.text);
             button.setTag("true");
             clickBtn=clickBtn+1;
 
         }
         else {
-            button.setBackground(getResources().getDrawable(R.drawable.btn));
+            button.setBackground(getResources().getDrawable(R.drawable.btn3));
             button.setTag("false");
+            button.setTextColor(R.color.primary_dark);
             clickBtn=clickBtn-1;
         }
         add=button.getTag().toString();
         typeDog=button.getText().toString();
-        if (clickBtn==0 || clickBtn==4) {
+
+        if (clickBtn == 0 || clickBtn == 4) {
             filterTypeList.clear();
-            if (clickBtn==4){
-                clickBtn=0;
-                anyBtn.setBackground(getResources().getDrawable(R.drawable.btn));
+            if (clickBtn == 4) {
+                clickBtn = 0;
+                anyBtn.setBackground(getResources().getDrawable(R.drawable.btn3));
+                anyBtn.setTextColor(R.color.primary_dark);
                 anyBtn.setTag("false");
-                bigBtn.setBackground(getResources().getDrawable(R.drawable.btn));
+                bigBtn.setBackground(getResources().getDrawable(R.drawable.btn3));
+                bigBtn.setTextColor(R.color.primary_dark);
                 bigBtn.setTag("false");
-                middleBtn.setBackground(getResources().getDrawable(R.drawable.btn));
+                middleBtn.setBackground(getResources().getDrawable(R.drawable.btn3));
+                middleBtn.setTextColor(R.color.primary_dark);
                 middleBtn.setTag("false");
-                smallBtn.setBackground(getResources().getDrawable(R.drawable.btn));
+                smallBtn.setBackground(getResources().getDrawable(R.drawable.btn3));
+                smallBtn.setTextColor(R.color.primary_dark);
                 smallBtn.setTag("false");
             }
         }
+
+        update();
+    }
+
+    @SuppressLint("ResourceAsColor")
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void clickType (Button button){
+        if (button.getTag().equals("false")){
+            button.setBackground(getResources().getDrawable(R.drawable.incoming));
+            button.setTextColor(R.color.text);
+            button.setTag("true");
+            clickType=clickType+1;
+
+        }
+        else {
+            button.setBackground(getResources().getDrawable(R.drawable.btn3));
+            button.setTag("false");
+            button.setTextColor(R.color.primary_dark);
+            clickType=clickType-1;
+        }
+        addMeet=button.getTag().toString();
+        typeMeet=button.getText().toString();
+        if (clickType == 0 || clickType == 4) {
+            filterTypeMeetList.clear();
+            if (clickType == 4) {
+                clickType = 0;
+                walkBtn.setBackground(getResources().getDrawable(R.drawable.btn3));
+                walkBtn.setTextColor(R.color.primary_dark);
+                walkBtn.setTag("false");
+                dogShowBtn.setBackground(getResources().getDrawable(R.drawable.btn3));
+                dogShowBtn.setTextColor(R.color.primary_dark);
+                dogShowBtn.setTag("false");
+                partyBtn.setBackground(getResources().getDrawable(R.drawable.btn3));
+                partyBtn.setTextColor(R.color.primary_dark);
+                partyBtn.setTag("false");
+                festivalBtn.setBackground(getResources().getDrawable(R.drawable.btn3));
+                festivalBtn.setTextColor(R.color.primary_dark);
+                festivalBtn.setTag("false");
+            }
+        }
+
         update();
     }
 
@@ -531,37 +703,73 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface,
     public void update(){
         updateList.clear();
         updateList.addAll(meetings);
-        if (!checkedMy.isChecked() && clickBtn==0 &&
+        if (clickBtn!=0 || clickType!=0) {
+            updateListTupe.clear();
+            updateListTupe.addAll(meetings);
+        }
+        if (!checkedMy.isChecked() && clickBtn==0 && clickType==0 &&
                 TextUtils.isEmpty(dateFilter.getText().toString())){
             meetingAdapter.filterList(meetings);
         }
-        else if (checkedMy.isChecked() && clickBtn==0 &&
+        else if (checkedMy.isChecked() && clickBtn==0 && clickType==0 &&
                 TextUtils.isEmpty(dateFilter.getText().toString())){
             getMyMeet(true);
         }
-        else if (!checkedMy.isChecked() && clickBtn==0 &&
+        else if (!checkedMy.isChecked() && clickBtn==0 && clickType==0 &&
                 !TextUtils.isEmpty(dateFilter.getText().toString())){
             getDateMeet(true);
         }
-        else if (!checkedMy.isChecked() && clickBtn!=0 &&
+        else if (!checkedMy.isChecked() && clickBtn!=0 && clickType==0 &&
                 TextUtils.isEmpty(dateFilter.getText().toString())){
             getTypeDog(true, "typeDog");
         }
-        else if (checkedMy.isChecked() && clickBtn==0 &&
+        else if (checkedMy.isChecked() && clickBtn==0 && clickType==0 &&
                 !TextUtils.isEmpty(dateFilter.getText().toString())){
-            getMyMeet(false);
+            getDateMeet(false);
         }
-        else if (!checkedMy.isChecked() && clickBtn!=0 &&
+        else if (!checkedMy.isChecked() && clickBtn!=0 && clickType==0 &&
                 !TextUtils.isEmpty(dateFilter.getText().toString())){
             getTypeDog(true, "date");
         }
-        else if (checkedMy.isChecked() && clickBtn!=0 &&
+        else if (checkedMy.isChecked() && clickBtn!=0 && clickType==0 &&
                 TextUtils.isEmpty(dateFilter.getText().toString())){
             getTypeDog(true, "my");
         }
-        else if (checkedMy.isChecked() && clickBtn!=0 &&
+        else if (checkedMy.isChecked() && clickBtn!=0 && clickType==0 &&
                 !TextUtils.isEmpty(dateFilter.getText().toString())){
             getTypeDog(false, "date");
+        }
+        else if (!checkedMy.isChecked() && clickBtn==0 && clickType!=0 &&
+                TextUtils.isEmpty(dateFilter.getText().toString())){
+            getTypeMeet(true, "typeMeet", "0");
+        }
+        else if (checkedMy.isChecked() && clickBtn==0 && clickType!=0 &&
+                TextUtils.isEmpty(dateFilter.getText().toString())){
+            getTypeMeet(true, "my", "0");
+        }
+        else if (!checkedMy.isChecked() && clickBtn==0 && clickType!=0 &&
+                !TextUtils.isEmpty(dateFilter.getText().toString())){
+            getTypeMeet(true, "date", "0");
+        }
+        else if (!checkedMy.isChecked() && clickBtn!=0 && clickType!=0 &&
+                TextUtils.isEmpty(dateFilter.getText().toString())){
+            getTypeMeet(true, "typeDog", "0");
+        }
+        else if (checkedMy.isChecked() && clickBtn==0 && clickType!=0 &&
+                !TextUtils.isEmpty(dateFilter.getText().toString())){
+            getTypeMeet(false, "date", "0");
+        }
+        else if (!checkedMy.isChecked() && clickBtn!=0 && clickType!=0 &&
+                !TextUtils.isEmpty(dateFilter.getText().toString())){
+            getTypeMeet(false, "typeDog", "date");
+        }
+        else if (checkedMy.isChecked() && clickBtn!=0 && clickType!=0 &&
+                TextUtils.isEmpty(dateFilter.getText().toString())){
+            getTypeMeet(false, "typeDog", "my");
+        }
+        else if (checkedMy.isChecked() && clickBtn!=0 && clickType!=0 &&
+                !TextUtils.isEmpty(dateFilter.getText().toString())){
+            getTypeMeet(false, "typeDog", "1");
         }
 
     }

@@ -6,12 +6,9 @@ import static com.example.dogmeet.Constant.URI;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,8 +26,12 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.dogmeet.Constant;
+import com.example.dogmeet.Fragment.Map.MeetingMarkerAdapter;
+import com.example.dogmeet.Meeting.MeetingActivity;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
+import com.example.dogmeet.model.Meeting;
 import com.example.dogmeet.model.Pet;
 import com.example.dogmeet.model.User;
 import com.google.android.gms.tasks.Continuation;
@@ -49,28 +50,25 @@ import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.UUID;
 
-public class ProfileFragment_creator extends Fragment implements RecyclerViewInterface{
-    ImageButton buttonEdit, buttonSave, buttonAdd, imageView, avatarPet;
+public class ProfileCreatorFragment extends Fragment implements RecyclerViewInterface{
+    ImageButton buttonEdit, buttonSave, imageView;
     EditText about;
-    DatabaseReference users, pets;
+    DatabaseReference users, meetings;
     private final int PICK_IMAGE_REQUEST = 71;
     private View view;
     private Uri filePath;
     FirebaseStorage storage;
     StorageReference storageReference;
-    private ArrayList<Pet> mPets;
+    private ArrayList<Meeting> meetingArrayList;
+    private ArrayList<String> meetingsUid;
     private RecyclerView recyclerView;
-    private PetAdapter petAdapter;
-    private Boolean editPet, isPetAvatar;
+    private MeetingMarkerAdapter meetingMarkerAdapter;
     FirebaseAuth auth;
-    String petUid;
 
 
-    public ProfileFragment_creator(){
+    public ProfileCreatorFragment(){
 
     }
 
@@ -79,14 +77,11 @@ public class ProfileFragment_creator extends Fragment implements RecyclerViewInt
                              ViewGroup container, Bundle savedInstanceState) {
 
         view = inflater.inflate(R.layout.fragment_profile, container, false);
-        mPets = new ArrayList<>();
-        editPet=false;
-        isPetAvatar=false;
+        meetingArrayList = new ArrayList<>();
 
         auth = FirebaseAuth.getInstance();
         TextView bio=view.findViewById(R.id.text_name);
         buttonEdit=view.findViewById(R.id.editBtn);
-        buttonAdd=view.findViewById(R.id.addPetBtn);
         buttonSave=view.findViewById(R.id.saveBtn);
         imageView=view.findViewById(R.id.chatAvatar);
         about=view.findViewById(R.id.edit_about);
@@ -97,17 +92,18 @@ public class ProfileFragment_creator extends Fragment implements RecyclerViewInt
         storageReference = storage.getReference();
 
         users = FirebaseDatabase.getInstance().getReference("Users").child(auth.getUid());
-        pets=FirebaseDatabase.getInstance().getReference("Users").child(auth.getUid()).child("pets");
+        meetings=FirebaseDatabase.getInstance().getReference("Users").child(auth.getUid()).child("Meeting");
 
-        recyclerView=view.findViewById(R.id.r_v_pet);
+        recyclerView=view.findViewById(R.id.r_v_meetings);
         recyclerView.setHasFixedSize(true);
 
-        petAdapter= new PetAdapter(mPets, this, editPet);
+        meetingMarkerAdapter= new MeetingMarkerAdapter(meetingArrayList, this);
 
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        recyclerView.setHasFixedSize(true);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.HORIZONTAL));
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL, false));
-        recyclerView.setAdapter(petAdapter);
+        recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
+        recyclerView.setAdapter(meetingMarkerAdapter);
 
         users.addValueEventListener(new ValueEventListener() {
             @Override
@@ -130,18 +126,17 @@ public class ProfileFragment_creator extends Fragment implements RecyclerViewInt
             }
         });
 
-        pets.addValueEventListener(new ValueEventListener() {
+        meetings.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(mPets.size() > 0)mPets.clear();
+                if(meetingsUid.size() > 0) meetingsUid.clear();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren())
                 {
-                    Pet pet =dataSnapshot.getValue(Pet.class);
-                    assert pet != null;
-                    pet.setPetUid(dataSnapshot.getKey());
-                    mPets.add(pet);
+                    String meetingUid =dataSnapshot.getValue(String.class);
+                    assert meetingUid != null;
+                    meetingsUid.add(meetingUid);
                 }
-                petAdapter.notifyDataSetChanged();
+                getMeetingList(meetingsUid);
             }
 
             @Override
@@ -155,10 +150,8 @@ public class ProfileFragment_creator extends Fragment implements RecyclerViewInt
             public void onClick(View view) {
                 about.setEnabled(true);
                 buttonEdit.setTag("save");
-                editPet=true;
                 buttonEdit.setVisibility(View.INVISIBLE);
                 buttonSave.setVisibility(View.VISIBLE);
-                petAdapter.notifyDataSetChanged();
             }
         });
 
@@ -171,26 +164,15 @@ public class ProfileFragment_creator extends Fragment implements RecyclerViewInt
                     about.setCursorVisible(false);
                     about.setBackgroundColor(Color.TRANSPARENT);
                 }
-                editPet=false;
                 buttonEdit.setVisibility(View.VISIBLE);
                 buttonSave.setVisibility(View.INVISIBLE);
-                petAdapter.notifyDataSetChanged();
-            }
-        });
-
-        buttonAdd.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showPetWindow();
             }
         });
 
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                isPetAvatar=false;
-                showImageWindow(false, null);
+                showImageWindow();
             }
         });
 
@@ -206,25 +188,20 @@ public class ProfileFragment_creator extends Fragment implements RecyclerViewInt
             filePath = data.getData();
             if(filePath != null)
             {
-                if (!isPetAvatar){
-                    uploadImage(false, null);
-                }
-                else {
-                    try {
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), filePath);
-                        avatarPet.setImageBitmap(bitmap);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+                uploadImage();
             }
         }
     }
 
     @Override
     public void OnItemClick(int position) {
-        Pet pet=mPets.get(position);
-        showEditPetWindow(pet);
+        Meeting meeting=meetingArrayList.get(position);
+        Intent i = new Intent(getContext(), MeetingActivity.class);
+        i.putExtra(Constant.MEETING_UID, meeting.getUid());
+        i.putExtra(Constant.MEETING_CREATOR_UID, meeting.getCreatorUid());
+        i.putExtra(Constant.IS_COMMENT, false);
+        i.putExtra(Constant.DATABASE, "meeting");
+        startActivity(i);
     }
 
     @Override
@@ -232,7 +209,7 @@ public class ProfileFragment_creator extends Fragment implements RecyclerViewInt
 
     }
 
-    private void showImageWindow(boolean isPetAvatar, String petUid){
+    private void showImageWindow(){
         AlertDialog.Builder dialog=new AlertDialog.Builder(getContext());
 
         final String[] editPhoto={"Загрузить", "Удалить"};
@@ -240,14 +217,8 @@ public class ProfileFragment_creator extends Fragment implements RecyclerViewInt
         StorageReference ref;
         DatabaseReference databaseReference;
 
-        if (isPetAvatar){
-            ref = storageReference.child(auth.getUid()).child(petUid);
-            databaseReference=pets.child(petUid).child("avatar_pet");
-        }
-        else{
-            ref = storageReference.child(auth.getUid()).child("avatar");
-            databaseReference=users.child("avatarUri");
-        }
+        ref = storageReference.child(auth.getUid()).child("avatar");
+        databaseReference=users.child("avatarUri");
 
         dialog.setItems(editPhoto, new DialogInterface.OnClickListener() {
             @Override
@@ -271,114 +242,7 @@ public class ProfileFragment_creator extends Fragment implements RecyclerViewInt
         dialog.show();
     }
 
-    private void showPetWindow(){
-        AlertDialog.Builder dialog=new AlertDialog.Builder(getContext());
-
-        LayoutInflater inflator= LayoutInflater.from(getContext());
-        View add_pet_window = inflator.inflate(R.layout.item_edit_pet, null);
-        dialog.setView(add_pet_window);
-
-        final EditText namePet= add_pet_window.findViewById(R.id.name);
-        avatarPet= add_pet_window.findViewById(R.id.avatar);
-
-
-        dialog.setNegativeButton("Отменить", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int which) {
-                dialogInterface.dismiss();
-            }
-        });
-
-        dialog.setPositiveButton("Добавить", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int which) {
-                if(TextUtils.isEmpty(namePet.getText().toString())) {
-                    Toast.makeText(getContext(), "Введите имя питомца", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                petUid=UUID.randomUUID().toString();
-                pets.child(petUid).child("name").setValue(namePet.getText().toString());
-                if (filePath!=null) {
-                    uploadImage(true, petUid);
-                }
-                dialogInterface.dismiss();
-            }
-        });
-
-        avatarPet.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent();
-                intent.setType("image/*");
-                intent.setAction(Intent.ACTION_GET_CONTENT);
-                isPetAvatar=true;
-                startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
-            }
-        });
-
-        dialog.show();
-    }
-
-    private void showEditPetWindow(Pet pet){
-        AlertDialog.Builder dialog=new AlertDialog.Builder(getContext());
-
-        LayoutInflater inflator= LayoutInflater.from(getContext());
-        View register_window= inflator.inflate(R.layout.item_edit_pet, null);
-        dialog.setView(register_window);
-
-        final EditText namePet=register_window.findViewById(R.id.name);
-        avatarPet=register_window.findViewById(R.id.avatar);
-
-        if (pet.getAvatar_pet()!=null){
-            String url=pet.getAvatar_pet();
-            Glide.with(getContext()).load(url).into(avatarPet);
-        }
-        else {
-            Glide.with(getContext()).load(URI).into(avatarPet);
-        }
-
-        namePet.setText(pet.getName());
-
-        dialog.setNegativeButton("Удалить", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int which) {
-                pets.child(pet.getPetUid()).removeValue();
-                dialogInterface.dismiss();
-            }
-        });
-
-        dialog.setPositiveButton("Сохранить", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int which) {
-                if(TextUtils.isEmpty(namePet.getText().toString())) {
-                    Toast.makeText(getContext(), "Введите имя питомца", Toast.LENGTH_LONG).show();
-                    return;
-                }
-                pets.child(pet.getPetUid()).child("name").setValue(namePet.getText().toString());
-                if (filePath!=null) {
-                    try {
-                        Bitmap bitmap = MediaStore.Images.Media.getBitmap(getActivity().getContentResolver(), filePath);
-                        avatarPet.setImageBitmap(bitmap);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                    uploadImage(true, pet.getPetUid());
-                }
-                dialogInterface.dismiss();
-            }
-        });
-
-        avatarPet.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showImageWindow(true, pet.getPetUid());
-            }
-        });
-
-        dialog.show();
-    }
-
-    private void uploadImage(Boolean isPetAvatar, String petUid) {
+    private void uploadImage() {
         if(filePath != null)
         {
             final ProgressDialog progressDialog = new ProgressDialog(getContext());
@@ -386,14 +250,9 @@ public class ProfileFragment_creator extends Fragment implements RecyclerViewInt
             progressDialog.show();
             StorageReference ref;
             DatabaseReference databaseReference;
-            if (isPetAvatar){
-                ref = storageReference.child(auth.getUid()).child(petUid);
-                databaseReference=pets.child(petUid).child("avatar_pet");
-            }
-            else{
-                ref = storageReference.child(auth.getUid()).child("avatar");
-                databaseReference=users.child("avatarUri");
-            }
+
+            ref = storageReference.child(auth.getUid()).child("avatar");
+            databaseReference=users.child("avatarUri");
 
             UploadTask upload_image=ref.putFile(filePath);
             upload_image
@@ -442,4 +301,35 @@ public class ProfileFragment_creator extends Fragment implements RecyclerViewInt
             });
         }
     }
+
+    private void getMeetingList (ArrayList<String> meetigsUid){
+
+        for (String meetinUid :meetigsUid) {
+
+            DatabaseReference myMeet = FirebaseDatabase.getInstance().getReference("meeting").child(meetinUid);
+
+            ValueEventListener meetListener = new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    {
+                        Meeting meeting = snapshot.getValue(Meeting.class);
+                        if (meeting != null) {
+                            meeting.setUid(snapshot.getKey());
+                            meetingArrayList.add(meeting);
+                        }
+
+                    }
+                    meetingMarkerAdapter.notifyDataSetChanged();
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+
+                }
+            };
+
+            myMeet.addValueEventListener(meetListener);
+        }
+    }
+
 }

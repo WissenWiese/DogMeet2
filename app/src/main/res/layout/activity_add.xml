@@ -43,7 +43,53 @@
                 app:srcCompat="@drawable/ic_image" />
 
             <TextView
-                android:id="@+id/namePet"
+                android:id="@+id/typeMeet"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat"
+                android:text="Тип мероприятия"
+                android:textColor="@color/text"
+                android:textSize="18sp" />
+
+            <Spinner
+                android:id="@+id/editTypeMeet"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/edit_text"
+                android:fontFamily="@font/ubuntu"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:textColor="@color/primary_dark"
+                android:textSize="20sp"/>
+
+            <TextView
+                android:id="@+id/typeExhibition"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/montserrat"
+                android:text="Категория выставки"
+                android:textColor="@color/text"
+                android:textSize="18sp"
+                android:visibility="gone"
+                tools:visibility="gone" />
+
+            <Spinner
+                android:id="@+id/editTypeExhibition"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginBottom="10dp"
+                android:background="@drawable/edit_text"
+                android:fontFamily="@font/ubuntu"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:textColor="@color/primary_dark"
+                android:textSize="20sp"
+                android:visibility="gone"
+                tools:visibility="gone" />
+
+            <TextView
+                android:id="@+id/nameMeet"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/montserrat"
@@ -66,7 +112,7 @@
                 android:textSize="20sp" />
 
             <TextView
-                android:id="@+id/breed"
+                android:id="@+id/address"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/montserrat"
@@ -76,7 +122,7 @@
 
 
             <AutoCompleteTextView
-                android:id="@+id/editBreed"
+                android:id="@+id/editAddress"
                 android:layout_width="match_parent"
                 android:layout_height="50dp"
                 android:layout_marginBottom="10dp"
@@ -169,7 +215,7 @@
 
 
             <EditText
-                android:id="@+id/editMessage"
+                android:id="@+id/editDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="10dp"

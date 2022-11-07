@@ -1,17 +1,26 @@
 package com.example.dogmeet.model;
 
 public class Pet {
-    private String name, avatar_pet, petUid, gender, breed;
+    private String name, avatar_pet, petUid, gender, breed, size;
 
     public Pet() {}
 
-    public Pet (String name, String avatar_pet, String petUid, String gender, String breed) {
+    public Pet (String name, String avatar_pet, String petUid, String gender, String breed, String size) {
         this.name=name;
         this.avatar_pet=avatar_pet;
         this.petUid=petUid;
         this.gender=gender;
         this.breed=breed;
+        this.size=size;
 
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
     }
 
     public String getName(){

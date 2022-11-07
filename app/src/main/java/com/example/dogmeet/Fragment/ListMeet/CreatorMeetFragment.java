@@ -53,7 +53,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 
-public class ListMeetFragment_creator extends Fragment implements RecyclerViewInterface{
+public class CreatorMeetFragment extends Fragment implements RecyclerViewInterface{
     private DatabaseReference myMeet, users, archive;
     private ArrayList<Meeting> meetings;
     private String uidMeet, uid, database, date, dateForFilter;
@@ -69,7 +69,7 @@ public class ListMeetFragment_creator extends Fragment implements RecyclerViewIn
     int click;
     LocalDate dateMin, dateMax, dtMeet;
 
-    public ListMeetFragment_creator() {
+    public CreatorMeetFragment() {
 
     }
 
@@ -78,7 +78,7 @@ public class ListMeetFragment_creator extends Fragment implements RecyclerViewIn
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
-        view = inflater.inflate(R.layout.fragment_list_meet, container, false);
+        view = inflater.inflate(R.layout.fragment_list_meet_creator, container, false);
 
         uid= FirebaseAuth.getInstance().getCurrentUser().getUid();
         users= FirebaseDatabase.getInstance().getReference("Users");
@@ -87,7 +87,7 @@ public class ListMeetFragment_creator extends Fragment implements RecyclerViewIn
         myMeet = FirebaseDatabase.getInstance().getReference("meeting");
         meetings = new ArrayList<>();
 
-        fabAddMeet=view.findViewById(R.id.fabAddMeet);
+        fabAddMeet=view.findViewById(R.id.fabAddMeet4);
         fabFilter=view.findViewById(R.id.fabFilter);
 
         filters=view.findViewById(R.id.filter);

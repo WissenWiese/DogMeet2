@@ -91,14 +91,13 @@ public class ProfileUsersActivity extends AppCompatActivity implements RecyclerV
         avatar=findViewById(R.id.chatAvatar);
         name=findViewById(R.id.text_name);
         bio=findViewById(R.id.text_about_me);
-        recyclerView=findViewById(R.id.r_v_pet);
+        recyclerView=findViewById(R.id.r_v_meetings);
 
         mPets = new ArrayList<>();
 
         petAdapter= new PetAdapter(mPets, this, false);
 
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        recyclerView.addItemDecoration(new DividerItemDecoration(ProfileUsersActivity.this, LinearLayoutManager.HORIZONTAL));
         recyclerView.setLayoutManager(new LinearLayoutManager(ProfileUsersActivity.this,LinearLayoutManager.HORIZONTAL, false));
         recyclerView.setAdapter(petAdapter);
     }
@@ -157,6 +156,5 @@ public class ProfileUsersActivity extends AppCompatActivity implements RecyclerV
 
     @Override
     public void OnButtonClick(int position) {
-
     }
 }
