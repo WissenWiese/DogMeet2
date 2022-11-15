@@ -46,7 +46,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ReviewFragment extends Fragment implements RecyclerViewInterface {
-    private TextView meetDescription, meetNumber, meetCreator, typeOfDogs, ratingTextView;
+    private TextView meetDescription, meetNumber, meetCreator,
+            typeOfDogs, ratingTextView, rank, rankText;
     private Button button;
     private CardView cardView;
     ImageView meetCreat;
@@ -110,6 +111,8 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
         meetCreat=view.findViewById(R.id.imageCreat);
         ratingTextView=view.findViewById(R.id.ratingTextView);
         ratingBar=view.findViewById(R.id.ratingBar);
+        rank=view.findViewById(R.id.rank);
+        rankText=view.findViewById(R.id.textViewRank);
 
         mUsers = new ArrayList<>();
 
@@ -185,6 +188,15 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
                     case "Маленький":
                         typeOfDogs.setText("Маленьких пород");
                         break;
+                }
+                if (meeting.getRank()!=null){
+                    rank.setVisibility(View.VISIBLE);
+                    rankText.setVisibility(View.VISIBLE);
+                    rank.setText(meeting.getRank());
+                }
+                else {
+                    rank.setVisibility(View.GONE);
+                    rankText.setVisibility(View.GONE);
                 }
                 meetDescription.setText(meeting.description);
                 member_number=meeting.numberMember;

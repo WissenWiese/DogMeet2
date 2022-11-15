@@ -512,7 +512,6 @@ public class AddActivity extends AppCompatActivity {
         }
         if (filePath!=null) {
             uploadImage(meet, meetUid);
-
         }
         else {
             myMeet.child(meetUid).setValue(meet);
@@ -522,7 +521,6 @@ public class AddActivity extends AppCompatActivity {
                     .addData("Новое мероприятие!", "создатель").build());
             AddActivity.this.finish();
         }
-
     }
 
     public void setMeetToPlace(){
