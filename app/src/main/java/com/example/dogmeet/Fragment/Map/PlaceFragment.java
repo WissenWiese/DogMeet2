@@ -1,9 +1,11 @@
 package com.example.dogmeet.Fragment.Map;
 
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.Group;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -15,7 +17,9 @@ import android.view.ViewGroup;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
+import com.example.dogmeet.Constant;
 import com.example.dogmeet.Fragment.Profile.PetAdapter;
+import com.example.dogmeet.Meeting.MeetingActivity;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
 import com.example.dogmeet.model.Meeting;
@@ -31,7 +35,6 @@ import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.MarkerOptions;
 import com.mapbox.mapboxsdk.geometry.LatLng;
 
-import java.security.acl.Group;
 import java.util.ArrayList;
 
 
@@ -45,7 +48,7 @@ public class PlaceFragment extends Fragment implements RecyclerViewInterface {
     private ArrayList<Meeting> meetingArrayList;
     private RecyclerView recyclerView;
     private MeetingMarkerAdapter meetingMarkerAdapter;
-    private TextView namePlace, notMeeting, ratingTextView;
+    private TextView namePlace, notMeeting, ratingTextView, type, contact, openHours, address;
     float rating;
     private RatingBar ratingBar;
 
@@ -74,7 +77,15 @@ public class PlaceFragment extends Fragment implements RecyclerViewInterface {
                              Bundle savedInstanceState) {
         view=inflater.inflate(R.layout.fragment_place, container, false);
         namePlace=view.findViewById(R.id.textName);
+        type=view.findViewById(R.id.textTypePlace);
         notMeeting=view.findViewById(R.id.not_meeting);
+        ratingTextView=view.findViewById(R.id.rating);
+        address=view.findViewById(R.id.textViewAddress);
+        contact=view.findViewById(R.id.textViewContacts);
+        openHours=view.findViewById(R.id.textViewOpenHours);
+
+        group=view.findViewById(R.id.info);
+
         namePlace.setText(placeUid);
         ratingBar=view.findViewById(R.id.ratingBar2);
 
@@ -97,12 +108,35 @@ public class PlaceFragment extends Fragment implements RecyclerViewInterface {
         ValueEventListener placeListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Place place=snapshot.getValue(Place.class);
+                String typeText=place.getType();
+                type.setText(typeText);
+                if (!place.getType().equals("Парк")){
+                    //group.setVisibility(View.VISIBLE);
+                    address.setVisibility(View.VISIBLE);
+                    address.setText(place.getAddress());
+                    //contact.setText(place.getContact());
+                    //openHours.setText(place.getOpenHours());
+                }
+                else {
+                    //group.setVisibility(View.GONE);
+                    address.setVisibility(View.GONE);
+                }
+                if (place.getRating()!=null){
+                    ratingTextView.setText(place.getRating());
+                }
                 if (meetUidList.size()>0) meetUidList.clear();
-                for(DataSnapshot dataSnapshot : snapshot.getChildren())
+                for(DataSnapshot dataSnapshot : snapshot.child("meetings").getChildren())
                 {
-                    String meetUid=dataSnapshot.getValue(String.class);
+                    String meetUid=dataSnapshot.getKey();
                     if (meetUid!=null){
                         meetUidList.add(meetUid);
+                    }
+                }
+                for(DataSnapshot dataSnapshot1 : snapshot.child("ratingList").getChildren())
+                {
+                    if (dataSnapshot1.getKey().equals(uid)){
+                        ratingBar.setRating(Float.valueOf(dataSnapshot1.getValue(String.class)));
                     }
                 }
                 getMeeting();
@@ -113,7 +147,7 @@ public class PlaceFragment extends Fragment implements RecyclerViewInterface {
 
             }
         };
-        place.child("meetings").addValueEventListener(placeListener);
+        place.addValueEventListener(placeListener);
 
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
@@ -134,7 +168,15 @@ public class PlaceFragment extends Fragment implements RecyclerViewInterface {
 
     @Override
     public void OnItemClick(int position) {
+        Meeting meeting;
+        meeting=meetingArrayList.get(position);
 
+        Intent i = new Intent(getContext(), MeetingActivity.class);
+        i.putExtra(Constant.MEETING_UID, meeting.getUid());
+        i.putExtra(Constant.MEETING_CREATOR_UID, meeting.getCreatorUid());
+        i.putExtra(Constant.IS_COMMENT, false);
+        i.putExtra(Constant.DATABASE, "meeting");
+        startActivity(i);
     }
 
     @Override

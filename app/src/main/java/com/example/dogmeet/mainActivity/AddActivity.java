@@ -47,6 +47,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.OnProgressListener;
 import com.google.firebase.storage.StorageReference;
@@ -515,6 +517,9 @@ public class AddActivity extends AppCompatActivity {
         else {
             myMeet.child(meetUid).setValue(meet);
             setMeetToPlace();
+            users.child("Meeting").child(meetUid).setValue("");
+            FirebaseMessaging.getInstance().send(new RemoteMessage.Builder("MEET"+uid)
+                    .addData("Новое мероприятие!", "создатель").build());
             AddActivity.this.finish();
         }
 
@@ -530,7 +535,7 @@ public class AddActivity extends AppCompatActivity {
                         if (place!=null){
                             FirebaseDatabase.getInstance().getReference("places")
                                     .child(addressEditText.getText().toString())
-                                    .child("meetings").push().setValue(meetUid);
+                                    .child("meetings").child(meetUid).setValue("");
                         }
                     }
 

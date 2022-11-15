@@ -16,6 +16,7 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.dogmeet.Constant;
+import com.example.dogmeet.MyFirebaseMessagingService;
 import com.example.dogmeet.R;
 import com.example.dogmeet.model.Message;
 import com.example.dogmeet.model.User;
@@ -25,6 +26,10 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.iid.FirebaseInstanceIdReceiver;
+import com.google.firebase.iid.internal.FirebaseInstanceIdInternal;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -40,7 +45,7 @@ public class ChatActivity extends AppCompatActivity {
     private ChatAdapter chatAdapter;
     private ImageButton spendMessage;
     private EditText editMessage;
-    DatabaseReference users1, users2, chats;
+    DatabaseReference chats;
     Map<String, User> usersDictionary;
 
 
@@ -80,8 +85,6 @@ public class ChatActivity extends AppCompatActivity {
                 }
             });
         }
-        users2= FirebaseDatabase.getInstance().getReference("Users").child(uidUser).child("chats");
-        users1= FirebaseDatabase.getInstance().getReference("Users").child(uid).child("chats");
         chats= FirebaseDatabase.getInstance().getReference("chats");
 
         getUser();
@@ -111,20 +114,24 @@ public class ChatActivity extends AppCompatActivity {
                 message.setTime(date);
                 message.setMessage(editMessage.getText().toString());
 
-                if (chatUid==null){
-                    chatUid= UUID.randomUUID().toString();
-
-                    users1.child(chatUid).setValue(uidUser);
-                    users2.child(chatUid).setValue(uid);
-                }
+                FirebaseDatabase.getInstance()
+                        .getReference()
+                        .child("chats")
+                        .child(uid)
+                        .child(uidUser)
+                        .push()
+                        .setValue(message);
 
                 FirebaseDatabase.getInstance()
                         .getReference()
                         .child("chats")
-                        .child(chatUid)
+                        .child(uidUser)
+                        .child(uid)
                         .push()
                         .setValue(message);
 
+                FirebaseMessaging.getInstance().send(new RemoteMessage.Builder(uidUser)
+                        .addData("Новое сообщение", message.getMessage()).build());
 
                 editMessage.setText(null);
             }
@@ -132,30 +139,7 @@ public class ChatActivity extends AppCompatActivity {
 
     }
 
-    public void getUserChat(){
-
-        ValueEventListener userListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    String chatUser=dataSnapshot.getValue(String.class);
-                    if (chatUser!=null) {
-                        if (chatUser.equals(uidUser)) {
-                            chatUid=dataSnapshot.getKey();
-                            loadingChat(chatUid);
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-            }
-        };
-        users1.addValueEventListener(userListener);
-    }
-
-    public void loadingChat(String uidChat){
+    public void loadingChat(){
         messages =new ArrayList<>();
         chatAdapter= new ChatAdapter(messages, uid);
 
@@ -166,7 +150,7 @@ public class ChatActivity extends AppCompatActivity {
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setAdapter(chatAdapter);
 
-        ValueEventListener userListener = new ValueEventListener() {
+        ValueEventListener chatListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
 
@@ -191,7 +175,7 @@ public class ChatActivity extends AppCompatActivity {
             public void onCancelled(@NonNull DatabaseError error) {
             }
         };
-        chats.child(uidChat).addValueEventListener(userListener);
+        chats.child(uid).child(uidUser).addValueEventListener(chatListener);
     }
 
     public void getUser(){
@@ -210,7 +194,7 @@ public class ChatActivity extends AppCompatActivity {
                     user.setAvatarUri(user.getAvatarUri());
                     usersDictionary.put(dataSnapshot.getKey(), user);
                 }
-                getUserChat();
+                loadingChat();
             }
 
             @Override

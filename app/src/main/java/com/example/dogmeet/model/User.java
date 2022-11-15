@@ -3,17 +3,36 @@ package com.example.dogmeet.model;
 import java.util.Objects;
 
 public class User {
-    private String name, email, age, info, avatarUri, uid;
+    private String name, email, age, info, avatarUri, uid, phone, web;
 
     public User() {}
 
-    public User (String name, String email, String age, String info, String avatarUri, String uid) {
+    public User (String name, String email, String age, String info, String avatarUri, String uid,
+    String phone, String web) {
         this.name=name;
         this.email=email;
         this.age=age;
         this.info=info;
         this.avatarUri = avatarUri;
         this.uid=uid;
+        this.phone=phone;
+        this.web=web;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getWeb() {
+        return web;
+    }
+
+    public void setWeb(String web) {
+        this.web = web;
     }
 
     public String getName(){

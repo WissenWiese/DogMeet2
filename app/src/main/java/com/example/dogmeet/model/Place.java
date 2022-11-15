@@ -3,18 +3,56 @@ package com.example.dogmeet.model;
 import java.util.Date;
 
 public class Place {
-    private String address, image, type;
+    private String address, image, type, contact, openHours, rating, name;
     private Double latitude, longitude;
 
-    public Place(String address, Double latitude, Double longitude, String image) {
+    public Place(String address, Double latitude, Double longitude, String image, String type,
+                 String contact, String openHours, String rating, String name) {
         this.address = address;
         this.latitude = latitude;
         this.longitude =longitude;
         this.image=image;
+        this.type=type;
+        this.contact=contact;
+        this.openHours=openHours;
+        this.rating=rating;
+        this.name=name;
     }
 
     public Place(){
 
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getRating() {
+        return rating;
+    }
+
+    public void setRating(String rating) {
+        this.rating = rating;
+    }
+
+    public String getContact() {
+        return contact;
+    }
+
+    public void setContact(String contact) {
+        this.contact = contact;
+    }
+
+    public String getOpenHours() {
+        return openHours;
+    }
+
+    public void setOpenHours(String openHours) {
+        this.openHours = openHours;
     }
 
     public String getType() {

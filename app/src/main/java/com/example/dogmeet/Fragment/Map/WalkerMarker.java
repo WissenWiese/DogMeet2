@@ -38,7 +38,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 
 
-public class WalkerMarker extends Fragment implements RecyclerViewInterface {
+public class WalkerMarker extends Fragment{
     private View view;
     private String walkerUid;
     private ImageView photo;
@@ -47,7 +47,7 @@ public class WalkerMarker extends Fragment implements RecyclerViewInterface {
     private RecyclerView recyclerView;
     private DatabaseReference walkers;
     private ArrayList<Pet> mPets;
-    private PetsAdapter petsAdapter;
+    private PetAdapterMini petAdapterMini;
     private ArrayList<Integer> selected = new ArrayList<>();
 
     public WalkerMarker() {
@@ -81,11 +81,11 @@ public class WalkerMarker extends Fragment implements RecyclerViewInterface {
 
         recyclerView=view.findViewById(R.id.rvPetsWalk);
         recyclerView.setHasFixedSize(true);
-        petsAdapter= new PetsAdapter(mPets, this, selected);
+        petAdapterMini= new PetAdapterMini(mPets);
 
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(petsAdapter);
+        recyclerView.setAdapter(petAdapterMini);
 
         walkers= FirebaseDatabase.getInstance().getReference("walker").child(walkerUid);
 
@@ -114,7 +114,7 @@ public class WalkerMarker extends Fragment implements RecyclerViewInterface {
                         pet.setPetUid(dataSnapshot.getKey());
                         mPets.add(pet);
                     }
-                    petsAdapter.notifyDataSetChanged();
+                    petAdapterMini.notifyDataSetChanged();
                 }
             }
 
@@ -144,15 +144,5 @@ public class WalkerMarker extends Fragment implements RecyclerViewInterface {
             }
         });
         return view;
-    }
-
-    @Override
-    public void OnItemClick(int position) {
-
-    }
-
-    @Override
-    public void OnButtonClick(int position) {
-
     }
 }

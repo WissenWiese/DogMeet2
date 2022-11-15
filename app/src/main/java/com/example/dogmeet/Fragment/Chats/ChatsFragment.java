@@ -76,7 +76,7 @@ public class ChatsFragment extends Fragment implements RecyclerViewInterface {
         chatsView.setAdapter(chatsAdapter);
 
         users= FirebaseDatabase.getInstance().getReference("Users");
-        chatsList = FirebaseDatabase.getInstance().getReference("chats");
+        chatsList = FirebaseDatabase.getInstance().getReference("chats").child(uid);
 
         getUser();
 
@@ -115,7 +115,7 @@ public class ChatsFragment extends Fragment implements RecyclerViewInterface {
 
                 if (chats.size()>0) chats.clear();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren()) {
-                    String userUid=dataSnapshot.getValue(String.class);
+                    String userUid=dataSnapshot.getKey();
                     assert userUid!=null;
                     Chat chat=new Chat();
                     chat.setRecipient(userUid);
@@ -132,7 +132,7 @@ public class ChatsFragment extends Fragment implements RecyclerViewInterface {
             public void onCancelled(@NonNull DatabaseError error) {
             }
         };
-        users.child(uid).child("chats").addValueEventListener(chatsListener);
+        chatsList.addValueEventListener(chatsListener);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.N)
@@ -177,9 +177,6 @@ public class ChatsFragment extends Fragment implements RecyclerViewInterface {
             }
         };
         lastQuery.addValueEventListener(chatListener);
-
-
-
     }
 
     @Override

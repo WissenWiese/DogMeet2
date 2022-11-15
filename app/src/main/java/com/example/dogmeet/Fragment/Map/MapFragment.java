@@ -7,6 +7,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacem
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 
 import android.annotation.SuppressLint;
+import android.app.Notification;
 import android.content.res.AssetManager;
 import android.graphics.BitmapFactory;
 import android.location.Address;
@@ -21,6 +22,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentResultListener;
@@ -29,6 +31,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.example.dogmeet.R;
 import com.example.dogmeet.model.Doghanting;
 import com.example.dogmeet.model.MarkerMeet;
+import com.example.dogmeet.model.Pet;
 import com.example.dogmeet.model.Place;
 import com.example.dogmeet.model.Walker;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
@@ -41,6 +44,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.RemoteMessage;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.geojson.Point;
@@ -89,14 +94,16 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
     private FloatingActionButton fab, fab1, fab2;
     private FrameLayout mBottomSheetLayout;
     private BottomSheetBehavior sheetBehavior;
-    private TextView doghantingCreate;
+    private TextView doghantingCreate, attention;
     private Marker addingMarker;
-    private Boolean isWalk=false;
-    private DatabaseReference doghanting, walkers, place;
+    private Boolean isWalk=false, hasAttention=false;
+    private DatabaseReference doghanting, walkers, place, myWalk;
     private ArrayList<MarkerMeet> doghantingPoint, walkersPoint, placePoint;
-    private String uidCreator="";
+    private String uidCreator="", uid, s;
+    private ArrayList<String> mySizeDog=new ArrayList<>();
     Timer myTimer;
-    //Point myPoint;
+    Point myPoint, point;
+    double dis;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -122,6 +129,8 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
         Mapbox.getInstance(getContext(), getString(R.string.mapbox_access_token));
         view=inflater.inflate(R.layout.fragment_map, container, false);
 
+        uid=FirebaseAuth.getInstance().getCurrentUser().getUid();
+
         mapView = view.findViewById(R.id.mapView);
         mapView.getMapAsync(this);
 
@@ -134,6 +143,7 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
         sheetBehavior.setSaveFlags(BottomSheetBehavior.SAVE_NONE);
 
         doghantingCreate=view.findViewById(R.id.doghantingPointTextView);
+        attention=view.findViewById(R.id.attention);
 
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -151,6 +161,9 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
             public void onClick(View view) {
 
                 onClickMap=true;
+                if (hasAttention){
+                    attention.setVisibility(View.INVISIBLE);
+                }
                 doghantingCreate.setVisibility(View.VISIBLE);
                 closeFABMenu();
                 liveFABMenu();
@@ -205,8 +218,39 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
             mapboxMap.setOnMarkerClickListener(this);
         });
 
+        myWalk=FirebaseDatabase.getInstance().getReference("walker").child(uid);
+        ValueEventListener walker1Listener = new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Walker walker=snapshot.getValue(Walker.class);
+                if (walker!=null) {
+                    double latitude = Double.parseDouble(walker.getLatitude());
+                    double longitude = Double.parseDouble(walker.getLongitude());
+                    myPoint = Point.fromLngLat(latitude, longitude);
+                    if (mySizeDog.size() > 0) mySizeDog.clear();
+                    for (DataSnapshot dataSnapshot : snapshot.child("pets").getChildren()) {
+                        Pet pet = dataSnapshot.getValue(Pet.class);
+                        assert pet != null;
+                        mySizeDog.add(pet.getSize());
+                    }
+                    getWalkers(mapboxMap);
+                }
+                else {
+                    mySizeDog.clear();
+                    getWalkers(mapboxMap);
+
+                }
+                }
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                getWalkers(mapboxMap);
+            }
+            };
+        myWalk.addValueEventListener(walker1Listener);
+        
+
         loadingDoghanter(mapboxMap);
-        getWalkers(mapboxMap);
+        //getWalkers(mapboxMap);
         getPlace(mapboxMap);
 
 
@@ -223,6 +267,9 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
             addingMarker =mapboxMap.addMarker(new MarkerOptions()
                     .setPosition(point));
             doghantingCreate.setVisibility(View.INVISIBLE);
+            if (hasAttention){
+                attention.setVisibility(View.VISIBLE);
+            }
 
             DoghantingFragment doghanterFragment= DoghantingFragment.newInstance(point.getLatitude(), point.getLongitude());
             replaceFragment(doghanterFragment);
@@ -255,10 +302,8 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
             locationComponent = mapboxMap.getLocationComponent();
             locationComponent.activateLocationComponent(getContext(), loadedMapStyle);
             locationComponent.setLocationComponentEnabled(true);
-
             //Set the component's camera mode
             locationComponent.setCameraMode(CameraMode.TRACKING);
-            //myPoint=Point.fromLngLat(mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude(), mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude());
         } else {
             permissionsManager = new PermissionsManager(this);
             permissionsManager.requestLocationPermissions(getActivity());
@@ -349,6 +394,7 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
 
                 if (walkersPoint.size()>0) walkersPoint.clear();
                 isWalk=false;
+                hasAttention=false;
                 for(DataSnapshot dataSnapshot : snapshot.getChildren())
                 {
                     Walker walker=dataSnapshot.getValue(Walker.class);
@@ -356,11 +402,8 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
                         double latitude = Double.parseDouble(walker.getLatitude());
                         double longitude = Double.parseDouble(walker.getLongitude());
                         LatLng latLng = new LatLng(latitude, longitude);
-                        //Point point=Point.fromLngLat(latitude, longitude);
-                        if (dataSnapshot.getKey().equals(FirebaseAuth.getInstance()
-                                .getCurrentUser()
-                                .getUid())){
 
+                        if (dataSnapshot.getKey().equals(uid)){
                             isWalk=true;
                         }
                         else {
@@ -369,9 +412,36 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
                                     .setTitle("walker")
                                     .setSnippet(dataSnapshot.getKey())
                                     .setIcon(IconFactory.recreate("walker_ic",
-                                            BitmapFactory.decodeResource( getResources(), com.mapbox.services.android.navigation.ui.v5.R.drawable.map_marker_light))));
+                                            BitmapFactory.decodeResource( getResources(),
+                                                    com.mapbox.services.android.navigation.ui.v5.R.drawable.map_marker_light))));
+                            point=Point.fromLngLat(latitude, longitude);
                         }
-                        //if (TurfMeasurement.distance(myPoint, point)<100);
+                        if (mySizeDog.size()>0 && point!=null && TurfMeasurement.distance(myPoint, point)<0.05) {
+                            for (String sizeDog : mySizeDog) {
+                                for (DataSnapshot dataSnapshot1 : dataSnapshot.child("pets").getChildren()) {
+                                    Pet pet = dataSnapshot1.getValue(Pet.class);
+                                    assert pet != null;
+                                    if (sizeDog.equals("Маленький") && pet.getSize().equals("Большой")) {
+                                        FirebaseMessaging.getInstance().send(new RemoteMessage.Builder(uid)
+                                                .addData("Осторожно", "рядом большая собака!").build());
+                                        s="Рядом большая собака!";
+                                        hasAttention=true;
+                                    } else if (sizeDog.equals("Большой") && pet.getSize().equals("Маленький")) {
+                                        FirebaseMessaging.getInstance().send(new RemoteMessage.Builder(uid)
+                                                .addData("Осторожно", "рядом маленькая собака!").build());
+                                        s="Рядом маленька собака!";
+                                        hasAttention=true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (hasAttention){
+                        attention.setVisibility(View.VISIBLE);
+                        attention.setText(s);
+                    }
+                    else {
+                        attention.setVisibility(View.INVISIBLE);
                     }
                 }
             }
@@ -443,7 +513,7 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
         return true;
     }
     public void startTimer(Boolean started) {
-        String uid=FirebaseAuth.getInstance().getCurrentUser().getUid();
+
         if (started){
             myTimer = new Timer();
 

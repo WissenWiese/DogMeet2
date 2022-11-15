@@ -24,6 +24,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.dogmeet.Constant;
 import com.example.dogmeet.R;
+import com.example.dogmeet.mainActivity.AddActivity;
 import com.example.dogmeet.model.Meeting;
 import com.example.dogmeet.model.Place;
 import com.google.android.gms.tasks.Continuation;
@@ -212,12 +213,13 @@ public class EditMeetingActivity extends AppCompatActivity {
 
         myMeet.child(meetUid).child("title").setValue(titleText);
         myMeet.child(meetUid).child("address").setValue(addressText);
+        setMeetToPlace();
         myMeet.child(meetUid).child("date").setValue(dateMeet);
         myMeet.child(meetUid).child("description").setValue(descriptionText);
         if (filePath!=null) {
             uploadImage();
         }
-        setMeetToPlace();
+
     }
 
     private void showImageWindow(){
@@ -238,6 +240,10 @@ public class EditMeetingActivity extends AppCompatActivity {
                     case "Удалить":
                         myMeet.child(meetUid).child("urlImage").removeValue();
                         storageReference.child("meeting/").child(meetUid).delete();
+                        FirebaseDatabase.getInstance().getReference("places")
+                                .child(addressEditText.getText().toString())
+                                .child("meetings").child(meetUid).getRef().removeValue();
+                        EditMeetingActivity.this.finish();
                         break;
                 }
                 dialogInterface.dismiss();
@@ -323,7 +329,7 @@ public class EditMeetingActivity extends AppCompatActivity {
                         if (place!=null){
                             FirebaseDatabase.getInstance().getReference("places")
                                     .child(addressEditText.getText().toString())
-                                    .child("meetings").push().setValue(meetUid);
+                                    .child("meetings").child(meetUid).setValue("");
                         }
                     }
 

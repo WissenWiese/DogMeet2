@@ -125,7 +125,6 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
         date=new Date().getTime();
 
         getUser();
-        setButton();
 
         cardView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -203,6 +202,7 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
                     }
                 }
                 meetNumber.setText(Integer.toString(member_number));
+                setButton();
             }
 
             @Override
@@ -217,8 +217,10 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
 
         if (creatorUid.equals(uid) || dateMeet<date){
             button.setVisibility(View.GONE);
+            //users.child(uid).child("Meeting").push().setValue(meetUid);
         }
         else {
+            button.setVisibility(View.VISIBLE);
             button.setText("Присоединиться");
             ratingTextView.setVisibility(View.INVISIBLE);
             ratingBar.setVisibility(View.INVISIBLE);
@@ -268,6 +270,7 @@ public class ReviewFragment extends Fragment implements RecyclerViewInterface {
                         else {
                             button.setText("Покинуть");
                             button.setBackground(getResources().getDrawable(R.drawable.btn2));
+                            button.setVisibility(View.VISIBLE);
                             ratingTextView.setVisibility(View.INVISIBLE);
                             ratingBar.setVisibility(View.INVISIBLE);
                         }

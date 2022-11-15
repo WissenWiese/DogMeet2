@@ -1,5 +1,7 @@
 package com.example.dogmeet.Fragment.Map;
 
+import static android.content.ContentValues.TAG;
+
 import android.content.Context;
 import android.os.Bundle;
 
@@ -11,6 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +38,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 
@@ -208,6 +212,8 @@ public class WalkFragment extends Fragment implements RecyclerViewInterface {
                 result.putBoolean("isWalk", isWalk);
                 // The child fragment needs to still set the result on its parent fragment manager
                 getParentFragmentManager().setFragmentResult("requestKey", result);
+
+
             }
         });
 

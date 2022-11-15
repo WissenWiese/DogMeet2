@@ -35,7 +35,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.example.dogmeet.Constant;
 import com.example.dogmeet.Fragment.Map.MeetingMarkerAdapter;
+import com.example.dogmeet.Meeting.MeetingActivity;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
 import com.example.dogmeet.mainActivity.LoginActivity;
@@ -153,7 +155,7 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
                 }
                 if(meetUidList.size() > 0)meetUidList.clear();
                 for (DataSnapshot snapshot: dataSnapshot.child("Meeting").getChildren()){
-                    String meetUid =snapshot.getValue(String.class);
+                    String meetUid =snapshot.getKey();
                     if (meetUid!=null){
                         meetUidList.add(meetUid);
                     }
@@ -259,6 +261,15 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
 
     @Override
     public void OnItemClick(int position) {
+        Meeting meeting;
+        meeting=meetingArrayList.get(position);
+
+        Intent i = new Intent(getContext(), MeetingActivity.class);
+        i.putExtra(Constant.MEETING_UID, meeting.getUid());
+        i.putExtra(Constant.MEETING_CREATOR_UID, meeting.getCreatorUid());
+        i.putExtra(Constant.IS_COMMENT, false);
+        i.putExtra(Constant.DATABASE, "meeting");
+        startActivity(i);
 
     }
 
