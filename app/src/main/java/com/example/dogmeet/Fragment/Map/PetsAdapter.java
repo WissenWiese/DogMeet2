@@ -85,6 +85,7 @@ public class PetsAdapter extends RecyclerView.Adapter<PetsAdapter.PetsViewHolder
         if (selected.contains(position)){
             holder.itemView.setBackgroundColor(Color.GRAY);
         }
+        else holder.itemView.setBackgroundColor(Color.WHITE);
     }
 
     @Override

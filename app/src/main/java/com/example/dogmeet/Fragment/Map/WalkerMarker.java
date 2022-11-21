@@ -88,8 +88,10 @@ public class WalkerMarker extends Fragment{
         recyclerView.setAdapter(petAdapterMini);
 
         walkers= FirebaseDatabase.getInstance().getReference("walker").child(walkerUid);
+        WalkerData walkerData=new WalkerData(walkers);
+        walkerData.getWalker(this);
 
-        ValueEventListener dListener = new ValueEventListener() {
+        /*ValueEventListener dListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 {
@@ -124,7 +126,7 @@ public class WalkerMarker extends Fragment{
             }
         };
 
-        walkers.addListenerForSingleValueEvent(dListener);
+        walkers.addListenerForSingleValueEvent(dListener);*/
 
         chat.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -144,5 +146,21 @@ public class WalkerMarker extends Fragment{
             }
         });
         return view;
+    }
+
+    public void setWalker(Walker walker){
+        if(walker.getUserUri()!=null){
+            Glide.with(photo.getContext()).load(walker.getUserUri()).into(photo);
+        }
+        else {
+            Glide.with(photo.getContext()).load(URI).into(photo);
+        }
+        if (walker.getMassage()!=null){
+            message.setVisibility(View.VISIBLE);
+            message.setText(walker.getMassage());
+        }
+        name.setText(walker.getUserName());
+        petAdapterMini.setList(walker.getPets());
+        mPets= walker.getPets();
     }
 }

@@ -7,11 +7,7 @@ import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconIgnorePlacem
 import static com.mapbox.mapboxsdk.style.layers.PropertyFactory.iconImage;
 
 import android.annotation.SuppressLint;
-import android.app.Notification;
-import android.content.res.AssetManager;
 import android.graphics.BitmapFactory;
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,15 +18,14 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-import androidx.core.app.NotificationCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentResultListener;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.dogmeet.Fragment.ListMeet.MeetingData;
 import com.example.dogmeet.R;
 import com.example.dogmeet.model.Doghanting;
-import com.example.dogmeet.model.MarkerMeet;
 import com.example.dogmeet.model.Pet;
 import com.example.dogmeet.model.Place;
 import com.example.dogmeet.model.Walker;
@@ -49,7 +44,6 @@ import com.google.firebase.messaging.RemoteMessage;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
 import com.mapbox.geojson.Point;
-import com.mapbox.geojson.Polygon;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.Marker;
@@ -62,20 +56,8 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-import com.mapbox.maps.plugin.annotation.generated.PointAnnotation;
-import com.mapbox.turf.TurfAssertions;
-import com.mapbox.turf.TurfConstants;
 import com.mapbox.turf.TurfMeasurement;
-import com.mapbox.turf.TurfTransformation;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -91,19 +73,17 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
     private PermissionsManager permissionsManager;
     private LocationComponent locationComponent;
     private Boolean onClickMap=false, isFABOpen=false;
-    private FloatingActionButton fab, fab1, fab2;
+    private FloatingActionButton fab, fab1, fab2, search;
     private FrameLayout mBottomSheetLayout;
     private BottomSheetBehavior sheetBehavior;
     private TextView doghantingCreate, attention;
     private Marker addingMarker;
     private Boolean isWalk=false, hasAttention=false;
-    private DatabaseReference doghanting, walkers, place, myWalk;
-    private ArrayList<MarkerMeet> doghantingPoint, walkersPoint, placePoint;
-    private String uidCreator="", uid, s;
-    private ArrayList<String> mySizeDog=new ArrayList<>();
+    private DatabaseReference doghanting, walkers, place;
+    private String uid;
+    WalkerData walkerData;
+    PlaceData placeData;
     Timer myTimer;
-    Point myPoint, point;
-    double dis;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -114,8 +94,8 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
                     @Override
                     public void onFragmentResult(@NonNull String requestKey, @NonNull Bundle bundle) {
                         Boolean started = bundle.getBoolean("isWalk");
-                        isWalk=started;
                         startTimer(started);
+                        isWalk=started;
                         // Do something with the result
                     }
                 });
@@ -137,6 +117,7 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
         fab=view.findViewById(R.id.floatingActionButton);
         fab1=view.findViewById(R.id.floatingActionButton2);
         fab2=view.findViewById(R.id.floatingActionButton3);
+        search=view.findViewById(R.id.floatingActionButtonSearch);
 
         mBottomSheetLayout = view.findViewById(R.id.containerBottomSheet);
         sheetBehavior = BottomSheetBehavior.from(mBottomSheetLayout);
@@ -186,6 +167,20 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
             }
         });
 
+        search.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                closeFABMenu();
+                liveFABMenu();
+                SearchFragment searchFragment=SearchFragment.newInstance();
+                searchFragment.setModel(walkerData, placeData);
+                replaceFragment(searchFragment);
+                if(sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED)
+                    sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            }
+        });
+
         sheetBehavior.addBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
             @Override
             public void onStateChanged(@NonNull View bottomSheet, int newState) {
@@ -218,42 +213,17 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
             mapboxMap.setOnMarkerClickListener(this);
         });
 
-        myWalk=FirebaseDatabase.getInstance().getReference("walker").child(uid);
-        ValueEventListener walker1Listener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Walker walker=snapshot.getValue(Walker.class);
-                if (walker!=null) {
-                    double latitude = Double.parseDouble(walker.getLatitude());
-                    double longitude = Double.parseDouble(walker.getLongitude());
-                    myPoint = Point.fromLngLat(latitude, longitude);
-                    if (mySizeDog.size() > 0) mySizeDog.clear();
-                    for (DataSnapshot dataSnapshot : snapshot.child("pets").getChildren()) {
-                        Pet pet = dataSnapshot.getValue(Pet.class);
-                        assert pet != null;
-                        mySizeDog.add(pet.getSize());
-                    }
-                    getWalkers(mapboxMap);
-                }
-                else {
-                    mySizeDog.clear();
-                    getWalkers(mapboxMap);
-
-                }
-                }
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                getWalkers(mapboxMap);
-            }
-            };
-        myWalk.addValueEventListener(walker1Listener);
-        
-
         loadingDoghanter(mapboxMap);
-        //getWalkers(mapboxMap);
-        getPlace(mapboxMap);
 
+        walkers=FirebaseDatabase.getInstance().getReference("walker");
+        walkerData=new WalkerData(walkers);
+        walkerData.attachView(this);
+        walkerData.loadWalkers(uid);
 
+        place=FirebaseDatabase.getInstance().getReference("places");
+        placeData=new PlaceData(place);
+        placeData.attachView(this);
+        placeData.loadPlace();
     }
 
     @Override
@@ -352,13 +322,10 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
 
     public void loadingDoghanter(MapboxMap mapboxMap){
         doghanting= FirebaseDatabase.getInstance().getReference("doghanter");
-        doghantingPoint=new ArrayList<>();
 
         ValueEventListener dListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                if (doghantingPoint.size()>0) doghantingPoint.clear();
                 for(DataSnapshot dataSnapshot : snapshot.getChildren())
                 {
                     Doghanting doghanting =dataSnapshot.getValue(Doghanting.class);
@@ -382,108 +349,6 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
             }
         };
         doghanting.addValueEventListener(dListener);
-    }
-
-    public void getWalkers(MapboxMap mapboxMap){
-        walkers=FirebaseDatabase.getInstance().getReference("walker");
-        walkersPoint=new ArrayList<>();
-
-        ValueEventListener walkerListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-
-                if (walkersPoint.size()>0) walkersPoint.clear();
-                isWalk=false;
-                hasAttention=false;
-                for(DataSnapshot dataSnapshot : snapshot.getChildren())
-                {
-                    Walker walker=dataSnapshot.getValue(Walker.class);
-                    if (walker!=null) {
-                        double latitude = Double.parseDouble(walker.getLatitude());
-                        double longitude = Double.parseDouble(walker.getLongitude());
-                        LatLng latLng = new LatLng(latitude, longitude);
-
-                        if (dataSnapshot.getKey().equals(uid)){
-                            isWalk=true;
-                        }
-                        else {
-                            mapboxMap.addMarker(new MarkerOptions()
-                                    .setPosition(latLng)
-                                    .setTitle("walker")
-                                    .setSnippet(dataSnapshot.getKey())
-                                    .setIcon(IconFactory.recreate("walker_ic",
-                                            BitmapFactory.decodeResource( getResources(),
-                                                    com.mapbox.services.android.navigation.ui.v5.R.drawable.map_marker_light))));
-                            point=Point.fromLngLat(latitude, longitude);
-                        }
-                        if (mySizeDog.size()>0 && point!=null && TurfMeasurement.distance(myPoint, point)<0.05) {
-                            for (String sizeDog : mySizeDog) {
-                                for (DataSnapshot dataSnapshot1 : dataSnapshot.child("pets").getChildren()) {
-                                    Pet pet = dataSnapshot1.getValue(Pet.class);
-                                    assert pet != null;
-                                    if (sizeDog.equals("Маленький") && pet.getSize().equals("Большой")) {
-                                        FirebaseMessaging.getInstance().send(new RemoteMessage.Builder(uid)
-                                                .addData("Осторожно", "рядом большая собака!").build());
-                                        s="Рядом большая собака!";
-                                        hasAttention=true;
-                                    } else if (sizeDog.equals("Большой") && pet.getSize().equals("Маленький")) {
-                                        FirebaseMessaging.getInstance().send(new RemoteMessage.Builder(uid)
-                                                .addData("Осторожно", "рядом маленькая собака!").build());
-                                        s="Рядом маленька собака!";
-                                        hasAttention=true;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    if (hasAttention){
-                        attention.setVisibility(View.VISIBLE);
-                        attention.setText(s);
-                    }
-                    else {
-                        attention.setVisibility(View.INVISIBLE);
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        };
-        walkers.addValueEventListener(walkerListener);
-    }
-
-    public void getPlace(MapboxMap mapboxMap){
-        place=FirebaseDatabase.getInstance().getReference("places");
-
-        ValueEventListener placeListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                for(DataSnapshot dataSnapshot : snapshot.getChildren())
-                {
-                    Place place=dataSnapshot.getValue(Place.class);
-                    if (place!=null) {
-                        double latitude = place.getLatitude();
-                        double longitude = place.getLongitude();
-                        LatLng latLng = new LatLng(latitude, longitude);
-                        mapboxMap.addMarker(new MarkerOptions()
-                                    .setPosition(latLng)
-                                    .setTitle("place")
-                                    .setSnippet(dataSnapshot.getKey())
-                                    .setIcon(IconFactory.recreate("place_ic",
-                                            BitmapFactory.decodeResource( getResources(), com.mapbox.mapboxsdk.R.drawable.mapbox_logo_helmet))));
-
-                    }
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        };
-        place.addValueEventListener(placeListener);
     }
 
     @Override
@@ -512,6 +377,7 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
         else sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
         return true;
     }
+    
     public void startTimer(Boolean started) {
 
         if (started){
@@ -519,28 +385,33 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
 
             myTimer.schedule(new TimerTask() {
                 public void run() {
+                    if (getActivity() == null) {
+                        myTimer = null;
+                        return;
+                    }
+
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
 
-                            String latitude=String.valueOf(mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude());
-                            String longitude=String.valueOf(mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude());
-                            FirebaseDatabase.getInstance()
-                                    .getReference()
-                                    .child("walker")
-                                    .child(uid)
-                                    .child("latitude")
-                                    .setValue(latitude);
-                            FirebaseDatabase.getInstance()
-                                    .getReference()
-                                    .child("walker")
-                                    .child(uid)
-                                    .child("longitude")
-                                    .setValue(longitude);
+                                String latitude = String.valueOf(mapboxMap.getLocationComponent().getLastKnownLocation().getLatitude());
+                                String longitude = String.valueOf(mapboxMap.getLocationComponent().getLastKnownLocation().getLongitude());
+                                FirebaseDatabase.getInstance()
+                                        .getReference()
+                                        .child("walker")
+                                        .child(uid)
+                                        .child("latitude")
+                                        .setValue(latitude);
+                                FirebaseDatabase.getInstance()
+                                        .getReference()
+                                        .child("walker")
+                                        .child(uid)
+                                        .child("longitude")
+                                        .setValue(longitude);
                         }
                     });
                 }
-            }, 0, 5000);
+            }, 0, 30000);
         }
         else {
             if (myTimer != null) {
@@ -552,6 +423,84 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
                     .child("walker")
                     .child(uid)
                     .removeValue();
+        }
+    }
+
+    public void setPlace(ArrayList<Place> places){
+        for (Place place :places){
+            double latitude = place.getLatitude();
+            double longitude = place.getLongitude();
+            LatLng latLng = new LatLng(latitude, longitude);
+            mapboxMap.addMarker(new MarkerOptions()
+                    .setPosition(latLng)
+                    .setTitle("place")
+                    .setSnippet(place.getUid())
+                    .setIcon(IconFactory.recreate("place_ic",
+                            BitmapFactory.decodeResource( getResources(),
+                                    com.mapbox.mapboxsdk.R.drawable.mapbox_logo_helmet))));
+        }
+    }
+
+    public void setWalkers(ArrayList<Walker> walkers){
+        for (Walker walker :walkers){
+            double latitude = Double.parseDouble(walker.getLatitude());
+            double longitude = Double.parseDouble(walker.getLongitude());
+            LatLng latLng = new LatLng(latitude, longitude);
+            if (walker.getUserUId().equals(uid)) {
+                isWalk=true;
+                if (myTimer==null){
+                    startTimer(true);
+                }
+            }
+            else {
+                mapboxMap.addMarker(new MarkerOptions()
+                                .setPosition(latLng)
+                                .setTitle("walker")
+                                .setSnippet(walker.getUserUId()))
+                        .setIcon(IconFactory.recreate("walker_ic",
+                                BitmapFactory.decodeResource( getResources(),
+                                        com.mapbox.services.android.navigation.ui.v5.R.drawable.map_marker_light)));
+                            }
+        }
+
+    }
+
+    public void getAttention(String message){
+        if (message!=null){
+            attention.setVisibility(View.VISIBLE);
+            attention.setText(message);
+            hasAttention=true;
+        }
+        else {
+            attention.setVisibility(View.INVISIBLE);
+            hasAttention=false;
+        }
+    }
+
+    public void filterMarker(ArrayList<String> filterList){
+        for (Marker marker: mapboxMap.getMarkers()){
+            if (filterList.isEmpty()){
+                if (marker.getTitle().equals("walker")){
+                    marker.setIcon(IconFactory.recreate("walker_ic",
+                            BitmapFactory.decodeResource( getResources(),
+                                    com.mapbox.services.android.navigation.ui.v5.R.drawable.map_marker_light)));
+                }
+                else if (marker.getTitle().equals("place")){
+                    marker.setIcon(IconFactory.recreate("place_ic",
+                            BitmapFactory.decodeResource( getResources(),
+                                    com.mapbox.mapboxsdk.R.drawable.mapbox_logo_helmet)));
+                }
+            }
+            else {
+                for (String uid : filterList) {
+                    if (marker.getSnippet().equals(uid))
+                        marker.setIcon(IconFactory.recreate("filter_ic",
+                                BitmapFactory.decodeResource(getResources(),
+                                        com.mapbox.mapboxsdk.R.drawable.mapbox_marker_icon_default)));
+
+                }
+            }
+
         }
     }
 }

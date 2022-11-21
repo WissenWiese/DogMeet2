@@ -44,10 +44,6 @@
             android:exported="false"
             android:theme="@style/Theme.DogMeet.NoActionBar" />
         <activity
-            android:name=".mainActivity.MainCreatorActivity"
-            android:exported="false"
-            android:theme="@style/Theme.DogMeet.NoActionBar" />
-        <activity
             android:name=".Meeting.EditMeetingActivity"
             android:exported="false" />
         <activity

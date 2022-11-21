@@ -13,7 +13,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,17 +29,15 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.dogmeet.Constant;
-import com.example.dogmeet.Fragment.Map.MeetingMarkerAdapter;
+import com.example.dogmeet.Fragment.Map.ListMeetingAdapter;
 import com.example.dogmeet.Meeting.MeetingActivity;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
-import com.example.dogmeet.mainActivity.LoginActivity;
 import com.example.dogmeet.model.Meeting;
 import com.example.dogmeet.model.Pet;
 import com.example.dogmeet.model.User;
@@ -48,7 +45,6 @@ import com.google.android.gms.tasks.Continuation;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.SuccessContinuation;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -81,7 +77,7 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
     private ArrayList<Meeting> meetingArrayList;
     private RecyclerView recyclerView, recyclerView2;
     private PetAdapter petAdapter;
-    private MeetingMarkerAdapter meetingMarkerAdapter;
+    private ListMeetingAdapter meetingMarkerAdapter;
     private Boolean editPet, isPetAvatar;
     FirebaseAuth auth;
     String petUid, genderPet;
@@ -133,7 +129,7 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
         recyclerView2=view.findViewById(R.id.r_v_meetings);
         recyclerView2.setHasFixedSize(true);
 
-        meetingMarkerAdapter= new MeetingMarkerAdapter(meetingArrayList, this);
+        meetingMarkerAdapter= new ListMeetingAdapter(meetingArrayList, this);
 
         recyclerView2.setItemAnimator(new DefaultItemAnimator());
         recyclerView2.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL, false));
@@ -322,7 +318,7 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
         AlertDialog.Builder dialog=new AlertDialog.Builder(getContext());
 
         LayoutInflater inflator= LayoutInflater.from(getContext());
-        View add_pet_window = inflator.inflate(R.layout.item_edit_pet, null);
+        View add_pet_window = inflator.inflate(R.layout.window_edit_pet, null);
         dialog.setView(add_pet_window);
 
         final EditText namePet= add_pet_window.findViewById(R.id.editName);
@@ -431,7 +427,7 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
         AlertDialog.Builder dialog=new AlertDialog.Builder(getContext());
 
         LayoutInflater inflator= LayoutInflater.from(getContext());
-        View register_window= inflator.inflate(R.layout.item_edit_pet, null);
+        View register_window= inflator.inflate(R.layout.window_edit_pet, null);
         dialog.setView(register_window);
 
         final EditText namePet=register_window.findViewById(R.id.editName);
@@ -629,6 +625,7 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
 
     public void getMeeting(){
         if (meetUidList.size()>0){
+            if (meetingArrayList.size()>0) meetingArrayList.clear();
             for (String meetingUid: meetUidList){
                 myMeet = FirebaseDatabase.getInstance().getReference("meeting").child(meetingUid);
 
@@ -652,7 +649,7 @@ public class ProfileFragment extends Fragment implements RecyclerViewInterface{
                     }
                 };
 
-                myMeet.addValueEventListener(meetListener);
+                myMeet.addListenerForSingleValueEvent(meetListener);
             }
         }
         else {

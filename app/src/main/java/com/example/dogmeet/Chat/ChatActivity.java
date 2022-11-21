@@ -39,7 +39,7 @@ import java.util.UUID;
 
 public class ChatActivity extends AppCompatActivity {
     private Toolbar toolbar;
-    private String uidUser, uid, chatUid;
+    private String uidUser, uid;
     private ArrayList<Message> messages;
     private RecyclerView recyclerView;
     private ChatAdapter chatAdapter;

@@ -1,13 +1,14 @@
 package com.example.dogmeet.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 
 public class Place {
-    private String address, image, type, contact, openHours, rating, name;
+    private String address, image, type, contact, openHours, rating, name, uid;
     private Double latitude, longitude;
 
     public Place(String address, Double latitude, Double longitude, String image, String type,
-                 String contact, String openHours, String rating, String name) {
+                 String contact, String openHours, String rating, String name, String uid) {
         this.address = address;
         this.latitude = latitude;
         this.longitude =longitude;
@@ -17,10 +18,19 @@ public class Place {
         this.openHours=openHours;
         this.rating=rating;
         this.name=name;
+        this.uid=uid;
     }
 
     public Place(){
 
+    }
+
+    public String getUid() {
+        return uid;
+    }
+
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public void setName(String name) {

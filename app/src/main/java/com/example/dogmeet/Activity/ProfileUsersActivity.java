@@ -7,7 +7,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,13 +21,11 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.example.dogmeet.Chat.ChatActivity;
 import com.example.dogmeet.Constant;
-import com.example.dogmeet.Fragment.Map.MeetingMarkerAdapter;
+import com.example.dogmeet.Fragment.Map.ListMeetingAdapter;
 import com.example.dogmeet.Meeting.MeetingActivity;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
 import com.example.dogmeet.Fragment.Profile.PetAdapter;
-import com.example.dogmeet.mainActivity.AddActivity;
-import com.example.dogmeet.mainActivity.LoginActivity;
 import com.example.dogmeet.model.Meeting;
 import com.example.dogmeet.model.Pet;
 import com.example.dogmeet.model.User;
@@ -53,7 +50,7 @@ public class ProfileUsersActivity extends AppCompatActivity implements RecyclerV
     private PetAdapter petAdapter;
     private ArrayList<String> meetUidList;
     private ArrayList<Meeting> meetingArrayList;
-    private MeetingMarkerAdapter meetingMarkerAdapter;
+    private ListMeetingAdapter meetingMarkerAdapter;
     private ConstraintLayout contact;
     private Boolean activeSubscription=false;
     private FirebaseAuth auth;
@@ -171,7 +168,7 @@ public class ProfileUsersActivity extends AppCompatActivity implements RecyclerV
         recyclerView2=findViewById(R.id.r_v_meetings);
         recyclerView2.setHasFixedSize(true);
 
-        meetingMarkerAdapter= new MeetingMarkerAdapter(meetingArrayList, this);
+        meetingMarkerAdapter= new ListMeetingAdapter(meetingArrayList, this);
 
         recyclerView2.setItemAnimator(new DefaultItemAnimator());
         recyclerView2.setLayoutManager(new LinearLayoutManager(ProfileUsersActivity.this,LinearLayoutManager.VERTICAL, false));
@@ -274,6 +271,7 @@ public class ProfileUsersActivity extends AppCompatActivity implements RecyclerV
     public void getMeeting(){
         if (meetUidList.size()>0){
             meetText.setVisibility(View.VISIBLE);
+            if (meetingArrayList.size()>0) meetingArrayList.clear();
             for (String meetingUid: meetUidList){
                 DatabaseReference myMeet = FirebaseDatabase.getInstance().getReference("meeting").child(meetingUid);
 
@@ -297,7 +295,7 @@ public class ProfileUsersActivity extends AppCompatActivity implements RecyclerV
                     }
                 };
 
-                myMeet.addValueEventListener(meetListener);
+                myMeet.addListenerForSingleValueEvent(meetListener);
             }
         }
         else {

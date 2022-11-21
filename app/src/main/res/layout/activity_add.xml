@@ -43,7 +43,7 @@
                 app:srcCompat="@drawable/ic_image" />
 
             <TextView
-                android:id="@+id/typeMeet"
+                android:id="@+id/typePlace"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/montserrat"

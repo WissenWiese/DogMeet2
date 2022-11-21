@@ -23,6 +23,14 @@
         android:layout_height="match_parent">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/floatingActionButtonSearch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:src="@android:drawable/ic_menu_search"
+            app:backgroundTint="@color/text" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/floatingActionButton3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -87,7 +95,8 @@
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:id="@+id/coordinatorLayout"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:backgroundTint="#FFFFFF">
 
             <FrameLayout
                 android:id="@+id/containerBottomSheet"
@@ -96,6 +105,7 @@
                 app:behavior_hideable="true"
                 app:behavior_peekHeight="0dp"
                 app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior" />
+
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 

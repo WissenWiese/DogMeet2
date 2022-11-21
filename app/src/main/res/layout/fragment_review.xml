@@ -97,6 +97,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
             android:layout_marginTop="10dp">
 
             <TextView
@@ -106,20 +107,23 @@
                 android:fontFamily="@font/montserrat"
                 android:text="Участники:"
                 android:textSize="16sp"
-                tools:layout_editor_absoluteX="24dp" />
+                app:layout_constraintStart_toStartOf="parent" />
 
             <TextView
                 android:id="@+id/meetNumber"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="5dp"
                 android:clickable="true"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                app:layout_constraintBottom_toBottomOf="@+id/textViewMember"
+                app:layout_constraintStart_toEndOf="@+id/textViewMember" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_view_user"
             android:layout_width="300dp"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             android:layout_marginStart="24dp"
             android:layout_marginTop="5dp"
             android:orientation="horizontal" />

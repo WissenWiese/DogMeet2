@@ -173,38 +173,4 @@ public class LoginActivity extends AppCompatActivity {
 
         dialog.show();
     }
-
-    private void loginIn(){
-
-        creator = FirebaseDatabase.getInstance().getReference("creator");
-
-        creator.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot snapshot) {
-                for(DataSnapshot dataSnapshot : snapshot.getChildren())
-                {
-                    if (dataSnapshot.getKey()==auth.getUid()){
-                        IsCreator=true;
-                        startActivity(new Intent(LoginActivity.this, MainCreatorActivity.class));
-                        finish();
-                        break;
-                    }
-                }
-                Toast.makeText(getApplicationContext(), "С возвращением!", Toast.LENGTH_LONG).show();
-                if (!IsCreator){
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                    finish();
-                }
-
-            }
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
-
-
-    }
-
 }

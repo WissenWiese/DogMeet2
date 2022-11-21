@@ -3,6 +3,7 @@ package com.example.dogmeet.Fragment.ListMeet;
 import static com.example.dogmeet.Constant.URI;
 
 import android.content.Context;
+import android.os.Build;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 
@@ -20,6 +22,8 @@ import com.example.dogmeet.RecyclerViewInterface;
 import com.example.dogmeet.model.Meeting;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 
 public class MeetingAdapter extends RecyclerView.Adapter<MeetingAdapter.MeetingViewHolder>{
@@ -73,9 +77,9 @@ public class MeetingAdapter extends RecyclerView.Adapter<MeetingAdapter.MeetingV
         }
     }
 
-    public MeetingAdapter(ArrayList<Meeting> meetings, RecyclerViewInterface recyclerViewInterface) {
-        mMeetings=meetings;
+    public MeetingAdapter(RecyclerViewInterface recyclerViewInterface, ArrayList<Meeting> meetings) {
         this.recyclerViewInterface=recyclerViewInterface;
+        mMeetings=meetings;
     }
 
     @Override
@@ -112,6 +116,31 @@ public class MeetingAdapter extends RecyclerView.Adapter<MeetingAdapter.MeetingV
 
     public void filterList(ArrayList<Meeting> filterlist) {
         mMeetings = filterlist;
+        notifyDataSetChanged();
+    }
+
+    public void setList(ArrayList<Meeting> meetingslist) {
+        mMeetings = meetingslist;
+        notifyDataSetChanged();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public  void sortByPopular(){
+        Collections.sort(mMeetings, Comparator.comparing(Meeting::getNumberMember)
+                .thenComparing(Meeting::getNumberComments));
+        notifyDataSetChanged();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void sortByDate(){
+        Collections.sort(mMeetings, Comparator.comparing(Meeting::getDate));
+        Collections.reverse(mMeetings);
+        notifyDataSetChanged();
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    public void sort(){
+        Collections.sort(mMeetings, Comparator.comparing(Meeting::getUid));
         notifyDataSetChanged();
     }
 }

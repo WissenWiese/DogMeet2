@@ -1,7 +1,6 @@
 package com.example.dogmeet.Fragment.Map;
 
 import android.content.Intent;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
@@ -18,12 +17,11 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.example.dogmeet.Constant;
-import com.example.dogmeet.Fragment.Profile.PetAdapter;
+import com.example.dogmeet.Fragment.ListMeet.MeetingData;
 import com.example.dogmeet.Meeting.MeetingActivity;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
 import com.example.dogmeet.model.Meeting;
-import com.example.dogmeet.model.Pet;
 import com.example.dogmeet.model.Place;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -31,9 +29,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.mapbox.mapboxsdk.annotations.IconFactory;
-import com.mapbox.mapboxsdk.annotations.MarkerOptions;
-import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import java.util.ArrayList;
 
@@ -47,10 +42,11 @@ public class PlaceFragment extends Fragment implements RecyclerViewInterface {
     private ArrayList<String> meetUidList;
     private ArrayList<Meeting> meetingArrayList;
     private RecyclerView recyclerView;
-    private MeetingMarkerAdapter meetingMarkerAdapter;
+    private ListMeetingAdapter listMeetingAdapter;
     private TextView namePlace, notMeeting, ratingTextView, type, contact, openHours, address;
     float rating;
     private RatingBar ratingBar;
+    private MeetingData meetingData;
 
 
     public PlaceFragment() {
@@ -97,57 +93,17 @@ public class PlaceFragment extends Fragment implements RecyclerViewInterface {
         recyclerView=view.findViewById(R.id.place_meeting);
         recyclerView.setHasFixedSize(true);
 
-        meetingMarkerAdapter= new MeetingMarkerAdapter(meetingArrayList, this);
+        listMeetingAdapter = new ListMeetingAdapter(meetingArrayList, this);
 
         recyclerView.setItemAnimator(new DefaultItemAnimator());
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.VERTICAL, false));
-        recyclerView.setAdapter(meetingMarkerAdapter);
+        recyclerView.setAdapter(listMeetingAdapter);
 
         place= FirebaseDatabase.getInstance().getReference("places").child(placeUid);
+        myMeet = FirebaseDatabase.getInstance().getReference("meeting");
 
-        ValueEventListener placeListener = new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                Place place=snapshot.getValue(Place.class);
-                String typeText=place.getType();
-                type.setText(typeText);
-                if (!place.getType().equals("Парк")){
-                    //group.setVisibility(View.VISIBLE);
-                    address.setVisibility(View.VISIBLE);
-                    address.setText(place.getAddress());
-                    //contact.setText(place.getContact());
-                    //openHours.setText(place.getOpenHours());
-                }
-                else {
-                    //group.setVisibility(View.GONE);
-                    address.setVisibility(View.GONE);
-                }
-                if (place.getRating()!=null){
-                    ratingTextView.setText(place.getRating());
-                }
-                if (meetUidList.size()>0) meetUidList.clear();
-                for(DataSnapshot dataSnapshot : snapshot.child("meetings").getChildren())
-                {
-                    String meetUid=dataSnapshot.getKey();
-                    if (meetUid!=null){
-                        meetUidList.add(meetUid);
-                    }
-                }
-                for(DataSnapshot dataSnapshot1 : snapshot.child("ratingList").getChildren())
-                {
-                    if (dataSnapshot1.getKey().equals(uid)){
-                        ratingBar.setRating(Float.valueOf(dataSnapshot1.getValue(String.class)));
-                    }
-                }
-                getMeeting();
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        };
-        place.addValueEventListener(placeListener);
+        PlaceData placeData=new PlaceData(place);
+        placeData.getPlace(this);
 
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
@@ -184,39 +140,34 @@ public class PlaceFragment extends Fragment implements RecyclerViewInterface {
 
     }
 
-    public void getMeeting(){
-        if (meetUidList.size()>0){
-            notMeeting.setVisibility(View.GONE);
-            recyclerView.setVisibility(View.VISIBLE);
-            for (String meetingUid: meetUidList){
-                myMeet = FirebaseDatabase.getInstance().getReference("meeting").child(meetingUid);
-
-                ValueEventListener meetListener = new ValueEventListener() {
-                    @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        {
-                            Meeting meeting = snapshot.getValue(Meeting.class);
-                            if (meeting != null) {
-                                meeting.setUid(snapshot.getKey());
-                                meetingArrayList.add(meeting);
-                            }
-
-                        }
-                        meetingMarkerAdapter.notifyDataSetChanged();
-                    }
-
-                    @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-
-                    }
-                };
-
-                myMeet.addValueEventListener(meetListener);
-            }
+    public void setPlace(Place place,  ArrayList<String> meetingsUid){
+        String typeText=place.getType();
+        type.setText(typeText);
+        if (!place.getType().equals("Парк")){
+            address.setVisibility(View.VISIBLE);
+            address.setText(place.getAddress());
         }
         else {
+            address.setVisibility(View.GONE);
+        }
+        if (place.getRating()!=null){
+            ratingTextView.setText(place.getRating());
+        }
+
+        if (meetingsUid.isEmpty()){
             notMeeting.setVisibility(View.VISIBLE);
             recyclerView.setVisibility(View.GONE);
         }
+        else {
+            meetingData=new MeetingData(myMeet);
+            meetingData.getMeetings(meetingsUid, this);
+            notMeeting.setVisibility(View.GONE);
+            recyclerView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    public void setMeeting(ArrayList<Meeting> meetings){
+        listMeetingAdapter.setList(meetings);
+        meetingArrayList=meetings;
     }
 }

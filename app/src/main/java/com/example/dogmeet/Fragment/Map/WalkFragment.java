@@ -22,6 +22,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.dogmeet.Fragment.ListMeet.MeetingData;
 import com.example.dogmeet.Meeting.CommentsFragment;
 import com.example.dogmeet.Meeting.UserAdapter;
 import com.example.dogmeet.R;
@@ -56,6 +57,7 @@ public class WalkFragment extends Fragment implements RecyclerViewInterface {
     private TextView textPets;
     private EditText editMessage;
     private ArrayList<Integer> selected = new ArrayList<>();
+    private String uid;
 
     public WalkFragment() {
 
@@ -109,7 +111,7 @@ public class WalkFragment extends Fragment implements RecyclerViewInterface {
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext(),LinearLayoutManager.HORIZONTAL, false));
         recyclerView.setAdapter(petsAdapter);
 
-        String uid=FirebaseAuth.getInstance().getCurrentUser().getUid();
+        uid=FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         pets=FirebaseDatabase.getInstance().getReference("Users").child(uid).child("pets");
 
@@ -151,10 +153,9 @@ public class WalkFragment extends Fragment implements RecyclerViewInterface {
 
                     walker.setLatitude(String.valueOf(latitude));
                     walker.setLongitude(String.valueOf(longitude));
+                    isWalk=true;
 
-                    users = FirebaseDatabase.getInstance().getReference("Users").child(FirebaseAuth.getInstance()
-                            .getCurrentUser()
-                            .getUid());
+                    users = FirebaseDatabase.getInstance().getReference("Users").child(uid);
 
                     users.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
@@ -169,7 +170,7 @@ public class WalkFragment extends Fragment implements RecyclerViewInterface {
                             if (selectedPets.size()>0){
                                 walker.setPets(selectedPets);
                             }
-                            else if (selectedPets.size()==1) {
+                            else if (mPets.size()==1) {
                                 walker.setPets(mPets);
                             }
                             else {
@@ -179,19 +180,22 @@ public class WalkFragment extends Fragment implements RecyclerViewInterface {
                             FirebaseDatabase.getInstance()
                                     .getReference()
                                     .child("walker")
-                                    .child(dataSnapshot.getKey())
+                                    .child(uid)
                                     .setValue(walker).addOnCompleteListener(new OnCompleteListener<Void>() {
                                         @Override
                                         public void onComplete(@NonNull Task<Void> task) {
                                             if (task.isSuccessful()){
                                                 walkAction.setText("Завершить прогулку");
-                                                isWalk=true;
                                                 recyclerView.setVisibility(View.GONE);
                                                 textPets.setVisibility(View.GONE);
                                                 editMessage.setVisibility(View.GONE);
+                                                Bundle result = new Bundle();
+                                                result.putBoolean("isWalk", isWalk);
+                                                getParentFragmentManager().setFragmentResult("requestKey", result);
                                             }
                                         }
                                     });
+
                         }
                         @Override
                         public void onCancelled(DatabaseError databaseError) {
@@ -207,12 +211,10 @@ public class WalkFragment extends Fragment implements RecyclerViewInterface {
                         recyclerView.setVisibility(View.VISIBLE);
                     }
                     isWalk=false;
+                    Bundle result = new Bundle();
+                    result.putBoolean("isWalk", isWalk);
+                    getParentFragmentManager().setFragmentResult("requestKey", result);
                 }
-                Bundle result = new Bundle();
-                result.putBoolean("isWalk", isWalk);
-                // The child fragment needs to still set the result on its parent fragment manager
-                getParentFragmentManager().setFragmentResult("requestKey", result);
-
 
             }
         });
@@ -237,5 +239,4 @@ public class WalkFragment extends Fragment implements RecyclerViewInterface {
     public void OnButtonClick(int position) {
 
     }
-
 }
