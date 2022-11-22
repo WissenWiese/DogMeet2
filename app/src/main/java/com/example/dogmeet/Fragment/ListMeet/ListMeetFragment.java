@@ -1,26 +1,11 @@
 package com.example.dogmeet.Fragment.ListMeet;
 
-import android.annotation.SuppressLint;
-import android.app.DatePickerDialog;
 import android.content.Intent;
-import android.content.res.AssetManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CheckedTextView;
-import android.widget.DatePicker;
-import android.widget.ImageButton;
-import android.widget.Spinner;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -37,36 +22,13 @@ import com.example.dogmeet.Meeting.MeetingActivity;
 import com.example.dogmeet.Constant;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
-import com.example.dogmeet.model.Meeting;
+import com.example.dogmeet.entity.Meeting;
 import com.example.dogmeet.mainActivity.AddActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.Objects;
 
 public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
     private ArrayList<Meeting> meetings, updateList;
@@ -131,7 +93,7 @@ public class ListMeetFragment extends Fragment implements RecyclerViewInterface{
         recyclerView.addItemDecoration(new DividerItemDecoration(getActivity(), LinearLayoutManager.VERTICAL));
         recyclerView.setAdapter(meetingAdapter);
 
-        MeetingData meetingData=new MeetingData(myMeet);
+        MeetingModel meetingData=new MeetingModel(myMeet);
         meetingData.attachView(this);
         meetingData.loadMeetings();
 

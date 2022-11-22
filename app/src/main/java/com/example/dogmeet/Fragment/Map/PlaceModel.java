@@ -1,36 +1,22 @@
 package com.example.dogmeet.Fragment.Map;
 
-import android.graphics.BitmapFactory;
-import android.view.View;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
-import com.example.dogmeet.Fragment.ListMeet.ListMeetFragment;
-import com.example.dogmeet.Fragment.ListMeet.MeetingData;
-import com.example.dogmeet.model.Meeting;
-import com.example.dogmeet.model.Place;
-import com.google.firebase.database.ChildEventListener;
+import com.example.dogmeet.entity.Place;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.MutableData;
-import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
-import com.mapbox.mapboxsdk.annotations.IconFactory;
-import com.mapbox.mapboxsdk.annotations.MarkerOptions;
-import com.mapbox.mapboxsdk.geometry.LatLng;
 
 import java.util.ArrayList;
 
-public class PlaceData {
+public class PlaceModel {
 
     private final DatabaseReference placeDB;
     private ArrayList<Place> places;
     private MapFragment view;
 
-    public PlaceData(DatabaseReference placeDB){
+    public PlaceModel(DatabaseReference placeDB){
         this.placeDB=placeDB;
     }
 
@@ -63,7 +49,7 @@ public class PlaceData {
         placeDB.addValueEventListener(placeListener);
     }
 
-    public void getPlace(PlaceFragment view){
+    public void getPlace(PlaceFragment view, String uid){
         ArrayList<String> meetUidList=new ArrayList<>();
         ValueEventListener placeListener = new ValueEventListener() {
             @Override
@@ -74,8 +60,8 @@ public class PlaceData {
                 {
                     meetUidList.add(dataSnapshot.getKey());
                 }
-
-                view.setPlace(place, meetUidList);
+                String mRating=snapshot.child("ratingList").child(uid).getValue(String.class);
+                view.setPlace(place, meetUidList, mRating);
             }
 
             @Override

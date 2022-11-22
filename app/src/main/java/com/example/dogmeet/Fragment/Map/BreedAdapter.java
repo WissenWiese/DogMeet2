@@ -1,21 +1,16 @@
 package com.example.dogmeet.Fragment.Map;
 
-import static com.example.dogmeet.Constant.URI;
-
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
-import com.example.dogmeet.model.User;
 
 import java.util.ArrayList;
 
@@ -34,6 +29,19 @@ public class BreedAdapter extends RecyclerView.Adapter<BreedAdapter.BreedViewHol
             super(itemView);
             breed =itemView.findViewById(R.id.breed);
             deleteBreed=itemView.findViewById(R.id.deleteBreed);
+
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (recyclerViewInterface!=null){
+                        int pos=getAdapterPosition();
+
+                        if (pos!=RecyclerView.NO_POSITION){
+                            recyclerViewInterface.OnItemClick(pos);
+                        }
+                    }
+                }
+            });
 
             deleteBreed.setOnClickListener(new View.OnClickListener() {
                 @Override

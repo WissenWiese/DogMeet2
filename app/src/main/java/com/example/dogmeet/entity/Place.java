@@ -1,7 +1,4 @@
-package com.example.dogmeet.model;
-
-import java.util.ArrayList;
-import java.util.Date;
+package com.example.dogmeet.entity;
 
 public class Place {
     private String address, image, type, contact, openHours, rating, name, uid;

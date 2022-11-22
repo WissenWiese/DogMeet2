@@ -16,10 +16,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
 
-import com.example.dogmeet.Fragment.ListMeet.MeetingData;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
 
@@ -41,8 +39,8 @@ public class SearchFragment extends Fragment implements View.OnClickListener, Re
     private AutoCompleteTextView editBreed;
     private RecyclerView recyclerView;
     private BreedAdapter breedAdapter;
-    private WalkerData walkerData;
-    private PlaceData placeData;
+    private WalkerModel walkerData;
+    private PlaceModel placeData;
 
 
 
@@ -134,6 +132,7 @@ public class SearchFragment extends Fragment implements View.OnClickListener, Re
                                                       addsBreedsList.add(editBreed.getText().toString());
                                                       breedAdapter.notifyDataSetChanged();
                                                       editBreed.setText(null);
+                                                      walkerData.filterPet(gender, sizeList, addsBreedsList);
                                                   }
                                               }
                                               return true;
@@ -181,9 +180,6 @@ public class SearchFragment extends Fragment implements View.OnClickListener, Re
                 break;
             case R.id.buttonCafe:
                 setPlace(btnCafe);
-                break;
-            case R.id.addBtn:
-                addBreed();
                 break;
         }
     }
@@ -303,7 +299,9 @@ public class SearchFragment extends Fragment implements View.OnClickListener, Re
 
     @Override
     public void OnItemClick(int position) {
-
+        addsBreedsList.remove(position);
+        breedAdapter.notifyDataSetChanged();
+        walkerData.filterPet(gender, sizeList, addsBreedsList);
     }
 
     @Override
@@ -313,7 +311,7 @@ public class SearchFragment extends Fragment implements View.OnClickListener, Re
         walkerData.filterPet(gender, sizeList, addsBreedsList);
     }
 
-    public void setModel(WalkerData walkerData, PlaceData placeData){
+    public void setModel(WalkerModel walkerData, PlaceModel placeData){
         this.walkerData=walkerData;
         this.placeData=placeData;
     }

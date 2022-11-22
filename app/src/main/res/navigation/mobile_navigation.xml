@@ -31,7 +31,7 @@
 
     <fragment
         android:id="@+id/nav_messager"
-        android:name="com.example.dogmeet.Fragment.Chats.ChatsFragment"
+        android:name="com.example.dogmeet.Fragment.ChatsList.ChatsFragment"
         android:label="Чаты"
         tools:layout="@layout/fragment_messager" />
 

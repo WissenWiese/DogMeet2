@@ -25,7 +25,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.example.dogmeet.R;
-import com.example.dogmeet.model.Meeting;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -38,8 +37,6 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Date;
 
 
@@ -55,7 +52,7 @@ public class FilterFragment extends Fragment implements View.OnClickListener {
     int click;
     LocalDate dateMin, dateMax;
     private ArrayList<String> sizeList, typeList, myMeetList, meetList;
-    private MeetingData meetingData;
+    private MeetingModel meetingData;
 
     public FilterFragment() {
 
@@ -386,7 +383,7 @@ public class FilterFragment extends Fragment implements View.OnClickListener {
         button.setTextColor(R.color.primary_dark);
     }
 
-    public void setModel(MeetingData meetingData){
+    public void setModel(MeetingModel meetingData){
         this.meetingData=meetingData;
     }
 }

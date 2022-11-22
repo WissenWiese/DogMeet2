@@ -1,4 +1,4 @@
-package com.example.dogmeet.model;
+package com.example.dogmeet.entity;
 
 import java.util.ArrayList;
 

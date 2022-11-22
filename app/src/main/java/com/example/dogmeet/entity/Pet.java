@@ -1,4 +1,4 @@
-package com.example.dogmeet.model;
+package com.example.dogmeet.entity;
 
 public class Pet {
     private String name, avatar_pet, petUid, gender, breed, size;

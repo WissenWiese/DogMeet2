@@ -1,19 +1,14 @@
 package com.example.dogmeet.Fragment.Map;
 
-import static android.content.ContentValues.TAG;
-
-import android.content.Context;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,15 +17,11 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.dogmeet.Fragment.ListMeet.MeetingData;
-import com.example.dogmeet.Meeting.CommentsFragment;
-import com.example.dogmeet.Meeting.UserAdapter;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
-import com.example.dogmeet.mainActivity.AddActivity;
-import com.example.dogmeet.model.Pet;
-import com.example.dogmeet.model.User;
-import com.example.dogmeet.model.Walker;
+import com.example.dogmeet.entity.Pet;
+import com.example.dogmeet.entity.User;
+import com.example.dogmeet.entity.Walker;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -39,7 +30,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.messaging.FirebaseMessaging;
 
 import java.util.ArrayList;
 

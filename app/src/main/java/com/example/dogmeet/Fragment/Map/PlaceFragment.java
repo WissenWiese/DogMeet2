@@ -3,7 +3,6 @@ package com.example.dogmeet.Fragment.Map;
 import android.content.Intent;
 import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.constraintlayout.widget.Group;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -17,18 +16,15 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.example.dogmeet.Constant;
-import com.example.dogmeet.Fragment.ListMeet.MeetingData;
+import com.example.dogmeet.Fragment.ListMeet.MeetingModel;
 import com.example.dogmeet.Meeting.MeetingActivity;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
-import com.example.dogmeet.model.Meeting;
-import com.example.dogmeet.model.Place;
+import com.example.dogmeet.entity.Meeting;
+import com.example.dogmeet.entity.Place;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 
@@ -46,7 +42,7 @@ public class PlaceFragment extends Fragment implements RecyclerViewInterface {
     private TextView namePlace, notMeeting, ratingTextView, type, contact, openHours, address;
     float rating;
     private RatingBar ratingBar;
-    private MeetingData meetingData;
+    private MeetingModel meetingData;
 
 
     public PlaceFragment() {
@@ -102,8 +98,8 @@ public class PlaceFragment extends Fragment implements RecyclerViewInterface {
         place= FirebaseDatabase.getInstance().getReference("places").child(placeUid);
         myMeet = FirebaseDatabase.getInstance().getReference("meeting");
 
-        PlaceData placeData=new PlaceData(place);
-        placeData.getPlace(this);
+        PlaceModel placeData=new PlaceModel(place);
+        placeData.getPlace(this, uid);
 
         ratingBar.setOnRatingBarChangeListener(new RatingBar.OnRatingBarChangeListener() {
             @Override
@@ -140,7 +136,7 @@ public class PlaceFragment extends Fragment implements RecyclerViewInterface {
 
     }
 
-    public void setPlace(Place place,  ArrayList<String> meetingsUid){
+    public void setPlace(Place place,  ArrayList<String> meetingsUid, String mRating){
         String typeText=place.getType();
         type.setText(typeText);
         if (!place.getType().equals("Парк")){
@@ -159,10 +155,13 @@ public class PlaceFragment extends Fragment implements RecyclerViewInterface {
             recyclerView.setVisibility(View.GONE);
         }
         else {
-            meetingData=new MeetingData(myMeet);
+            meetingData=new MeetingModel(myMeet);
             meetingData.getMeetings(meetingsUid, this);
             notMeeting.setVisibility(View.GONE);
             recyclerView.setVisibility(View.VISIBLE);
+        }
+        if (mRating!=null){
+            ratingBar.setRating(Float.valueOf(mRating));
         }
     }
 

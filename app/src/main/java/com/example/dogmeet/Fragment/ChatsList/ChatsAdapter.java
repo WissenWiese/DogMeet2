@@ -1,4 +1,4 @@
-package com.example.dogmeet.Fragment.Chats;
+package com.example.dogmeet.Fragment.ChatsList;
 
 import static com.example.dogmeet.Constant.URI;
 
@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
-import com.example.dogmeet.model.Chat;
+import com.example.dogmeet.entity.Chat;
 
 import java.util.ArrayList;
 

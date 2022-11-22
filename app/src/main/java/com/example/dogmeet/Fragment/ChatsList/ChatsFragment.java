@@ -1,4 +1,4 @@
-package com.example.dogmeet.Fragment.Chats;
+package com.example.dogmeet.Fragment.ChatsList;
 
 import android.content.Intent;
 import android.os.Build;
@@ -20,9 +20,9 @@ import com.example.dogmeet.Chat.ChatActivity;
 import com.example.dogmeet.Constant;
 import com.example.dogmeet.R;
 import com.example.dogmeet.RecyclerViewInterface;
-import com.example.dogmeet.model.Chat;
-import com.example.dogmeet.model.Message;
-import com.example.dogmeet.model.User;
+import com.example.dogmeet.entity.Chat;
+import com.example.dogmeet.entity.Message;
+import com.example.dogmeet.entity.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;

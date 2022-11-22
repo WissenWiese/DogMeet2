@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.example.dogmeet.R;
-import com.example.dogmeet.model.Message;
+import com.example.dogmeet.entity.Message;
 
 import java.util.ArrayList;
 

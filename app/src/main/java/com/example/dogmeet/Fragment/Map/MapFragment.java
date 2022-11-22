@@ -23,12 +23,10 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentResultListener;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.example.dogmeet.Fragment.ListMeet.MeetingData;
 import com.example.dogmeet.R;
-import com.example.dogmeet.model.Doghanting;
-import com.example.dogmeet.model.Pet;
-import com.example.dogmeet.model.Place;
-import com.example.dogmeet.model.Walker;
+import com.example.dogmeet.entity.Doghanting;
+import com.example.dogmeet.entity.Place;
+import com.example.dogmeet.entity.Walker;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -39,11 +37,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.RemoteMessage;
 import com.mapbox.android.core.permissions.PermissionsListener;
 import com.mapbox.android.core.permissions.PermissionsManager;
-import com.mapbox.geojson.Point;
 import com.mapbox.mapboxsdk.Mapbox;
 import com.mapbox.mapboxsdk.annotations.IconFactory;
 import com.mapbox.mapboxsdk.annotations.Marker;
@@ -56,7 +51,6 @@ import com.mapbox.mapboxsdk.maps.MapboxMap;
 import com.mapbox.mapboxsdk.maps.OnMapReadyCallback;
 import com.mapbox.mapboxsdk.style.layers.SymbolLayer;
 import com.mapbox.mapboxsdk.style.sources.GeoJsonSource;
-import com.mapbox.turf.TurfMeasurement;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,8 +75,8 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
     private Boolean isWalk=false, hasAttention=false;
     private DatabaseReference doghanting, walkers, place;
     private String uid;
-    WalkerData walkerData;
-    PlaceData placeData;
+    WalkerModel walkerData;
+    PlaceModel placeData;
     Timer myTimer;
 
     @Override
@@ -216,12 +210,12 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
         loadingDoghanter(mapboxMap);
 
         walkers=FirebaseDatabase.getInstance().getReference("walker");
-        walkerData=new WalkerData(walkers);
+        walkerData=new WalkerModel(walkers);
         walkerData.attachView(this);
         walkerData.loadWalkers(uid);
 
         place=FirebaseDatabase.getInstance().getReference("places");
-        placeData=new PlaceData(place);
+        placeData=new PlaceModel(place);
         placeData.attachView(this);
         placeData.loadPlace();
     }
@@ -500,7 +494,6 @@ public class MapFragment extends Fragment  implements OnMapReadyCallback, Permis
 
                 }
             }
-
         }
     }
 }

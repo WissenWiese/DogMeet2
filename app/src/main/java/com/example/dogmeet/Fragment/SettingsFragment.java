@@ -17,7 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.dogmeet.R;
-import com.example.dogmeet.model.User;
+import com.example.dogmeet.entity.User;
 import com.example.dogmeet.mainActivity.LoginActivity;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;

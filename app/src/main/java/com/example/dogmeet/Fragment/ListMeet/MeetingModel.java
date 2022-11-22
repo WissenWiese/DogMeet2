@@ -4,17 +4,13 @@ import android.os.Build;
 import android.text.format.DateFormat;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.example.dogmeet.Fragment.Map.PlaceFragment;
-import com.example.dogmeet.model.Meeting;
-import com.google.firebase.database.ChildEventListener;
+import com.example.dogmeet.entity.Meeting;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.Query;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.ParseException;
@@ -24,13 +20,13 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class MeetingData {
+public class MeetingModel {
 
     private final DatabaseReference myMeet;
     private ListMeetFragment view;
     private ArrayList<Meeting> meetings;
 
-    public MeetingData(DatabaseReference myMeet) {
+    public MeetingModel(DatabaseReference myMeet) {
         this.myMeet=myMeet;
     }
 

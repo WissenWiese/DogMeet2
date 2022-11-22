@@ -16,18 +16,15 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.dogmeet.Constant;
-import com.example.dogmeet.MyFirebaseMessagingService;
 import com.example.dogmeet.R;
-import com.example.dogmeet.model.Message;
-import com.example.dogmeet.model.User;
+import com.example.dogmeet.entity.Message;
+import com.example.dogmeet.entity.User;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.iid.FirebaseInstanceIdReceiver;
-import com.google.firebase.iid.internal.FirebaseInstanceIdInternal;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.RemoteMessage;
 
@@ -35,7 +32,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 public class ChatActivity extends AppCompatActivity {
     private Toolbar toolbar;

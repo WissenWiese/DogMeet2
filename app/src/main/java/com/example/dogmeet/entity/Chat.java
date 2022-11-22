@@ -1,4 +1,4 @@
-package com.example.dogmeet.model;
+package com.example.dogmeet.entity;
 
 public class Chat {
     private String recipient, name, url, uid, lastMessage, lastUid;

@@ -2,7 +2,7 @@ package com.example.dogmeet;
 
 import androidx.annotation.NonNull;
 
-import com.example.dogmeet.model.User;
+import com.example.dogmeet.entity.User;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;

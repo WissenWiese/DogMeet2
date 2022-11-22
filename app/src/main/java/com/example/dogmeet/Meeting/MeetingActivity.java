@@ -27,8 +27,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.dogmeet.Constant;
 import com.example.dogmeet.R;
-import com.example.dogmeet.model.Message;
-import com.example.dogmeet.model.Meeting;
+import com.example.dogmeet.entity.Message;
+import com.example.dogmeet.entity.Meeting;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.tabs.TabLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -37,8 +37,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.messaging.FirebaseMessaging;
-import com.google.firebase.messaging.RemoteMessage;
 
 import java.util.Date;
 
